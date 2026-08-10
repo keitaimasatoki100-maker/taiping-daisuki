@@ -187,49 +187,57 @@
     </div>
 
     <!-- SETTINGS MODAL -->
-    <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-md w-full p-6 relative">
-            <h2 class="text-xl font-black text-slate-800 text-center mb-5 flex items-center justify-center gap-2">
+    <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-md w-full p-4 sm:p-5 relative my-auto max-h-[92vh] flex flex-col">
+            <h2 class="text-lg sm:text-xl font-black text-slate-800 text-center mb-3 flex items-center justify-center gap-2 shrink-0">
                 <i class="fa-solid fa-gear text-indigo-500"></i> ゲーム設定
             </h2>
             
-            <div class="space-y-4 text-sm font-bold text-slate-700">
+            <div class="space-y-2.5 sm:space-y-3 text-xs sm:text-sm font-bold text-slate-700 overflow-y-auto pr-1 flex-1">
                 <!-- Sound Option -->
-                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                <div class="flex items-center justify-between bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100">
                     <span class="flex items-center gap-2"><i class="fa-solid fa-volume-high text-sky-500"></i> 効果音</span>
-                    <button id="modal-sound-btn" class="px-5 py-1.5 rounded-xl text-white font-black bg-sky-500 hover:bg-sky-600 transition shadow-sm">
+                    <button id="modal-sound-btn" class="px-4 py-1.5 rounded-xl text-white font-black bg-sky-500 hover:bg-sky-600 transition shadow-sm">
                         ON
                     </button>
                 </div>
                 <!-- Ruby Option -->
-                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                <div class="flex items-center justify-between bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100">
                     <span class="flex items-center gap-2"><i class="fa-solid fa-language text-indigo-500"></i> ルビ（ふりがな）</span>
-                    <button id="modal-ruby-btn" class="px-5 py-1.5 rounded-xl text-white font-black bg-indigo-500 hover:bg-indigo-600 transition shadow-sm">
+                    <button id="modal-ruby-btn" class="px-4 py-1.5 rounded-xl text-white font-black bg-indigo-500 hover:bg-indigo-600 transition shadow-sm">
                         ON
                     </button>
                 </div>
                 <!-- Romaji Style Option -->
-                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-2">
+                <div class="bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100 space-y-1.5">
                     <div class="flex items-center gap-2"><i class="fa-solid fa-keyboard text-emerald-500"></i> ローマ字表示</div>
                     <div class="grid grid-cols-2 gap-2 text-xs font-bold" id="romaji-style-group">
-                        <button data-style="kunrei" class="romaji-btn px-2 py-2 rounded-xl border border-slate-200 transition">訓令式 (si, ti, tu)</button>
-                        <button data-style="hepburn" class="romaji-btn px-2 py-2 rounded-xl border border-slate-200 transition">ヘボン式 (shi, chi, tsu)</button>
+                        <button data-style="kunrei" class="romaji-btn px-2 py-1.5 rounded-xl border border-slate-200 transition">訓令式 (si, ti, tu)</button>
+                        <button data-style="hepburn" class="romaji-btn px-2 py-1.5 rounded-xl border border-slate-200 transition">ヘボン式 (shi, chi, tsu)</button>
+                    </div>
+                </div>
+                <!-- Keyboard Case Option -->
+                <div class="bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100 space-y-1.5">
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-font text-amber-500"></i> キーボード文字表示</div>
+                    <div class="grid grid-cols-2 gap-2 text-xs font-bold" id="kbd-case-group">
+                        <button data-case="lowercase" class="kbd-case-btn px-2 py-1.5 rounded-xl border border-slate-200 transition">小文字 (abc)</button>
+                        <button data-case="uppercase" class="kbd-case-btn px-2 py-1.5 rounded-xl border border-slate-200 transition">大文字 (ABC)</button>
                     </div>
                 </div>
                 <!-- Time Limit Option -->
-                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-2.5">
+                <div class="bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100 space-y-2">
                     <div class="flex items-center gap-2"><i class="fa-solid fa-stopwatch text-rose-500"></i> 制限時間</div>
                     <div class="grid grid-cols-4 gap-1.5 text-xs font-bold" id="time-selector-group">
-                        <button data-time="3" class="time-btn px-2 py-2 rounded-xl border border-slate-200 transition">3秒</button>
-                        <button data-time="60" class="time-btn px-2 py-2 rounded-xl border border-slate-200 transition">60秒</button>
-                        <button data-time="120" class="time-btn px-2 py-2 rounded-xl border border-slate-200 transition">120秒</button>
-                        <button data-time="180" class="time-btn px-2 py-2 rounded-xl border border-slate-200 transition">180秒</button>
+                        <button data-time="3" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">3秒</button>
+                        <button data-time="60" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">60秒</button>
+                        <button data-time="120" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">120秒</button>
+                        <button data-time="180" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">180秒</button>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-6">
-                <button id="close-settings-btn" class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold py-3 rounded-2xl shadow-md transition active:scale-95">
+            <div class="mt-3 sm:mt-4 shrink-0">
+                <button id="close-settings-btn" class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold py-2.5 sm:py-3 rounded-2xl shadow-md transition active:scale-95">
                     とじる
                 </button>
             </div>
@@ -677,7 +685,7 @@
             aiueo: [["あいうえお","あいうえお"],["かきくけこ","かきくけこ"],["さしすせそ","さしすせそ"],["たちつてと","たちつてと"],["なにぬねの","なにぬねの"],["はひふへほ","はひふへほ"],["まみむめも","まみむめも"],["やゆよ","やゆよ"],["らりるれろ","らりるれろ"],["わをん","わをん"]],
             dakuon_handakuon: [["がぎぐげご","がぎぐげご"],["ざじずぜぞ","ざじずぜぞ"],["だぢづでど","だぢづでど"],["ばびぶべぼ","ばびぶべぼ"],["ぱぴぷぺぽ","ぱぴぷぺぽ"],["ガギグゲゴ","がぎぐげご"],["ザジズゼゾ","ざじずぜぞ"],["ダヂヅデド","だぢづでど"],["バビブベボ","ばびぶべぼ"],["パピプペポ","ぱぴぷぺぽ"]],
             sokuon_youon: [["きゃきゅきょ","きゃきゅきょ"],["しゃしゅしょ","しゃしゅしょ"],["ちゃちゅちょ","ちゃちゅちょ"],["にゃにゅにょ","にゃにゅにょ"],["ひゃひゅひょ","ひゃひゅひょ"],["みゃみゅみょ","みゃみゅみょ"],["りゃりゅりょ","りゃりゅりょ"],["学校","がっこう"],["切手","きって"],["雑誌","ざっし"],["おもちゃ","おもちゃ"]],
-            motivation_tips: [["とりあえず5分間やってみる","とりあえずごふんかんやってみる"],["ごほうびを用意する","ごほうびをよういする"],["好きな教科から始める","すきなきょうかからはじめる"],["机の上をきれいに片付ける","つくえのうえをきれいにかたづける"],["やることを紙に書き出す","やることをかみにかきだす"],["終わった後の楽しみを考える","おわったあとのたのしみをかんがえる"],["まず1問だけ解いてみる","まずいちもんだけといてみる"],["深呼吸をして気持ちを整える","しんこきゅうをしてきもちをととのえる"],["友達や家族に宣言する","ともだちやかぞくにせんげんする"],["タイマーをセットしてスタート","たいまーをせっとてすたーと"],["静かな場所に移動してみる","しずかなばしょにいどうしてみる"],["少し散歩して気分転換する","すこしさんぽしてきぶんてんかんする"],["出来たらカレンダーに丸をつける","できたらかれんだーにまるをつける"],["自分を思い切りほめてあげる","じぶんをおもいきりほめてあげる"]],
+            motivation_tips: [["とりあえず5分間やってみる","とりあえずごふんかんやってみる"],["ごほうびを用意する","ごほうびをよういする"],["好きな教科から始める","すきなきょうかからはじめる"],["机の上をきれいに片付ける","つくえのうえをきれいにかたづける"],["やることを紙に書き出す","やることをかみにかきだす"],["終わった後の楽しみを考える","おわったあとのたのしみをかんがえる"],["まず1問だけ解いてみる","まずいちもんだけといてみる"],["深呼吸をして気持ちを整える","しんこきゅうをしてきもちをととのえる"],["友達や家族に宣言する","ともだちやかぞくにせんげんする"],["タイマーをセットしてスタート","たいまーをせっとしてすたーと"],["静かな場所に移動してみる","しずかなばしょにいどうしてみる"],["少し散歩して気分転換する","すこしさんぽしてきぶんてんかんする"],["出来たらカレンダーに丸をつける","できたらかれんだーにまるをつける"],["自分を思い切りほめてあげる","じぶんをおもいきりほめてあげる"]],
             kanji_tips: [["本をたくさん読む","ほんをたくさんよむ"],["教科書をたくさん音読する","きょうかしょをたくさんおんどくする"],["同じ部首の漢字をまとめて覚える","おなじぶしゅのかんじをまとめておぼえる"],["反対語・似た意味の言葉をセットで覚える","はんたいごにたいみのことばをせっとでおぼえる"],["図鑑や辞書をパラパラ見る","ずかんやじしょをぱらぱらみる"],["書き順を守って漢字を書く","かきじゅんをまもってかんじをかく"],["漢字を声に出しながら書く","かんじをこえにだしながらかく"],["空書きをする","そらがきをする"],["部首やパーツに分解して覚える","ぶしゅやぱーつにぶんかいしておぼえる"],["とめ・はね・はらいに気をつけて書く","とめはねはらいにきをつけてかく"],["自分で文を作って書いてみる","じぶんでぶんをつくってかいてみる"],["間違えた漢字だけを練習","まちがえたかんじだけをれんしゅう"],["もう一度自分で同じ問題のテストをする","もういちどじぶんでおなじもんだいのテストをする"],["大きく書いて練習する","おおきくかいてれんしゅうする"]],
             study_tips: [
                 ["毎日決まった時こくに宿題や学習をする。","まいにちきまったときこくにしゅくだいやがくしゅうをする。"],
@@ -805,6 +813,7 @@
             soundOn: true,
             rubyOn: true,
             romajiStyle: 'kunrei',
+            keyboardCase: 'lowercase',
             totalScore: 0,
             loginStreak: 1,
             highScores: {},
@@ -896,11 +905,18 @@
             if (!msgText) return;
 
             const messages = [
-                `🔥 ${state.loginStreak}日連続でアクセス中！素晴らしい継続力だね！`,
-                `⭐ 累計スコアが ${state.totalScore.toLocaleString()} pt になったよ！すごい！`,
                 `💡 タイピングができると、学校の宿題や検索がサクサク進むよ！`,
                 `🎨 3回プレイしたコースは、色が緑色にかわるよ！`
             ];
+
+            if (state.loginStreak >= 2) {
+                messages.unshift(`🔥 ${state.loginStreak}日連続でアクセス中！すばらしい継続力だね！`);
+            }
+
+            const scoreMilestone = Math.floor((state.totalScore || 0) / 1000) * 1000;
+            if (scoreMilestone >= 1000) {
+                messages.unshift(`⭐ 累計スコアが ${scoreMilestone.toLocaleString()} ポイントをこえたよ！すごい！`);
+            }
 
             let uncompletedUnlockedCourses = [];
             for (const cat of COURSE_CATEGORIES) {
@@ -1008,6 +1024,8 @@
             const r2 = ['A','S','D','F','G','H','J','K','L'];
             const r3 = ['Z','X','C','V','B','N','M'];
 
+            const isUpper = state.keyboardCase === 'uppercase';
+
             const makeKeys = (keys, containerId) => {
                 const el = document.getElementById(containerId);
                 if (!el) return;
@@ -1016,7 +1034,7 @@
                     const keyEl = document.createElement('div');
                     keyEl.dataset.key = k.toLowerCase();
                     keyEl.className = 'key-cap bg-slate-100 border border-slate-300 w-9 h-11 sm:w-13 sm:h-13 rounded-xl flex items-center justify-center font-mono font-extrabold text-sm sm:text-lg text-slate-700';
-                    keyEl.textContent = k;
+                    keyEl.textContent = isUpper ? k.toUpperCase() : k.toLowerCase();
                     el.appendChild(keyEl);
                 });
             };
@@ -1340,9 +1358,10 @@
                 }
             }
 
-            document.getElementById('romaji-done').textContent = done;
-            document.getElementById('romaji-next').textContent = next;
-            document.getElementById('romaji-todo').textContent = todo;
+            const isUpper = state.keyboardCase === 'uppercase';
+            document.getElementById('romaji-done').textContent = isUpper ? done.toUpperCase() : done.toLowerCase();
+            document.getElementById('romaji-next').textContent = isUpper ? next.toUpperCase() : next.toLowerCase();
+            document.getElementById('romaji-todo').textContent = isUpper ? todo.toUpperCase() : todo.toLowerCase();
 
             highlightKey(next);
         }
@@ -1359,7 +1378,7 @@
             if (matching.length > 0) {
                 sound.playType();
                 game.correctCount += 1;
-                game.score += 10;
+                game.score += 1;
                 document.getElementById('game-score').textContent = game.score;
 
                 currNode.currentOptions = matching;
@@ -1484,6 +1503,15 @@
                     }
                 });
 
+                document.querySelectorAll('#kbd-case-group .kbd-case-btn').forEach(btn => {
+                    const caseVal = btn.dataset.case;
+                    if (caseVal === (state.keyboardCase || 'lowercase')) {
+                        btn.className = 'kbd-case-btn px-2 py-2 rounded-xl bg-amber-500 text-white font-black shadow-sm border border-amber-500';
+                    } else {
+                        btn.className = 'kbd-case-btn px-2 py-2 rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 font-bold';
+                    }
+                });
+
                 document.querySelectorAll('#time-selector-group .time-btn').forEach(btn => {
                     const t = parseInt(btn.dataset.time, 10);
                     if (t === state.selectedTime) {
@@ -1516,6 +1544,17 @@
                     state.romajiStyle = btn.dataset.style;
                     saveState();
                     updateModalStateUI();
+                };
+            });
+
+            document.querySelectorAll('#kbd-case-group .kbd-case-btn').forEach(btn => {
+                btn.onclick = () => {
+                    sound.playTick();
+                    state.keyboardCase = btn.dataset.case;
+                    saveState();
+                    updateModalStateUI();
+                    renderKeyboard();
+                    if (game.active) updateRomajiDisplay();
                 };
             });
 
