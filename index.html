@@ -88,17 +88,17 @@
                 <!-- Stats Summary & Settings Button -->
                 <div class="mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-bold text-slate-600">
                     <div class="bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
-                        <i class="fa-solid fa-unlock-keyhole text-sky-500 mr-1"></i>解放コース: <span id="unlocked-count-text" class="text-sky-600">3</span>/100
+                        <i class="fa-solid fa-unlock-keyhole text-sky-500 mr-1"></i><ruby>解<rt>かい</rt></ruby><ruby>放<rt>ほう</rt></ruby>コース: <span id="unlocked-count-text" class="text-sky-600">3</span>/100
                     </div>
                     <div class="bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-                        <i class="fa-solid fa-trophy text-amber-500 mr-1"></i>累計スコア: <span id="total-score-text" class="text-amber-600">0</span> pt
+                        <i class="fa-solid fa-trophy text-amber-500 mr-1"></i><ruby>累<rt>るい</rt></ruby><ruby>計<rt>けい</rt></ruby>スコア: <span id="total-score-text" class="text-amber-600">0</span> pt
                     </div>
                     <div class="bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                        <i class="fa-solid fa-fire text-emerald-500 mr-1"></i>連続アクセス: <span id="streak-text" class="text-emerald-600">1</span> 日
+                        <i class="fa-solid fa-fire text-emerald-500 mr-1"></i><ruby>連<rt>れん</rt></ruby><ruby>続<rt>ぞく</rt></ruby>アクセス: <span id="streak-text" class="text-emerald-600">1</span> <ruby>日<rt>にち</rt></ruby>
                     </div>
                     <!-- Settings Modal Trigger -->
                     <button id="open-settings-btn" class="bg-slate-100 hover:bg-slate-200 px-3.5 py-1 rounded-full transition text-slate-700 border border-slate-300 font-bold active:scale-95 flex items-center gap-1">
-                        <i class="fa-solid fa-gear text-slate-600"></i> 設定
+                        <i class="fa-solid fa-gear text-slate-600"></i> <ruby>設<rt>せっ</rt></ruby><ruby>定<rt>てい</rt></ruby>
                     </button>
                 </div>
             </header>
@@ -109,10 +109,10 @@
                     <i class="fa-solid fa-play"></i>スタート！
                 </button>
                 <button id="toggle-view-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-2xl border border-slate-300 transition transform active:scale-95 flex items-center justify-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-border-all"></i>表示きりかえ
+                    <i class="fa-solid fa-border-all"></i><ruby>表<rt>ひょう</rt></ruby><ruby>示<rt>じ</rt></ruby>きりかえ
                 </button>
                 <button id="open-stats-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-2xl border border-slate-300 transition transform active:scale-95 flex items-center justify-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-chart-column text-amber-500"></i>成績
+                    <i class="fa-solid fa-chart-column text-amber-500"></i><ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>
                 </button>
             </div>
 
@@ -974,17 +974,20 @@
             if (!msgText) return;
 
             const messages = [
-                `💡 タイピングができると、学校の宿題や検索がサクサク進むよ！`,
-                `🎨 3回プレイしたコースは、色が緑色にかわるよ！`
+                `💡 タイピングができると、<ruby>学<rt>がっ</rt></ruby><ruby>校<rt>こう</rt></ruby>の<ruby>宿<rt>しゅく</rt></ruby><ruby>題<rt>だい</rt></ruby>や<ruby>検<rt>けん</rt></ruby><ruby>索<rt>さく</rt></ruby>がサクサク<ruby>進<rt>すす</rt></ruby>むよ！`,
+                `🎨 3<ruby>回<rt>かい</rt></ruby>プレイしたコースは、<ruby>色<rt>いろ</rt></ruby>が<ruby>緑<rt>みどり</rt></ruby><ruby>色<rt>いろ</rt></ruby>にかわるよ！`,
+                `すごい<ruby>人<rt>ひと</rt></ruby>は、えんぴつで<ruby>書<rt>か</rt></ruby>くよりも<ruby>早<rt>はや</rt></ruby>くタイピングできるよ！`,
+                `すごい<ruby>人<rt>ひと</rt></ruby>は、キーボードを<ruby>見<rt>み</rt></ruby>なくてもタイピングできるよ！`,
+                `タイピングがはやくできれば、<ruby>作<rt>さく</rt></ruby><ruby>文<rt>ぶん</rt></ruby>もパソコンで<ruby>作<rt>つく</rt></ruby>れるよ！`
             ];
 
             if (state.loginStreak >= 2) {
-                messages.unshift(`🔥 ${state.loginStreak}日連続でアクセス中！すばらしい継続力だね！`);
+                messages.unshift(`🔥 ${state.loginStreak}<ruby>日<rt>にち</rt></ruby><ruby>連<rt>れん</rt></ruby><ruby>続<rt>ぞく</rt></ruby>でアクセス<ruby>中<rt>ちゅう</rt></ruby>！すばらしい<ruby>継<rt>けい</rt></ruby><ruby>続<rt>ぞく</rt></ruby><ruby>力<rt>りょく</rt></ruby>だね！`);
             }
 
             const scoreMilestone = Math.floor((state.totalScore || 0) / 1000) * 1000;
             if (scoreMilestone >= 1000) {
-                messages.unshift(`⭐ 累計スコアが ${scoreMilestone.toLocaleString()} ポイントをこえたよ！すごい！`);
+                messages.unshift(`⭐ <ruby>累<rt>るい</rt></ruby><ruby>計<rt>けい</rt></ruby>スコアが ${scoreMilestone.toLocaleString()} ポイントをこえたよ！すごい！`);
             }
 
             let uncompletedUnlockedCourses = [];
@@ -1003,11 +1006,11 @@
                 const course = uncompletedUnlockedCourses[0];
                 const count = state.coursePlayCounts[course.id] || 0;
                 const remainingPlays = 3 - count;
-                messages.unshift(`🎯 『${getPlainTitle(course.name)}』コースをあと${remainingPlays}回プレイしたら、新しいコースがゲットできるよ！`);
+                messages.unshift(`🎯 『${getPlainTitle(course.name)}』コースをあと${remainingPlays}<ruby>回<rt>かい</rt></ruby>プレイしたら、<ruby>新<rt>あたら</rt></ruby>しいコースがゲットできるよ！`);
             }
 
             const chosen = messages[Math.floor(Math.random() * messages.length)];
-            msgText.textContent = chosen;
+            msgText.innerHTML = chosen;
         }
 
         function renderCategories() {
@@ -1033,7 +1036,7 @@
                 const infoBar = document.createElement('div');
                 infoBar.className = 'text-xs text-slate-500 font-bold flex items-center justify-between pb-1.5 border-b border-slate-200';
                 infoBar.innerHTML = `
-                    <span><i class="fa-solid fa-unlock text-sky-500 mr-1"></i>解放済みコース一覧（ドラッグ＆ドロップで自由に並び替えできます）</span>
+                    <span><i class="fa-solid fa-unlock text-sky-500 mr-1"></i><ruby>解<rt>かい</rt></ruby><ruby>放<rt>ほう</rt></ruby>ずみコース<ruby>一<rt>いち</rt></ruby><ruby>覧<rt>らん</rt></ruby>（ドラッグ＆ドロップで<ruby>自<rt>じ</rt></ruby><ruby>由<rt>ゆう</rt></ruby>に<ruby>並<rt>なら</rt></ruby>び<ruby>替<rt>か</rt></ruby>えできます）</span>
                     <span class="bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full font-black text-[11px]">${state.unlockedCourses.length} コース</span>
                 `;
                 flatWrapper.appendChild(infoBar);
@@ -1202,7 +1205,7 @@
                     if (!isUnlocked) {
                         btn.innerHTML = `
                             <div class="text-[10px] sm:text-xs text-slate-400"><i class="fa-solid fa-lock mr-0.5"></i>？？？</div>
-                            <div class="text-[9px] text-slate-400 mt-0.5 leading-none">ロック中</div>
+                            <div class="text-[9px] text-slate-400 mt-0.5 leading-none">ロック<ruby>中<rt>ちゅう</rt></ruby></div>
                         `;
                         btn.onclick = () => {
                             sound.playLock();
