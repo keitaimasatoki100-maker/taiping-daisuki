@@ -88,7 +88,7 @@
                 <!-- Stats Summary & Settings Button -->
                 <div class="mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-bold text-slate-600">
                     <div class="bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
-                        <i class="fa-solid fa-unlock-keyhole text-sky-500 mr-1"></i><ruby>解<rt>かい</rt></ruby><ruby>放<rt>ほう</rt></ruby>コース: <span id="unlocked-count-text" class="text-sky-600">3</span>/100
+                        <i class="fa-solid fa-unlock-keyhole text-sky-500 mr-1"></i><ruby>解<rt>かい</rt></ruby><ruby>放<rt>ほう</rt></ruby>コース: <span id="unlocked-count-text" class="text-sky-600">13</span>/100
                     </div>
                     <div class="bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
                         <i class="fa-solid fa-trophy text-amber-500 mr-1"></i><ruby>累<rt>るい</rt></ruby><ruby>計<rt>けい</rt></ruby>スコア: <span id="total-score-text" class="text-amber-600">0</span> pt
@@ -196,38 +196,50 @@
     <div id="stats-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-2xl w-full p-4 sm:p-6 relative my-auto max-h-[90vh] flex flex-col">
             <h2 class="text-lg sm:text-xl font-black text-slate-800 text-center mb-3 flex items-center justify-center gap-2 shrink-0">
-                <i class="fa-solid fa-chart-column text-amber-500"></i> プレイ成績・記録
+                <i class="fa-solid fa-chart-column text-amber-500"></i> <ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>・<ruby>記<rt>き</rt></ruby><ruby>録<rt>ろく</rt></ruby>
             </h2>
 
             <!-- Stats Overview Cards -->
             <div class="grid grid-cols-3 gap-2 mb-3 shrink-0 text-center font-bold text-xs sm:text-sm">
                 <div class="bg-sky-50 p-2 sm:p-2.5 rounded-2xl border border-sky-100">
-                    <div class="text-slate-500 text-[10px] sm:text-xs">解放コース</div>
+                    <div class="text-slate-500 text-[10px] sm:text-xs"><ruby>解<rt>かい</rt></ruby><ruby>放<rt>ほう</rt></ruby>コース</div>
                     <div class="text-sky-600 text-base sm:text-lg font-black"><span id="stats-unlocked-count">0</span> / 100</div>
                 </div>
                 <div class="bg-amber-50 p-2 sm:p-2.5 rounded-2xl border border-amber-100">
-                    <div class="text-slate-500 text-[10px] sm:text-xs">全体累計スコア</div>
+                    <div class="text-slate-500 text-[10px] sm:text-xs"><ruby>全<rt>ぜん</rt></ruby><ruby>体<rt>たい</rt></ruby><ruby>累<rt>るい</rt></ruby><ruby>計<rt>けい</rt></ruby>スコア</div>
                     <div class="text-amber-600 text-base sm:text-lg font-black"><span id="stats-total-score">0</span> pt</div>
                 </div>
                 <div class="bg-emerald-50 p-2 sm:p-2.5 rounded-2xl border border-emerald-100">
-                    <div class="text-slate-500 text-[10px] sm:text-xs">クリア済み(3回)</div>
+                    <div class="text-slate-500 text-[10px] sm:text-xs"><ruby>済<rt>ず</rt></ruby>み(3<ruby>回<rt>かい</rt></ruby>)</div>
                     <div class="text-emerald-600 text-base sm:text-lg font-black"><span id="stats-completed-count">0</span> コース</div>
                 </div>
             </div>
 
-            <!-- Sorting Controls with Highest Score and Course Total Score options -->
+            <!-- Missed Key Frequency Ranking Section -->
+            <div class="bg-rose-50 border border-rose-100 p-2.5 sm:p-3 rounded-2xl mb-3 shrink-0">
+                <div class="text-xs font-extrabold text-rose-800 mb-1.5 flex items-center justify-between">
+                    <span><i class="fa-solid fa-keyboard text-rose-500 mr-1"></i>よく<ruby>間<rt>ま</rt></ruby><ruby>違<rt>ちが</rt></ruby>えるキー<ruby>文<rt>もん</rt></ruby><ruby>字<rt>じ</rt></ruby><ruby>順<rt>じゅん</rt></ruby>（ミス<ruby>回<rt>かい</rt></ruby><ruby>数<rt>すう</rt></ruby>）</span>
+                    <span class="text-[10px] text-rose-400 font-bold"><ruby>累<rt>るい</rt></ruby><ruby>計<rt>けい</rt></ruby><ruby>記<rt>き</rt></ruby><ruby>録<rt>ろく</rt></ruby></span>
+                </div>
+                <div id="stats-miss-keys-container" class="flex flex-wrap gap-1.5 text-xs font-bold max-h-24 overflow-y-auto pr-1">
+                    <!-- Dynamic Missed Keys inserted via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Sorting Controls -->
             <div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-200 shrink-0 text-xs font-bold flex-wrap">
-                <span class="text-slate-600"><i class="fa-solid fa-list mr-1"></i>解放済みコース記録一覧</span>
+                <span class="text-slate-600"><i class="fa-solid fa-list mr-1"></i>コース<ruby>別<rt>べつ</rt></ruby><ruby>記<rt>き</rt></ruby><ruby>録<rt>ろく</rt></ruby><ruby>一<rt>いち</rt></ruby><ruby>覧<rt>らん</rt></ruby></span>
                 <div class="flex gap-1 flex-wrap" id="stats-sort-group">
-                    <button data-sort="score" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs">最高スコア順</button>
-                    <button data-sort="totalScore" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs">コース累計順</button>
-                    <button data-sort="date" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs">最新プレイ順</button>
-                    <button data-sort="accuracy" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs">正解率順</button>
+                    <button data-sort="score" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs"><ruby>最<rt>さい</rt></ruby><ruby>高<rt>こう</rt></ruby>スコア<ruby>順<rt>じゅん</rt></ruby></button>
+                    <button data-sort="totalScore" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs">コース<ruby>累<rt>るい</rt></ruby><ruby>計<rt>けい</rt></ruby><ruby>順<rt>じゅん</rt></ruby></button>
+                    <button data-sort="wpm" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs"><ruby>速<rt>はや</rt></ruby>さ<ruby>順<rt>じゅん</rt></ruby></button>
+                    <button data-sort="accuracy" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs"><ruby>正解率<rt>せいかいりつ</rt></ruby><ruby>順<rt>じゅん</rt></ruby></button>
+                    <button data-sort="date" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs"><ruby>最新<rt>さいしん</rt></ruby><ruby>順<rt>じゅん</rt></ruby></button>
                 </div>
             </div>
 
             <!-- Course Records List Container -->
-            <div id="stats-list-container" class="space-y-2 overflow-y-auto pr-1 flex-1 min-h-[220px]">
+            <div id="stats-list-container" class="space-y-2 overflow-y-auto pr-1 flex-1 min-h-[180px]">
                 <!-- Dynamic Records inserted via JavaScript -->
             </div>
 
@@ -243,13 +255,13 @@
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-md w-full p-4 sm:p-5 relative my-auto max-h-[92vh] flex flex-col">
             <h2 class="text-lg sm:text-xl font-black text-slate-800 text-center mb-3 flex items-center justify-center gap-2 shrink-0">
-                <i class="fa-solid fa-gear text-indigo-500"></i> ゲーム設定
+                <i class="fa-solid fa-gear text-indigo-500"></i> ゲーム<ruby>設<rt>せっ</rt></ruby><ruby>定<rt>てい</rt></ruby>
             </h2>
             
             <div class="space-y-2.5 sm:space-y-3 text-xs sm:text-sm font-bold text-slate-700 overflow-y-auto pr-1 flex-1">
                 <!-- Sound Option -->
                 <div class="flex items-center justify-between bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100">
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-volume-high text-sky-500"></i> 効果音</span>
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-volume-high text-sky-500"></i> <ruby>効果音<rt>こうかおん</rt></ruby></span>
                     <button id="modal-sound-btn" class="px-4 py-1.5 rounded-xl text-white font-black bg-sky-500 hover:bg-sky-600 transition shadow-sm">
                         ON
                     </button>
@@ -263,28 +275,27 @@
                 </div>
                 <!-- Romaji Style Option -->
                 <div class="bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100 space-y-1.5">
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-keyboard text-emerald-500"></i> ローマ字表示</div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-keyboard text-emerald-500"></i> ローマ<ruby>字<rt>じ</rt></ruby><ruby>表<rt>ひょう</rt></ruby><ruby>示<rt>じ</rt></ruby></div>
                     <div class="grid grid-cols-2 gap-2 text-xs font-bold" id="romaji-style-group">
-                        <button data-style="kunrei" class="romaji-btn px-2 py-1.5 rounded-xl border border-slate-200 transition">訓令式 (si, ti, tu)</button>
-                        <button data-style="hepburn" class="romaji-btn px-2 py-1.5 rounded-xl border border-slate-200 transition">ヘボン式 (shi, chi, tsu)</button>
+                        <button data-style="kunrei" class="romaji-btn px-2 py-1.5 rounded-xl border border-slate-200 transition"><ruby>訓令式<rt>くんれいしき</rt></ruby> (si, ti, tu)</button>
+                        <button data-style="hepburn" class="romaji-btn px-2 py-1.5 rounded-xl border border-slate-200 transition"><ruby>ヘボン式<rt>へぼんしき</rt></ruby> (shi, chi, tsu)</button>
                     </div>
                 </div>
                 <!-- Keyboard Case Option -->
                 <div class="bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100 space-y-1.5">
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-font text-amber-500"></i> キーボード文字表示</div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-font text-amber-500"></i> キーボード<ruby>文<rt>もん</rt></ruby><ruby>字<rt>じ</rt></ruby><ruby>表<rt>ひょう</rt></ruby><ruby>示<rt>じ</rt></ruby></div>
                     <div class="grid grid-cols-2 gap-2 text-xs font-bold" id="kbd-case-group">
-                        <button data-case="lowercase" class="kbd-case-btn px-2 py-1.5 rounded-xl border border-slate-200 transition">小文字 (abc)</button>
-                        <button data-case="uppercase" class="kbd-case-btn px-2 py-1.5 rounded-xl border border-slate-200 transition">大文字 (ABC)</button>
+                        <button data-case="lowercase" class="kbd-case-btn px-2 py-1.5 rounded-xl border border-slate-200 transition"><ruby>小文字<rt>こもじ</rt></ruby> (abc)</button>
+                        <button data-case="uppercase" class="kbd-case-btn px-2 py-1.5 rounded-xl border border-slate-200 transition"><ruby>大文字<rt>おおもじ</rt></ruby> (ABC)</button>
                     </div>
                 </div>
                 <!-- Time Limit Option -->
                 <div class="bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100 space-y-2">
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-stopwatch text-rose-500"></i> 制限時間</div>
-                    <div class="grid grid-cols-4 gap-1.5 text-xs font-bold" id="time-selector-group">
-                        <button data-time="3" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">3秒</button>
-                        <button data-time="60" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">60秒</button>
-                        <button data-time="120" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">120秒</button>
-                        <button data-time="180" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">180秒</button>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-stopwatch text-rose-500"></i> <ruby>制限時間<rt>せいげんじかん</rt></ruby></div>
+                    <div class="grid grid-cols-3 gap-1.5 text-xs font-bold" id="time-selector-group">
+                        <button data-time="60" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">60<ruby>秒<rt>びょう</rt></ruby></button>
+                        <button data-time="120" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">120<ruby>秒<rt>びょう</rt></ruby></button>
+                        <button data-time="180" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">180<ruby>秒<rt>びょう</rt></ruby></button>
                     </div>
                 </div>
             </div>
@@ -304,7 +315,7 @@
                 3
             </div>
             <div id="countdown-subtext" class="text-white/80 font-bold text-lg sm:text-xl mt-4">
-                準備はいいかな？
+                <ruby>準備<rt>じゅんび</rt></ruby>はいいかな？
             </div>
         </div>
     </div>
@@ -316,31 +327,31 @@
                 🎉 クリア！ 🎉
             </div>
             <div id="new-record-badge" class="hidden my-2 inline-block bg-gradient-to-r from-amber-400 to-rose-500 text-white font-black text-xs px-3 py-1 rounded-full shadow animate-bounce">
-                ✨ 自己ベスト更新 (+100pt ボーナス!) ✨
+                ✨ <ruby>自己<rt>じこ</rt></ruby>ベスト<ruby>更新<rt>こうしん</rt></ruby> (+100pt ボーナス!) ✨
             </div>
 
             <div class="bg-slate-50 p-4 rounded-2xl my-4 space-y-2 text-sm font-bold text-slate-700 border border-slate-100">
                 <div class="flex justify-between">
-                    <span>今回獲得スコア:</span>
+                    <span><ruby>今回獲得<rt>こんかいかくとく</rt></ruby>スコア:</span>
                     <span id="res-score" class="text-amber-600 font-extrabold text-lg">0 pt</span>
                 </div>
                 <div class="flex justify-between">
-                    <span>正確率:</span>
+                    <span><ruby>正確率<rt>せいかいりつ</rt></ruby>:</span>
                     <span id="res-accuracy" class="text-sky-600">100%</span>
                 </div>
                 <div class="flex justify-between">
-                    <span>タイプ速度:</span>
-                    <span id="res-wpm" class="text-indigo-600">0 キー/分</span>
+                    <span>タイプ<ruby>速度<rt>そくど</rt></ruby>:</span>
+                    <span id="res-wpm" class="text-indigo-600">0 キー/<ruby>分<rt>ふん</rt></ruby></span>
                 </div>
                 <div class="flex justify-between text-xs text-slate-500 pt-1 border-t border-slate-200">
-                    <span>正解数 / ミス数:</span>
+                    <span><ruby>正解数<rt>せいかいすう</rt></ruby> / ミス<ruby>数<rt>すう</rt></ruby>:</span>
                     <span><span id="res-correct" class="text-emerald-600">0</span> / <span id="res-miss" class="text-rose-500">0</span></span>
                 </div>
             </div>
 
             <div class="flex gap-3">
                 <button id="res-retry-btn" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl transition">
-                    <i class="fa-solid fa-rotate-right mr-1"></i>もう一度
+                    <i class="fa-solid fa-rotate-right mr-1"></i>もう<ruby>一度<rt>いちど</rt></ruby>
                 </button>
                 <button id="res-return-btn" class="flex-1 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold py-2.5 rounded-xl shadow-md transition">
                     <i class="fa-solid fa-house mr-1"></i>トップへ
@@ -735,10 +746,10 @@
 
         // Fully Audited and Matched Word Data for all Courses
         const WORD_DATA = {
-            aiueo: [["あいうえお","あいうえお"],["かきくけこ","かきくけこ"],["さしすせそ","さしすせそ"],["たちつてと","たちつてと"],["なにぬねの","なにぬねの"],["はひふへほ","はひふへほ"],["まみむめも","まみむめも"],["やゆよ","やゆよ"],["らりるれろ","らりるれろ"],["わをん","わをん"]],
+            aiueo: [["あいうえお","あいうえお"],["かきくけこ","かきくけこ"],["さしすせそ","さしすせそ"],["たちつてと","たちつてと"],["なにぬねの","なにぬねの"],["はひふへほ","hahi huheho"],["まみむめも","まみむめも"],["やゆよ","やゆよ"],["らりるれろ","らりるれろ"],["わをん","わをん"]],
             dakuon_handakuon: [["がぎぐげご","がぎぐげご"],["ざじずぜぞ","ざじずぜぞ"],["だぢづでど","だぢづでど"],["ばびぶべぼ","ばびぶべぼ"],["ぱぴぷぺぽ","ぱぴぷぺぽ"],["ガギグゲゴ","がぎぐげご"],["ザジズゼゾ","ざじずぜぞ"],["ダヂヅデド","だぢづでど"],["バビブベボ","ばびぶべぼ"],["パピプペポ","ぱぴぷぺぽ"]],
             sokuon_youon: [["きゃきゅきょ","きゃきゅきょ"],["しゃしゅしょ","しゃしゅしょ"],["ちゃちゅちょ","ちゃちゅちょ"],["にゃにゅにょ","にゃにゅにょ"],["ひゃひゅひょ","ひゃひゅひょ"],["みゃみゅみょ","みゃみゅみょ"],["りゃりゅりょ","りゃりゅりょ"],["学校","がっこう"],["切手","きって"],["雑誌","ざっし"],["おもちゃ","おもちゃ"]],
-            motivation_tips: [["とりあえず5分間やってみる","とりあえずごふんかんやってみる"],["ごほうびを用意する","ごほうびをよういする"],["好きな教科から始める","すきなきょうかからはじめる"],["机の上をきれいに片付ける","つくえのうえをきれいにかたづける"],["やることを紙に書き出す","やることをかみにかきだす"],["終わった後の楽しみを考える","おわったあとのたのしみをかんがえる"],["まず1問だけ解いてみる","まずいちもんだけといてみる"],["深呼吸をして気持ちを整える","しんこきゅうをしてきもちをととのえる"],["友達や家族に宣言する","ともだちやかぞくにせんげんする"],["タイマーをセットしてスタート","たいまーをせっとてすたーと"],["静かな場所に移動してみる","しずかなばしょにいどうしてみる"],["少し散歩して気分転換する","すこしさんぽしてきぶんてんかんする"],["出来たらカレンダーに丸をつける","できたらかれんだーにまるをつける"],["自分を思い切りほめてあげる","じぶんをおもいきりほめてあげる"]],
+            motivation_tips: [["とりあえず5分間やってみる","とりあえずごふんかんやってみる"],["ごほうびを用意する","ごほうびをよういする"],["好きな教科から始める","すきなきょうかからはじめる"],["机の上をきれいに片付ける","つくえのうえをきれいにかたづける"],["やることを紙に書き出す","やることをかみにかきだす"],["終わった後の楽しみを考える","おわったあとのたのしみをかんがえる"],["まず1問だけ解いてみる","まずいちもんだけといてみる"],["深呼吸をして気持ちを整える","しんこきゅうをしてきもちをととのえる"],["友達や家族に宣言する","ともだちやかぞくにせんげんする"],["タイマーをセットしてスタート","たいまーをせっとしてすたーと"],["静かな場所に移動してみる","しずかなばしょにいどうしてみる"],["少し散歩して気分転換する","すこしさんぽしてきぶんてんかんする"],["出来たらカレンダーに丸をつける","できたらかれんだーにまるをつける"],["自分を思い切りほめてあげる","じぶんをおもいきりほめてあげる"]],
             kanji_tips: [["本をたくさん読む","ほんをたくさんよむ"],["教科書をたくさん音読する","きょうかしょをたくさんおんどくする"],["同じ部首の漢字をまとめて覚える","おなじぶしゅのかんじをまとめておぼえる"],["反対語・似た意味の言葉をセットで覚える","はんたいごにたいみのことばをせっとでおぼえる"],["図鑑や辞書をパラパラ見る","ずかんやじしょをぱらぱらみる"],["書き順を守って漢字を書く","かきじゅんをまもってかんじをかく"],["漢字を声に出しながら書く","かんじをこえにだしながらかく"],["空書きをする","そらがきをする"],["部首やパーツに分解して覚える","ぶしゅやぱーつにぶんかいしておぼえる"],["とめ・はね・はらいに気をつけて書く","とめはねはらいにきをつけてかく"],["自分で文を作って書いてみる","じぶんでぶんをつくってかいてみる"],["間違えた漢字だけを練習","まちがえたかんじだけをれんしゅう"],["もう一度自分で同じ問題のテストをする","もういちどじぶんでおなじもんだいのテストをする"],["大きく書いて練習する","おおきくかいてれんしゅうする"]],
             study_tips: [
                 ["毎日決まった時こくに宿題や学習をする。","まいにちきまったときこくにしゅくだいやがくしゅうをする。"],
@@ -829,7 +840,7 @@
             it_words: [["インターネット","いんたーねっと"],["プログラミング","ぷろぐらみんぐ"],["サーバー","さーばー"],["クラウド","くらうど"],["セキュリティ","せきゅりてぃ"],["ダウンロード","だうんろーど"],["ログイン","ろぐいん"],["パスワード","ぱすわーど"],["データ","でーた"],["ネットワーク","ねっとわーく"]],
             home_items: [["テレビ","てれび"],["冷蔵庫","れいぞうこ"],["洗濯機","せんたくき"],["電子レンジ","でんしれんじ"],["掃除機","そうじき"],["エアコン","えあこん"],["ソファ","そふぁ"],["ベッド","べっど"],["テーブル","てーぶる"],["ドライヤー","どらいやー"]],
             idioms: [["猫の手も借りたい","ねこのてもかりたい"],["喉から手が出る","のどからてがでる"],["足を引っ張る","あしをひっぱる"],["頭が下がる","あたまがさがる"],["手を焼く","てをやく"],["目を疑う","めをうたがう"],["耳を傾ける","みみをかたむける"],["口を挟む","くちをはさむ"],["胸を張る","むねをはる"],["腹を括る","はらをくくる"],["腰が低い","こしがひくい"],["足が棒になる","あしがぼうになる"],["骨を折る","ほねをおる"],["気を揉む","きをもむ"],["顔が広い","かおがひろい"],["鼻が高い","はながたかい"],["釘を刺す","くぎを刺す"],["太鼓判を押す","たいこばんをおす"],["眉をひそめる","まゆをひそめる"],["肩を並べる","かたをならべる"],["歯が立たない","はがたたない"],["爪を研ぐ","つめをとぐ"],["手を広げる","てをひろげる"],["目を奪われる","めをうばわれる"],["耳が痛い","みみがいたい"],["口が軽い","くちがかるい"],["胸を撫でおろす","むねをなでおろす"],["腹を割る","はらをわる"],["身を粉にする","みをこなにする"],["一目置く","いちもくおく"]],
-            greetings: [["おはようございます","おはようございます"],["こんにちは","こんにちは"],["こんばんは","こんばんは"],["ありがとうございます","ありがとうございます"],["すみません","すみません"],["いただきます","いただきます"],["ごちそうさまでした","ごちそうさまでした"],["いってきます","いってきます"],["いってらっしゃい","いってらっしゃい"],["おやすみなさい","おやすみなさい"]],
+            greetings: [["おはようございます","おはようございます"],["こんにちは","こんにちは"],["こんばんは","こんばんは"],["ありがとうございます","ありがとうございます"],["すみません","すみません"],["いただきます","いただきます"],["ごちそうさでした","ごちそうさでした"],["いってきます","いってきます"],["いってらっしゃい","いってらっしゃい"],["おやすみなさい","おやすみなさい"]],
             daily_phrases: [["よろしくお願いします","よろしくおねがいします"],["お疲れ様です","おつかれさまです"],["失礼します","しつれいします"],["大丈夫ですか","だいじょうぶですか"],["気をつけてね","きをつけてね"],["楽しんできてね","たのしんできてね"],["また明日","またあした"],["頑張ってください","がんばってください"],["手伝いましょうか","てつだいましょうか"],["おめでとう","おめでとう"]],
             proverbs: [["猿も木から落ちる","さるもきからおちる"],["犬も歩けば棒に当たる","いぬもあるけばぼうにあたる"],["塵も積もれば山となる","ちりもつもればやまとなる"],["石の上にも三年","いしのうえにもさんねん"],["早起きは三文の徳","はやおきはさんもんのとく"],["一寸先は闇","いっすんさきはやみ"],["壁に耳あり障子に目あり","かべにみみありしょうじにめあり"],["失敗は成功の母","しっぱいはいせいこうのはは"],["好きこそ物の上手なれ","すきこそもののじょうずなれ"],["情けは人の為ならず","なさけはひとのためならず"]],
             four_kanji: [["一期一会","いちごいちえ"],["十人十色","じゅうにんといろ"],["一生懸命","いっしょうけんめい"],["温故知新","おんこちしん"],["自給自足","じきゅうじそく"],["日進月歩","にっしんげっぽ"],["試行錯誤","しこうさくご"],["以心伝心","いしんでんしん"],["無我夢中","むがむちゅう"],["四通八達","しつうはったつ"]],
@@ -838,14 +849,14 @@
             animal_sounds: [["ワンワン","わんわん"],["ニャーニャー","にゃーにゃー"],["モーモー","もーもー"],["ヒヒーン","ひひーん"],["メーメー","めーめー"],["ブーブー","ぶーぶー"],["コケコッコー","こけこっこー"],["ガーガー","がーがー"],["ケロケロ","けろけろ"],["チューチュー","ちゅーちゅー"]],
             kanji_radicals: [["きへん","きへん"],["さんずい","さんずい"],["にんべん","にんべん"],["ごんべん","ごんべん"],["くさかんむり","くさかんむり"],["うかんむり","うかんむり"],["いとへん","いとへん"],["かねへん","かねへん"],["てへん","てへん"],["もんがまえ","もんがまえ"]],
             difficult_kanji: [["紫陽花","あじさい"],["向日葵","ひまわり"],["玉葱","たまねぎ"],["海老","えび"],["烏賊","いか"],["心太","ところてん"],["心持ち","こころもち"],["百日草","ひゃくにちそう"],["無花果","いちじく"],["土竜","もぐら"]],
-            honorifics: [["いらっしゃる","いらっしゃる"],["おっしゃる","おっしゃる"],["ご覧になる","ごらんになる"],["召し上がる","めしあがる"],["参る","まいる"],["申す","もうす"],["いただく","いただく"],["拝見する","拝見する"],["伺う","うかがう"],["いたす","いたす"]],
+            honorifics: [["いらっしゃる","いらっしゃる"],["おっしゃる","おっしゃる"],["ご覧になる","ごらんになる"],["召し上がる","めしあがる"],["参る","まいる"],["申す","もうす"],["いただく","いただく"],["拝見する","はいけんする"],["伺う","うかがう"],["いたす","いたす"]],
             colors: [["赤","あか"],["青","あお"],["黄","き"],["緑","みどり"],["白","しろ"],["黒","くろ"],["紫","むらさき"],["桃色","ももいろ"],["橙色","だいだいいろ"],["水色","みずいろ"]],
             holidays: [["元日","がんじつ"],["成人の日","せいじんのひ"],["建国記念の日","けんこくきねんのひ"],["春分の日","しゅんぶんのひ"],["昭和の日","しょうわのひ"],["憲法記念日","けんぽうきねんび"],["みどりの日","みどりのひ"],["こどもの日","こどものひ"],["海の日","うみのひ"],["敬老の日","けいろうのひ"]],
             constellations: [["オリオン座","おりおんざ"],["北斗七星","ほくとしちせい"],["白鳥座","はくちょうざ"],["カシオペヤ座","かしおぺやざ"],["さそり座","さそりざ"],["獅子座","ししざ"],["乙女座","おとめざ"],["牡牛座","おうしざ"],["双子座","ふたござ"],["射手座","いてざ"]],
             world_currencies: [["円","えん"],["ドル","どる"],["ユーロ","ゆーろ"],["ポンド","ぽんど"],["元","げん"],["ウォン","うぉん"],["ルピー","るぴー"],["バーツ","ばーつ"],["ペソ","ぺそ"],["フラン","ふらん"]],
             spring_items: [["桜","さくら"],["土筆","つくし"],["花見","はなみ"],["入学式","にゅうがくしき"],["卒業式","そつぎょうしき"],["ウグイス","うぐいす"],["菜の花","なのはな"],["鯉のぼり","こいのぼり"],["イチゴ","いちご"],["新学期","しんがっき"]],
             summer_items: [["花火","はなび"],["スイカ","すいか"],["海","うみ"],["プール","ぷーる"],["夏祭り","なつまつり"],["蚊取り線香","かとりせんこう"],["かき氷","かきごおり"],["入道雲","にゅうどうぐも"],["蝉","せみ"],["風鈴","ふうりん"]],
-            autumn_items: [["紅葉","こうよう"],["どんぐり","どんぐり"],["焼き芋","やきいも"],["月見","つきみ"],["松茸","まつたけ"],["秋刀魚","さんま"],["柿","かき"],["ハロウィン","はろうぃん"],["読書の秋","どくしょのあき"],["運動会","うんどうかい"]],
+            autumn_items: [["紅葉","こうよう"],["どんぐり","どんぐり"],["焼き芋","やきいも"],["月見","つきみ"],["松茸","まつたけ"],["秋刀魚","さんま"],["柿","かき"],["ハロウィン","hallowin"],["読書の秋","どくしょのあき"],["運動会","うんどうかい"]],
             winter_items: [["雪だるま","ゆきだるま"],["こたつ","こたつ"],["クリスマス","くりすます"],["お正月","おしょうがつ"],["鏡餅","かがみもち"],["スキー","すきー"],["ミカン","みかん"],["鍋料理","なべりょうり"],["年賀状","ねんがじょう"],["除夜の鐘","じょやのかね"]]
         };
 
@@ -872,6 +883,7 @@
             highScores: {},
             courseRecords: {},
             courseTotalScores: {},
+            missKeyCounts: {},
             statsSortKey: 'score',
             pendingUnlockCeremony: false,
             viewMode: 'category',
@@ -898,7 +910,7 @@
         function loadState() {
             const validIds = Object.keys(WORD_DATA);
             try {
-                const saved = localStorage.getItem('typing_rush_100_v21');
+                const saved = localStorage.getItem('typing_rush_100_v24');
                 if (saved) {
                     const parsed = JSON.parse(saved);
                     state = { ...state, ...parsed };
@@ -924,6 +936,7 @@
             if (!Array.isArray(state.customUnlockedOrder)) state.customUnlockedOrder = [];
             if (!state.courseRecords) state.courseRecords = {};
             if (!state.courseTotalScores) state.courseTotalScores = {};
+            if (!state.missKeyCounts) state.missKeyCounts = {};
             if (!state.statsSortKey) state.statsSortKey = 'score';
 
             state.customUnlockedOrder = state.customUnlockedOrder.filter(id => state.unlockedCourses.includes(id));
@@ -953,7 +966,7 @@
 
         function saveState() {
             try {
-                localStorage.setItem('typing_rush_100_v21', JSON.stringify(state));
+                localStorage.setItem('typing_rush_100_v24', JSON.stringify(state));
             } catch (e) {}
         }
 
@@ -974,7 +987,8 @@
             if (!msgText) return;
 
             const messages = [
-                `💡 タイピングができると、<ruby>学<rt>がっ</rt></ruby><ruby>校<rt>こう</rt></ruby>の<ruby>宿<rt>しゅく</rt></ruby><ruby>題<rt>だい</rt></ruby>や<ruby>検<rt>けん</rt></ruby><ruby>索<rt>さく</rt></ruby>がサクサク<ruby>進<rt>すす</rt></ruby>むよ！`,
+                `💡 タイピングができると、パソコンを<ruby>使<rt>つか</rt></ruby>った<ruby>勉<rt>べん</rt></ruby><ruby>強<rt>きょう</rt></ruby>が<ruby>簡<rt>かん</rt></ruby><ruby>単<rt>たん</rt></ruby>にできるようになるよ！`,
+                `💡 タイピングができると、わからないことをパソコンで<ruby>簡<rt>かん</rt></ruby><ruby>単<rt>たん</rt></ruby>に<ruby>調<rt>しら</rt></ruby>べられるようになるよ！`,
                 `🎨 3<ruby>回<rt>かい</rt></ruby>プレイしたコースは、<ruby>色<rt>いろ</rt></ruby>が<ruby>緑<rt>みどり</rt></ruby><ruby>色<rt>いろ</rt></ruby>にかわるよ！`,
                 `すごい<ruby>人<rt>ひと</rt></ruby>は、えんぴつで<ruby>書<rt>か</rt></ruby>くよりも<ruby>早<rt>はや</rt></ruby>くタイピングできるよ！`,
                 `すごい<ruby>人<rt>ひと</rt></ruby>は、キーボードを<ruby>見<rt>み</rt></ruby>なくてもタイピングできるよ！`,
@@ -1360,6 +1374,27 @@
             });
             document.getElementById('stats-completed-count').textContent = completedCount;
 
+            const missContainer = document.getElementById('stats-miss-keys-container');
+            if (missContainer) {
+                missContainer.innerHTML = '';
+                const sortedMissKeys = Object.entries(state.missKeyCounts || {})
+                    .filter(([_, count]) => count > 0)
+                    .sort((a, b) => b[1] - a[1]);
+
+                if (sortedMissKeys.length === 0) {
+                    missContainer.innerHTML = '<span class="text-slate-400 text-xs py-0.5">まだミスの記録はありません🎉</span>';
+                } else {
+                    sortedMissKeys.forEach(([keyChar, count], idx) => {
+                        const badge = document.createElement('div');
+                        badge.className = 'bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-sm text-[11px]';
+                        let rankTag = `<span class="text-rose-400 text-[9px] font-black">#${idx + 1}</span>`;
+                        if (idx === 0) rankTag = '<i class="fa-solid fa-circle-exclamation text-rose-500 text-[10px]"></i>';
+                        badge.innerHTML = `${rankTag}<span class="font-mono font-black text-xs uppercase">${keyChar}</span>:<span class="font-extrabold">${count}回</span>`;
+                        missContainer.appendChild(badge);
+                    });
+                }
+            }
+
             const sortBtns = document.querySelectorAll('#stats-sort-group .stats-sort-btn');
             sortBtns.forEach(btn => {
                 if (btn.dataset.sort === state.statsSortKey) {
@@ -1395,6 +1430,8 @@
                     return b.rec.score - a.rec.score;
                 } else if (sortKey === 'totalScore') {
                     return b.courseTotalScore - a.courseTotalScore;
+                } else if (sortKey === 'wpm') {
+                    return (b.rec.wpm || 0) - (a.rec.wpm || 0);
                 } else if (sortKey === 'date') {
                     return (b.rec.timestamp || 0) - (a.rec.timestamp || 0);
                 } else if (sortKey === 'accuracy') {
@@ -1412,7 +1449,10 @@
 
                 let rankBadge = `<div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-black text-xs shrink-0">${index + 1}</div>`;
                 
-                const rankVal = (sortKey === 'totalScore') ? courseTotalScore : rec.score;
+                let rankVal = rec.score;
+                if (sortKey === 'totalScore') rankVal = courseTotalScore;
+                if (sortKey === 'wpm') rankVal = rec.wpm || 0;
+
                 if (rankVal > 0) {
                     if (index === 0) {
                         rankBadge = `<div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-sm"><i class="fa-solid fa-crown text-[11px]"></i></div>`;
@@ -1441,10 +1481,10 @@
                             最高: ${rec.score.toLocaleString()} <span class="text-[10px] font-bold text-slate-500">pt</span>
                         </div>
                         <div class="text-indigo-600 font-black text-xs sm:text-sm">
-                            累計: ${courseTotalScore.toLocaleString()} <span class="text-[10px] font-bold text-slate-500">pt</span>
+                            速度: <span class="text-indigo-700 font-extrabold">${rec.wpm || 0}</span> <span class="text-[10px] font-bold text-slate-500">キー/分</span>
                         </div>
                         <div class="text-[10px] font-bold text-slate-500 space-x-1.5 mt-0.5">
-                            ${isPlayed ? `<span class="text-sky-600 font-extrabold">正解率 ${rec.accuracy || 100}%</span><span class="text-slate-600 font-extrabold">${rec.wpm || 0}キー/分</span>` : '<span class="text-slate-400">未プレイ</span>'}
+                            ${isPlayed ? `<span class="text-sky-600 font-extrabold">正解率 ${rec.accuracy || 100}%</span><span class="text-slate-500">累計 ${courseTotalScore.toLocaleString()}pt</span>` : '<span class="text-slate-400">未プレイ</span>'}
                         </div>
                     </div>
                 `;
@@ -1721,6 +1761,15 @@
             } else {
                 sound.playMiss();
                 game.missCount += 1;
+
+                if (currNode && currNode.currentOptions && currNode.currentOptions[0]) {
+                    const expectedKeyChar = currNode.currentOptions[0][currNode.typedCount];
+                    if (expectedKeyChar) {
+                        const k = expectedKeyChar.toLowerCase();
+                        if (!state.missKeyCounts) state.missKeyCounts = {};
+                        state.missKeyCounts[k] = (state.missKeyCounts[k] || 0) + 1;
+                    }
+                }
             }
         }
 
@@ -1760,11 +1809,10 @@
 
             if (game.score > prevHigh) {
                 isNewRecord = true;
-                earnedScore += 100; // 新記録で100ptボーナス
+                earnedScore += 100; // 新記録ボーナス100pt
                 state.highScores[courseId] = game.score;
             }
 
-            // コース別累計スコアおよび全体累計スコアに加算
             if (!state.courseTotalScores) state.courseTotalScores = {};
             state.courseTotalScores[courseId] = (state.courseTotalScores[courseId] || 0) + earnedScore;
             state.totalScore += earnedScore;
