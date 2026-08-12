@@ -15,6 +15,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
 
+    <!-- Firebase App & Firestore SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         body {
             font-family: 'M PLUS Rounded 1c', 'Zen Maru Gothic', sans-serif;
@@ -64,6 +68,12 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+
+        /* Drag and Drop style */
+        .dragging {
+            opacity: 0.5;
+            scale: 0.95;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-sky-100 via-indigo-50 to-pink-100 min-h-screen text-slate-800 flex flex-col">
@@ -88,7 +98,7 @@
                 <!-- Stats Summary & Settings Button -->
                 <div class="mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-bold text-slate-600">
                     <div class="bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
-                        <i class="fa-solid fa-unlock-keyhole text-sky-500 mr-1"></i><ruby>解<rt>かい</rt></ruby><ruby>放<rt>ほう</rt></ruby>コース: <span id="unlocked-count-text" class="text-sky-600">13</span>/100
+                        <i class="fa-solid fa-unlock-keyhole text-sky-500 mr-1"></i><ruby>解<rt>かい</rt></ruby><ruby>放<rt>ほう</rt></ruby>コース: <span id="unlocked-count-text" class="text-sky-600">3</span>/100
                     </div>
                     <div class="bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
                         <i class="fa-solid fa-trophy text-amber-500 mr-1"></i><ruby>累<rt>るい</rt></ruby><ruby>計<rt>けい</rt></ruby>スコア: <span id="total-score-text" class="text-amber-600">0</span> pt
@@ -103,23 +113,142 @@
                 </div>
             </header>
 
-            <!-- Game Start Bar with Start, Display Switch, and Stats Buttons -->
-            <div class="bg-white/90 backdrop-blur p-2.5 rounded-2xl shadow-sm border border-white mb-3 flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-                <button id="start-game-btn" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold text-base sm:text-lg px-8 sm:px-10 py-2 rounded-2xl shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
+            <!-- Game Start & Control Bar -->
+            <div class="bg-white/90 backdrop-blur p-2.5 rounded-2xl shadow-sm border border-white mb-3 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+                <button id="start-game-btn" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold text-base sm:text-lg px-8 py-2 rounded-2xl shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-play"></i>スタート！
                 </button>
-                <button id="toggle-view-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-2xl border border-slate-300 transition transform active:scale-95 flex items-center justify-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-border-all"></i><ruby>表<rt>ひょう</rt></ruby><ruby>示<rt>じ</rt></ruby>きりかえ
+                <button id="view-toggle-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-3.5 py-2 rounded-2xl border border-slate-300 transition active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrows-split-up-and-left text-indigo-500"></i> <ruby>表<rt>ひょう</rt></ruby><ruby>示<rt>じ</rt></ruby>きりかえ
                 </button>
-                <button id="open-stats-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-2 rounded-2xl border border-slate-300 transition transform active:scale-95 flex items-center justify-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-chart-column text-amber-500"></i><ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>
+                <button id="open-stats-btn" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs sm:text-sm px-3.5 py-2 rounded-2xl border border-amber-300 transition active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-line text-amber-600"></i> <ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>
                 </button>
             </div>
 
             <!-- Course Grid Container -->
-            <div class="flex-1 bg-white/70 backdrop-blur p-3 sm:p-5 rounded-3xl shadow-sm border border-white overflow-y-auto max-h-[calc(100vh-250px)]">
+            <div class="flex-1 bg-white/70 backdrop-blur p-3 sm:p-5 rounded-3xl shadow-sm border border-white overflow-y-auto max-h-[calc(100vh-280px)]">
                 <div id="categories-container" class="space-y-6">
-                    <!-- Dynamic Categories Inserted by JavaScript -->
+                    <!-- Dynamic Categories or Consolidated List Inserted by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Bottom Multiplayer VS Mode Trigger -->
+            <div class="mt-3 text-center">
+                <button id="open-vs-btn" class="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-rose-500 hover:from-purple-700 hover:to-rose-600 text-white font-extrabold text-base sm:text-lg py-3 rounded-2xl shadow-lg transition transform active:scale-98 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-users text-amber-300 text-xl animate-bounce"></i> 友だちと対戦（マルチプレイ）
+                </button>
+            </div>
+        </div>
+
+        <!-- MULTIPLAYER VS SCREEN -->
+        <div id="vs-screen" class="hidden flex-1 flex flex-col">
+            <!-- VS Header -->
+            <div class="bg-white/90 backdrop-blur px-4 py-2.5 rounded-2xl shadow-sm border border-white mb-3 flex items-center justify-between">
+                <button id="exit-vs-btn" class="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition">
+                    <i class="fa-solid fa-arrow-left mr-1"></i>トップへもどる
+                </button>
+                <div class="font-extrabold text-base sm:text-lg text-purple-700 flex items-center gap-2">
+                    <i class="fa-solid fa-gamepad text-purple-600"></i> 友だちと対戦
+                </div>
+                <div class="w-16"></div>
+            </div>
+
+            <!-- VS Lobby View -->
+            <div id="vs-lobby-view" class="flex-1 bg-white/80 backdrop-blur p-4 sm:p-6 rounded-3xl shadow-sm border border-white flex flex-col justify-center max-w-xl mx-auto w-full">
+                <div class="text-center mb-6">
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-800 mb-1">対戦部屋に入る・作る</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 font-bold">友だちとリアルタイムでタイピング勝負！</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Nickname Setup -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">あなたのニックネーム</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="vs-nickname-input" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="ニックネームを入力" maxlength="10">
+                            <button id="vs-random-name-btn" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold px-3 py-2 rounded-xl text-xs transition border border-purple-300 flex items-center gap-1 whitespace-nowrap">
+                                <i class="fa-solid fa-dice text-purple-600"></i> チェンジ
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Create Room Button -->
+                    <button id="vs-create-room-btn" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-extrabold py-3.5 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus-circle text-lg"></i> 新しく部屋を作る
+                    </button>
+
+                    <div class="relative flex py-1 items-center">
+                        <div class="flex-grow border-t border-slate-300"></div>
+                        <span class="flex-shrink mx-4 text-xs font-bold text-slate-400">または</span>
+                        <div class="flex-grow border-t border-slate-300"></div>
+                    </div>
+
+                    <!-- Join Room Input -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+                        <label class="block text-xs font-bold text-slate-600">対戦コード（8桁）を入力して参加</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="vs-room-code-input" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-mono uppercase font-black text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="例: r8m9k2a4" maxlength="8">
+                            <button id="vs-join-room-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-5 py-2 rounded-xl text-sm transition shadow-sm active:scale-95">
+                                参加する
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VS Room View (Waiting / Host Controls) -->
+            <div id="vs-room-view" class="hidden flex-1 bg-white/80 backdrop-blur p-4 sm:p-6 rounded-3xl shadow-sm border border-white flex flex-col max-w-2xl mx-auto w-full overflow-y-auto">
+                <!-- Room Info Bar -->
+                <div class="bg-purple-50 border border-purple-200 rounded-2xl p-3.5 mb-4 text-center relative">
+                    <div class="text-xs font-bold text-purple-700">部屋コード（友だちに教えてね）</div>
+                    <div id="vs-room-code-display" class="font-mono text-2xl sm:text-3xl font-black text-purple-900 tracking-wider my-1">
+                        --------
+                    </div>
+                    <button id="vs-copy-code-btn" class="text-xs bg-purple-200 hover:bg-purple-300 text-purple-900 font-bold px-3 py-1 rounded-full transition">
+                        <i class="fa-solid fa-copy mr-1"></i>コードをコピー
+                    </button>
+                </div>
+
+                <!-- Course Selection (Host only) / Course Display (Guest) -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 mb-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                            <i class="fa-solid fa-book-open text-indigo-500"></i> 対戦コース
+                        </label>
+                        <div id="vs-course-picker-controls" class="flex gap-2">
+                            <button id="vs-random-course-btn" class="hidden text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 font-extrabold px-3 py-1 rounded-xl border border-amber-300 transition">
+                                <i class="fa-solid fa-dice text-amber-600 mr-1"></i> おまかせ
+                            </button>
+                        </div>
+                    </div>
+                    <select id="vs-course-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-purple-400">
+                        <!-- Options generated by JavaScript based on participants' unlocked courses -->
+                    </select>
+                </div>
+
+                <!-- Member List -->
+                <div class="flex-1 bg-white p-4 rounded-2xl border border-slate-200 mb-4 shadow-sm flex flex-col min-h-[160px]">
+                    <div class="text-xs font-bold text-slate-600 mb-2 flex justify-between items-center">
+                        <span>参加メンバー一覧 (<span id="vs-member-count">0</span>人)</span>
+                        <span class="text-[10px] text-slate-400">リアルタイム同期中</span>
+                    </div>
+                    <div id="vs-member-list" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-1.5 overflow-y-auto max-h-[220px] p-1">
+                        <!-- Dynamic Member Cards -->
+                    </div>
+                </div>
+
+                <!-- Action Controls -->
+                <div class="space-y-2">
+                    <button id="vs-start-game-btn" class="hidden w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold py-3.5 rounded-2xl shadow-md text-base sm:text-lg transition transform active:scale-95">
+                        <i class="fa-solid fa-flag-checkered mr-2"></i> 全員で対戦スタート！
+                    </button>
+                    <div id="vs-guest-waiting-msg" class="hidden text-center py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-bold">
+                        <i class="fa-solid fa-spinner fa-spin mr-1.5"></i>オーナーが対戦をスタートするのを待っています...
+                    </div>
+                    <button id="vs-leave-room-btn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-2xl border border-slate-300 transition text-sm">
+                        対戦をやめる
+                    </button>
                 </div>
             </div>
         </div>
@@ -154,7 +283,7 @@
             <div class="my-2 flex-1 flex flex-col items-center justify-center bg-white/95 backdrop-blur p-3 sm:p-5 rounded-3xl shadow-md border border-white relative text-center min-h-[140px] overflow-hidden">
                 <!-- Target Kanji Display -->
                 <div id="target-display" class="font-extrabold text-slate-800 mb-2 pt-3 leading-relaxed whitespace-nowrap max-w-full overflow-x-auto text-2xl sm:text-4xl">
-                    <ruby>漢字<rt>かんじ</rt></ruby>
+                    <ruby>漢<rt>かん</rt></ruby><ruby>字<rt>じ</rt></ruby>
                 </div>
                 <!-- Romaji typing progress display -->
                 <div class="bg-slate-100 px-4 py-2 rounded-xl border border-slate-200 font-mono text-base sm:text-2xl tracking-widest whitespace-nowrap max-w-full overflow-x-auto">
@@ -177,7 +306,7 @@
     <div id="unlock-ceremony-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-md w-full p-6 text-center relative overflow-hidden">
             <div class="text-xl sm:text-2xl font-black text-slate-800 mb-4 leading-relaxed">
-                <ruby>全<rt>ぜん</rt></ruby>てのコースを3<ruby>回<rt>かい</rt></ruby><ruby>以<rt>い</rt></ruby><ruby>上<rt>じょう</rt></ruby>プレイしましたね。<br>コースが１つ<ruby>解<rt>かい</rt></ruby><ruby>放<rt>ほう</rt></ruby>されます。
+                全コースを3回以上プレイしましたね。<br>コースが1つ解放されます。
             </div>
             
             <div class="my-6 py-6 bg-slate-100 rounded-2xl border-2 border-dashed border-indigo-300 flex items-center justify-center min-h-[100px]">
@@ -192,116 +321,97 @@
         </div>
     </div>
 
-    <!-- STATS MODAL -->
-    <div id="stats-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-        <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-2xl w-full p-4 sm:p-6 relative my-auto max-h-[90vh] flex flex-col">
-            <h2 class="text-lg sm:text-xl font-black text-slate-800 text-center mb-3 flex items-center justify-center gap-2 shrink-0">
-                <i class="fa-solid fa-chart-column text-amber-500"></i> <ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>・<ruby>記<rt>き</rt></ruby><ruby>録<rt>ろく</rt></ruby>
+    <!-- SETTINGS MODAL -->
+    <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-md w-full p-4 sm:p-5 relative my-auto">
+            <h2 class="text-lg font-black text-slate-800 text-center mb-3 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-gear text-indigo-500"></i> ゲーム<ruby>設<rt>せっ</rt></ruby><ruby>定<rt>てい</rt></ruby>
             </h2>
-
-            <!-- Stats Overview Cards -->
-            <div class="grid grid-cols-3 gap-2 mb-3 shrink-0 text-center font-bold text-xs sm:text-sm">
-                <div class="bg-sky-50 p-2 sm:p-2.5 rounded-2xl border border-sky-100">
-                    <div class="text-slate-500 text-[10px] sm:text-xs"><ruby>解<rt>かい</rt></ruby><ruby>放<rt>ほう</rt></ruby>コース</div>
-                    <div class="text-sky-600 text-base sm:text-lg font-black"><span id="stats-unlocked-count">0</span> / 100</div>
+            
+            <div class="space-y-2.5 text-xs sm:text-sm font-bold text-slate-700">
+                <!-- Sound Option -->
+                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-volume-high text-sky-500"></i> <ruby>効<rt>こう</rt></ruby><ruby>果<rt>か</rt></ruby><ruby>音<rt>おん</rt></ruby></span>
+                    <button id="modal-sound-btn" class="px-4 py-1 rounded-lg text-white font-black bg-sky-500 hover:bg-sky-600 transition shadow-sm text-xs">
+                        ON
+                    </button>
                 </div>
-                <div class="bg-amber-50 p-2 sm:p-2.5 rounded-2xl border border-amber-100">
-                    <div class="text-slate-500 text-[10px] sm:text-xs"><ruby>全<rt>ぜん</rt></ruby><ruby>体<rt>たい</rt></ruby><ruby>累<rt>るい</rt></ruby><ruby>計<rt>けい</rt></ruby>スコア</div>
-                    <div class="text-amber-600 text-base sm:text-lg font-black"><span id="stats-total-score">0</span> pt</div>
+                <!-- Ruby Option -->
+                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-language text-indigo-500"></i> ルビ（ふりがな）</span>
+                    <button id="modal-ruby-btn" class="px-4 py-1 rounded-lg text-white font-black bg-indigo-500 hover:bg-indigo-600 transition shadow-sm text-xs">
+                        ON
+                    </button>
                 </div>
-                <div class="bg-emerald-50 p-2 sm:p-2.5 rounded-2xl border border-emerald-100">
-                    <div class="text-slate-500 text-[10px] sm:text-xs"><ruby>済<rt>ず</rt></ruby>み(3<ruby>回<rt>かい</rt></ruby>)</div>
-                    <div class="text-emerald-600 text-base sm:text-lg font-black"><span id="stats-completed-count">0</span> コース</div>
+                <!-- Romaji Style Option -->
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1.5">
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-keyboard text-emerald-500"></i> ローマ<ruby>字<rt>じ</rt></ruby><ruby>表<rt>ひょう</rt></ruby><ruby>示<rt>じ</rt></ruby></div>
+                    <div class="grid grid-cols-2 gap-1.5 text-xs font-bold" id="romaji-style-group">
+                        <button data-style="kunrei" class="romaji-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">訓令式 (si, ti, tu)</button>
+                        <button data-style="hepburn" class="romaji-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">ヘボン式 (shi, chi, tsu)</button>
+                    </div>
+                </div>
+                <!-- Keyboard Case Option -->
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1.5">
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-font text-purple-500"></i> キーボード<ruby>文<rt>も</rt></ruby><ruby>字<rt>じ</rt></ruby><ruby>表<rt>ひょう</rt></ruby><ruby>示<rt>じ</rt></ruby></div>
+                    <div class="grid grid-cols-2 gap-1.5 text-xs font-bold" id="keyboard-case-group">
+                        <button data-case="lowercase" class="case-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">小文字 (abc)</button>
+                        <button data-case="uppercase" class="case-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">大文字 (ABC)</button>
+                    </div>
+                </div>
+                <!-- Time Limit Option -->
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1.5">
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-stopwatch text-rose-500"></i> <ruby>制<rt>せい</rt></ruby><ruby>限<rt>げん</rt></ruby><ruby>時<rt>じ</rt></ruby><ruby>間<rt>かん</rt></ruby></div>
+                    <div class="grid grid-cols-3 gap-1.5 text-xs font-bold" id="time-selector-group">
+                        <button data-time="60" class="time-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">60秒</button>
+                        <button data-time="120" class="time-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">120秒</button>
+                        <button data-time="180" class="time-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">180秒</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Missed Key Frequency Ranking Section -->
-            <div class="bg-rose-50 border border-rose-100 p-2.5 sm:p-3 rounded-2xl mb-3 shrink-0">
-                <div class="text-xs font-extrabold text-rose-800 mb-1.5 flex items-center justify-between">
-                    <span><i class="fa-solid fa-keyboard text-rose-500 mr-1"></i>よく<ruby>間<rt>ま</rt></ruby><ruby>違<rt>ちが</rt></ruby>えるキー<ruby>文<rt>もん</rt></ruby><ruby>字<rt>じ</rt></ruby><ruby>順<rt>じゅん</rt></ruby>（ミス<ruby>回<rt>かい</rt></ruby><ruby>数<rt>すう</rt></ruby>）</span>
-                    <span class="text-[10px] text-rose-400 font-bold"><ruby>累<rt>るい</rt></ruby><ruby>計<rt>けい</rt></ruby><ruby>記<rt>き</rt></ruby><ruby>録<rt>ろく</rt></ruby></span>
-                </div>
-                <div id="stats-miss-keys-container" class="flex flex-wrap gap-1.5 text-xs font-bold max-h-24 overflow-y-auto pr-1">
-                    <!-- Dynamic Missed Keys inserted via JavaScript -->
-                </div>
-            </div>
-
-            <!-- Sorting Controls -->
-            <div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-200 shrink-0 text-xs font-bold flex-wrap">
-                <span class="text-slate-600"><i class="fa-solid fa-list mr-1"></i>コース<ruby>別<rt>べつ</rt></ruby><ruby>記<rt>き</rt></ruby><ruby>録<rt>ろく</rt></ruby><ruby>一<rt>いち</rt></ruby><ruby>覧<rt>らん</rt></ruby></span>
-                <div class="flex gap-1 flex-wrap" id="stats-sort-group">
-                    <button data-sort="score" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs"><ruby>最<rt>さい</rt></ruby><ruby>高<rt>こう</rt></ruby>スコア<ruby>順<rt>じゅん</rt></ruby></button>
-                    <button data-sort="totalScore" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs">コース<ruby>累<rt>るい</rt></ruby><ruby>計<rt>けい</rt></ruby><ruby>順<rt>じゅん</rt></ruby></button>
-                    <button data-sort="wpm" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs"><ruby>速<rt>はや</rt></ruby>さ<ruby>順<rt>じゅん</rt></ruby></button>
-                    <button data-sort="accuracy" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs"><ruby>正解率<rt>せいかいりつ</rt></ruby><ruby>順<rt>じゅん</rt></ruby></button>
-                    <button data-sort="date" class="stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl transition border border-slate-200 text-[11px] sm:text-xs"><ruby>最新<rt>さいしん</rt></ruby><ruby>順<rt>じゅん</rt></ruby></button>
-                </div>
-            </div>
-
-            <!-- Course Records List Container -->
-            <div id="stats-list-container" class="space-y-2 overflow-y-auto pr-1 flex-1 min-h-[180px]">
-                <!-- Dynamic Records inserted via JavaScript -->
-            </div>
-
-            <div class="mt-3 sm:mt-4 shrink-0">
-                <button id="close-stats-btn" class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold py-2.5 sm:py-3 rounded-2xl shadow-md transition active:scale-95">
+            <div class="mt-4">
+                <button id="close-settings-btn" class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold py-2.5 rounded-xl shadow-md transition active:scale-95 text-sm">
                     とじる
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- SETTINGS MODAL -->
-    <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-        <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-md w-full p-4 sm:p-5 relative my-auto max-h-[92vh] flex flex-col">
-            <h2 class="text-lg sm:text-xl font-black text-slate-800 text-center mb-3 flex items-center justify-center gap-2 shrink-0">
-                <i class="fa-solid fa-gear text-indigo-500"></i> ゲーム<ruby>設<rt>せっ</rt></ruby><ruby>定<rt>てい</rt></ruby>
+    <!-- STATS MODAL -->
+    <div id="stats-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-2xl w-full p-4 sm:p-6 relative my-auto flex flex-col max-h-[90vh]">
+            <h2 class="text-xl font-black text-slate-800 text-center mb-3 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-trophy text-amber-500"></i> <ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>・ランキング
             </h2>
-            
-            <div class="space-y-2.5 sm:space-y-3 text-xs sm:text-sm font-bold text-slate-700 overflow-y-auto pr-1 flex-1">
-                <!-- Sound Option -->
-                <div class="flex items-center justify-between bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100">
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-volume-high text-sky-500"></i> <ruby>効果音<rt>こうかおん</rt></ruby></span>
-                    <button id="modal-sound-btn" class="px-4 py-1.5 rounded-xl text-white font-black bg-sky-500 hover:bg-sky-600 transition shadow-sm">
-                        ON
-                    </button>
+
+            <!-- Frequently Missed Keys Section (Top 5) -->
+            <div class="bg-rose-50 border border-rose-200 rounded-2xl p-3 mb-3">
+                <div class="text-xs font-bold text-rose-900 mb-1.5 flex items-center gap-1.5">
+                    <i class="fa-solid fa-keyboard text-rose-500"></i> よく<ruby>間<rt>ま</rt></ruby><ruby>違<rt>ちが</rt></ruby>えるキー<ruby>文<rt>も</rt></ruby><ruby>字<rt>じ</rt></ruby><ruby>順<rt>じゅん</rt></ruby>（上位5位）
                 </div>
-                <!-- Ruby Option -->
-                <div class="flex items-center justify-between bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100">
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-language text-indigo-500"></i> ルビ（ふりがな）</span>
-                    <button id="modal-ruby-btn" class="px-4 py-1.5 rounded-xl text-white font-black bg-indigo-500 hover:bg-indigo-600 transition shadow-sm">
-                        ON
-                    </button>
-                </div>
-                <!-- Romaji Style Option -->
-                <div class="bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100 space-y-1.5">
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-keyboard text-emerald-500"></i> ローマ<ruby>字<rt>じ</rt></ruby><ruby>表<rt>ひょう</rt></ruby><ruby>示<rt>じ</rt></ruby></div>
-                    <div class="grid grid-cols-2 gap-2 text-xs font-bold" id="romaji-style-group">
-                        <button data-style="kunrei" class="romaji-btn px-2 py-1.5 rounded-xl border border-slate-200 transition"><ruby>訓令式<rt>くんれいしき</rt></ruby> (si, ti, tu)</button>
-                        <button data-style="hepburn" class="romaji-btn px-2 py-1.5 rounded-xl border border-slate-200 transition"><ruby>ヘボン式<rt>へぼんしき</rt></ruby> (shi, chi, tsu)</button>
-                    </div>
-                </div>
-                <!-- Keyboard Case Option -->
-                <div class="bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100 space-y-1.5">
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-font text-amber-500"></i> キーボード<ruby>文<rt>もん</rt></ruby><ruby>字<rt>じ</rt></ruby><ruby>表<rt>ひょう</rt></ruby><ruby>示<rt>じ</rt></ruby></div>
-                    <div class="grid grid-cols-2 gap-2 text-xs font-bold" id="kbd-case-group">
-                        <button data-case="lowercase" class="kbd-case-btn px-2 py-1.5 rounded-xl border border-slate-200 transition"><ruby>小文字<rt>こもじ</rt></ruby> (abc)</button>
-                        <button data-case="uppercase" class="kbd-case-btn px-2 py-1.5 rounded-xl border border-slate-200 transition"><ruby>大文字<rt>おおもじ</rt></ruby> (ABC)</button>
-                    </div>
-                </div>
-                <!-- Time Limit Option -->
-                <div class="bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-100 space-y-2">
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-stopwatch text-rose-500"></i> <ruby>制限時間<rt>せいげんじかん</rt></ruby></div>
-                    <div class="grid grid-cols-3 gap-1.5 text-xs font-bold" id="time-selector-group">
-                        <button data-time="60" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">60<ruby>秒<rt>びょう</rt></ruby></button>
-                        <button data-time="120" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">120<ruby>秒<rt>びょう</rt></ruby></button>
-                        <button data-time="180" class="time-btn px-1.5 py-1.5 rounded-xl border border-slate-200 transition">180<ruby>秒<rt>びょう</rt></ruby></button>
-                    </div>
+                <div id="missed-keys-container" class="flex flex-wrap gap-1.5">
+                    <!-- Top 5 missed key chips inserted by JS -->
                 </div>
             </div>
 
-            <div class="mt-3 sm:mt-4 shrink-0">
-                <button id="close-settings-btn" class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold py-2.5 sm:py-3 rounded-2xl shadow-md transition active:scale-95">
+            <!-- Sort Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3 bg-slate-100 p-2 rounded-2xl border border-slate-200">
+                <span class="text-xs font-bold text-slate-600 ml-1">並び替え:</span>
+                <div class="flex flex-wrap gap-1 text-xs font-bold" id="stats-sort-group">
+                    <button data-sort="score" class="sort-btn px-2.5 py-1 rounded-xl transition bg-amber-500 text-white font-black">最高スコア順</button>
+                    <button data-sort="totalScore" class="sort-btn px-2.5 py-1 rounded-xl transition bg-white text-slate-600 border border-slate-300">コース累計順</button>
+                    <button data-sort="wpm" class="sort-btn px-2.5 py-1 rounded-xl transition bg-white text-slate-600 border border-slate-300">タイプ速度順</button>
+                </div>
+            </div>
+
+            <!-- Course Records List -->
+            <div id="stats-list-container" class="flex-1 overflow-y-auto space-y-1.5 pr-1 max-h-[360px]">
+                <!-- Dynamic Course Cards with bright white background and 1/2 height -->
+            </div>
+
+            <div class="mt-4 pt-2 border-t border-slate-200">
+                <button id="close-stats-btn" class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold py-2.5 rounded-xl shadow-md transition active:scale-95 text-sm">
                     とじる
                 </button>
             </div>
@@ -315,46 +425,75 @@
                 3
             </div>
             <div id="countdown-subtext" class="text-white/80 font-bold text-lg sm:text-xl mt-4">
-                <ruby>準備<rt>じゅんび</rt></ruby>はいいかな？
+                準備はいいかな？
             </div>
         </div>
     </div>
 
-    <!-- RESULT MODAL -->
+    <!-- RESULT MODAL (Single Player) -->
     <div id="result-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-md w-full p-6 text-center relative overflow-hidden transform transition-all">
             <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-rose-500 mb-2">
                 🎉 クリア！ 🎉
             </div>
             <div id="new-record-badge" class="hidden my-2 inline-block bg-gradient-to-r from-amber-400 to-rose-500 text-white font-black text-xs px-3 py-1 rounded-full shadow animate-bounce">
-                ✨ <ruby>自己<rt>じこ</rt></ruby>ベスト<ruby>更新<rt>こうしん</rt></ruby> (+100pt ボーナス!) ✨
+                ✨ 自己ベスト更新 (+100pt ボーナス!) ✨
             </div>
 
             <div class="bg-slate-50 p-4 rounded-2xl my-4 space-y-2 text-sm font-bold text-slate-700 border border-slate-100">
                 <div class="flex justify-between">
-                    <span><ruby>今回獲得<rt>こんかいかくとく</rt></ruby>スコア:</span>
+                    <span>今回獲得スコア:</span>
                     <span id="res-score" class="text-amber-600 font-extrabold text-lg">0 pt</span>
                 </div>
                 <div class="flex justify-between">
-                    <span><ruby>正確率<rt>せいかいりつ</rt></ruby>:</span>
+                    <span>正確率:</span>
                     <span id="res-accuracy" class="text-sky-600">100%</span>
                 </div>
                 <div class="flex justify-between">
-                    <span>タイプ<ruby>速度<rt>そくど</rt></ruby>:</span>
-                    <span id="res-wpm" class="text-indigo-600">0 キー/<ruby>分<rt>ふん</rt></ruby></span>
+                    <span>タイプ速度:</span>
+                    <span id="res-wpm" class="text-indigo-600">0 キー/分</span>
                 </div>
                 <div class="flex justify-between text-xs text-slate-500 pt-1 border-t border-slate-200">
-                    <span><ruby>正解数<rt>せいかいすう</rt></ruby> / ミス<ruby>数<rt>すう</rt></ruby>:</span>
+                    <span>正解数 / ミス数:</span>
                     <span><span id="res-correct" class="text-emerald-600">0</span> / <span id="res-miss" class="text-rose-500">0</span></span>
                 </div>
             </div>
 
             <div class="flex gap-3">
                 <button id="res-retry-btn" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl transition">
-                    <i class="fa-solid fa-rotate-right mr-1"></i>もう<ruby>一度<rt>いちど</rt></ruby>
+                    <i class="fa-solid fa-rotate-right mr-1"></i>もう一度
                 </button>
                 <button id="res-return-btn" class="flex-1 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold py-2.5 rounded-xl shadow-md transition">
                     <i class="fa-solid fa-house mr-1"></i>トップへ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VS RESULT MODAL (Multiplayer) -->
+    <div id="vs-result-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-lg w-full p-6 text-center relative overflow-hidden">
+            <!-- Outcome Headline -->
+            <div id="vs-outcome-headline" class="text-3xl sm:text-4xl font-black mb-2 text-purple-600">
+                対戦結果
+            </div>
+
+            <!-- Player Rank / Outcome Badge -->
+            <div id="vs-user-rank-badge" class="my-3 py-2 px-4 bg-purple-50 border border-purple-200 rounded-2xl inline-block text-purple-900 font-extrabold text-lg sm:text-xl shadow-inner">
+                あなたの順位: 1位
+            </div>
+
+            <!-- Final Leaderboard List -->
+            <div class="bg-slate-50 rounded-2xl p-3 my-4 border border-slate-200 max-h-[220px] overflow-y-auto space-y-1.5" id="vs-final-leaderboard">
+                <!-- Dynamically populated top 3 / all players -->
+            </div>
+
+            <div class="space-y-2">
+                <button id="vs-rematch-btn" class="hidden w-full bg-gradient-to-r from-amber-400 to-rose-500 hover:from-amber-500 hover:to-rose-600 text-white font-extrabold py-3 rounded-xl shadow-md transition transform active:scale-95 text-base">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> コースを選んでもう1回スタート！
+                </button>
+                <button id="vs-return-lobby-btn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl border border-slate-300 transition text-sm">
+                    対戦部屋にもどる
                 </button>
             </div>
         </div>
@@ -502,6 +641,25 @@
 
         const sound = new SoundEngine();
 
+        // 110+ Animal/Insect/Sea Creature Nicknames
+        const ANIMAL_NICKNAMES = [
+            "しばいぬ", "とらねこ", "らいおん", "ぱんだ", "こあら", "ペンギン", "うさぎ", "りす", "きつね", "たぬき",
+            "ぞう", "きりん", "かば", "さい", "らくだ", "あるぱか", "かぴばら", "はりねずみ", "ももんが", "ふくろう",
+            "わし", "たか", "つばめ", "すずめ", "ひよこ", "あひる", "はくちょう", "かわせみ", "オウム", "フラミンゴ",
+            "イルカ", "クジラ", "シャチ", "ラッコ", "アシカ", "アザラシ", "ペンギン", "マンボウ", "ジンベエザメ", "タツノオトシゴ",
+            "クマノミ", "クリオネ", "クラゲ", "メンダコ", "ダイオウグソクムシ", "カブトムシ", "クワガタ", "テントウムシ", "アゲハチョウ", "ホタル",
+            "トンボ", "ミツバチ", "セミ", "バッタ", "カマキリ", "ダンゴムシ", "カナブン", "タマムシ", "ヘラクレス", "オオクワガタ",
+            "しろくま", "くろくま", "ひぐま", "パンダ", "レッサーパンダ", "オオカミ", "チーター", "ヒョウ", "ユキヒョウ", "ジャガー",
+            "マヌルネコ", "スナネコ", "ウォンバット", "タスマニアデビル", "カンガルー", "ワラビー", "プラティパス", "キーウィ", "エミュー", "ダチョウ",
+            "ミーアキャット", "プレリードッグ", "フェネック", "ヤマネ", "モルモット", "ハムスター", "チンチラ", "デグー", "フェレット", "カワウソ",
+            "ウミガメ", "リクガメ", "カメレオン", "イグアナ", "ヤモリ", "ウーパールーパー", "オオサンショウウオ", "アマガエル", "トノサマガエル", "ヤドクガエル",
+            "オウムガイ", "ダイオウイカ", "リュウグウノツカイ", "シーラカンス", "チョウチンアンコウ", "エイ", "マンタ", "シュモクザメ", "ノコギリエイ", "ネコザメ"
+        ];
+
+        function getRandomNickname() {
+            return ANIMAL_NICKNAMES[Math.floor(Math.random() * ANIMAL_NICKNAMES.length)];
+        }
+
         // Kana to Romaji map
         const KANA_ROMAJI_MAP = {
             'あ':['a'], 'い':['i'], 'う':['u'], 'え':['e'], 'お':['o'],
@@ -580,59 +738,59 @@
             },
             {
                 id: 'school',
-                name: '<ruby>教科<rt>きょうか</rt></ruby>・<ruby>学習<rt>がくしゅう</rt></ruby>',
+                name: '<ruby>教<rt>きょう</rt></ruby><ruby>科<rt>か</rt></ruby>・<ruby>学<rt>がく</rt></ruby><ruby>習<rt>しゅう</rt></ruby>',
                 icon: 'fa-book-open',
                 color: 'indigo',
                 courses: [
-                    { id: 'kokugo', name: '<ruby>国語<rt>こくご</rt></ruby>' },
-                    { id: 'sansu', name: '<ruby>算数<rt>さんすう</rt></ruby>' },
-                    { id: 'rika', name: '<ruby>理科<rt>りか</rt></ruby>' },
-                    { id: 'shakai', name: '<ruby>社会<rt>しゃかい</rt></ruby>' },
-                    { id: 'history_people', name: '<ruby>歴史<rt>れきし</rt></ruby>の<ruby>人物<rt>じんぶつ</rt></ruby>' },
-                    { id: 'music', name: '<ruby>音楽<rt>おんがく</rt></ruby>' },
-                    { id: 'art', name: '<ruby>図工<rt>ずこう</rt></ruby>' },
-                    { id: 'pe', name: '<ruby>体育<rt>たいいく</rt></ruby>' },
-                    { id: 'school_items', name: '<ruby>学校<rt>がっこう</rt></ruby>にある<ruby>物<rt>もの</rt></ruby>' },
-                    { id: 'school_lunch', name: '<ruby>学校給食<rt>がっこうきゅうしょく</rt></ruby>' }
+                    { id: 'kokugo', name: '<ruby>国<rt>こく</rt></ruby><ruby>語<rt>ご</rt></ruby>' },
+                    { id: 'sansu', name: '<ruby>算<rt>さん</rt></ruby><ruby>数<rt>すう</rt></ruby>' },
+                    { id: 'rika', name: '<ruby>理<rt>り</rt></ruby><ruby>科<rt>か</rt></ruby>' },
+                    { id: 'shakai', name: '<ruby>社<rt>しゃ</rt></ruby><ruby>会<rt>かい</rt></ruby>' },
+                    { id: 'history_people', name: '<ruby>歴<rt>れき</rt></ruby><ruby>史<rt>し</rt></ruby>の<ruby>人<rt>じん</rt></ruby><ruby>物<rt>ぶつ</rt></ruby>' },
+                    { id: 'music', name: '<ruby>音<rt>おん</rt></ruby><ruby>楽<rt>がく</rt></ruby>' },
+                    { id: 'art', name: '<ruby>図<rt>ず</rt></ruby><ruby>工<rt>こう</rt></ruby>' },
+                    { id: 'pe', name: '<ruby>体<rt>たい</rt></ruby><ruby>育<rt>いく</rt></ruby>' },
+                    { id: 'school_items', name: '<ruby>学<rt>がっ</rt></ruby><ruby>校<rt>こう</rt></ruby>にある<ruby>物<rt>もの</rt></ruby>' },
+                    { id: 'school_lunch', name: '<ruby>学<rt>がっ</rt></ruby><ruby>校<rt>こう</rt></ruby><ruby>給<rt>きゅう</rt></ruby><ruby>食<rt>しょく</rt></ruby>' }
                 ]
             },
             {
                 id: 'geography',
-                name: '<ruby>地理<rt>ちり</rt></ruby>・<ruby>社会<rt>しゃかい</rt></ruby>',
+                name: '<ruby>地<rt>ち</rt></ruby><ruby>理<rt>り</rt></ruby>・<ruby>社<rt>しゃ</rt></ruby><ruby>会<rt>かい</rt></ruby>',
                 icon: 'fa-earth-asia',
                 color: 'emerald',
                 courses: [
-                    { id: 'prefectures', name: '<ruby>都道府県<rt>とどうふけん</rt></ruby>' },
-                    { id: 'capitals', name: '<ruby>県庁所在地<rt>けんちょうしょざいち</rt></ruby>' },
-                    { id: 'mountains', name: '<ruby>日本<rt>にほん</rt></ruby>の<ruby>山<rt>やま</rt></ruby>' },
-                    { id: 'rivers', name: '<ruby>日本<rt>にほん</rt></ruby>の<ruby>川<rt>かわ</rt></ruby>' },
-                    { id: 'lakes', name: '<ruby>日本<rt>にほん</rt></ruby>の<ruby>湖<rt>みずうみ</rt></ruby>' },
+                    { id: 'prefectures', name: '<ruby>都<rt>と</rt></ruby><ruby>道<rt>どう</rt></ruby><ruby>府<rt>ふ</rt></ruby><ruby>県<rt>けん</rt></ruby>' },
+                    { id: 'capitals', name: '<ruby>県<rt>けん</rt></ruby><ruby>庁<rt>ちょう</rt></ruby><ruby>所<rt>しょ</rt></ruby><ruby>在<rt>ざい</rt></ruby><ruby>地<rt>ち</rt></ruby>' },
+                    { id: 'mountains', name: '<ruby>日<rt>に</rt></ruby><ruby>本<rt>ほん</rt></ruby>の<ruby>山<rt>やま</rt></ruby>' },
+                    { id: 'rivers', name: '<ruby>日<rt>に</rt></ruby><ruby>本<rt>ほん</rt></ruby>の<ruby>川<rt>かわ</rt></ruby>' },
+                    { id: 'lakes', name: '<ruby>日<rt>に</rt></ruby><ruby>本<rt>ほん</rt></ruby>の<ruby>湖<rt>みずうみ</rt></ruby>' },
                     { id: 'asia_countries', name: 'アジアの<ruby>国<rt>くに</rt></ruby>' },
                     { id: 'europe_countries', name: 'ヨーロッパの<ruby>国<rt>くに</rt></ruby>' },
-                    { id: 'americas_oceania', name: '<ruby>北米<rt>ほくべい</rt></ruby>・<ruby>南米<rt>なんべい</rt></ruby>・オセアニア' },
+                    { id: 'americas_oceania', name: '<ruby>北<rt>ほく</rt></ruby><ruby>米<rt>べい</rt></ruby>・<ruby>南<rt>なん</rt></ruby><ruby>米<rt>べい</rt></ruby>・オセアニア' },
                     { id: 'africa_countries', name: 'アフリカの<ruby>国<rt>くに</rt></ruby>' },
-                    { id: 'asia_capitals', name: 'アジアの<ruby>首都<rt>しゅと</rt></ruby>' },
-                    { id: 'europe_capitals', name: 'ヨーロッパの<ruby>首都<rt>しゅと</rt></ruby>' },
-                    { id: 'americas_oceania_capitals', name: '<ruby>米州<rt>べいしゅう</rt></ruby>・オセアニア<ruby>首都<rt>しゅと</rt></ruby>' },
-                    { id: 'africa_capitals', name: 'アフリカの<ruby>首都<rt>しゅと</rt></ruby>' }
+                    { id: 'asia_capitals', name: 'アジアの<ruby>首<rt>しゅ</rt></ruby><ruby>都<rt>と</rt></ruby>' },
+                    { id: 'europe_capitals', name: 'ヨーロッパの<ruby>首<rt>しゅ</rt></ruby><ruby>都<rt>と</rt></ruby>' },
+                    { id: 'americas_oceania_capitals', name: '<ruby>米<rt>べい</rt></ruby><ruby>州<rt>しゅう</rt></ruby>・オセアニア<ruby>首<rt>しゅ</rt></ruby><ruby>都<rt>と</rt></ruby>' },
+                    { id: 'africa_capitals', name: 'アフリカの<ruby>首<rt>しゅ</rt></ruby><ruby>都<rt>と</rt></ruby>' }
                 ]
             },
             {
                 id: 'history_culture',
-                name: '<ruby>歴史<rt>れきし</rt></ruby>・<ruby>文化<rt>ぶんか</rt></ruby>',
+                name: '<ruby>歴<rt>れき</rt></ruby><ruby>史<rt>し</rt></ruby>・<ruby>文<rt>ぶん</rt></ruby><ruby>化<rt>か</rt></ruby>',
                 icon: 'fa-landmark',
                 color: 'amber',
                 courses: [
-                    { id: 'sengoku', name: '<ruby>戦国武将<rt>せんごくぶしょう</rt></ruby>' },
-                    { id: 'sangokushi', name: '<ruby>三国志<rt>さんごくし</rt></ruby>の<ruby>武将<rt>ぶしょう</rt></ruby>' },
-                    { id: 'pm_japan', name: '<ruby>総理大臣<rt>そうりだいじん</rt></ruby>' },
-                    { id: 'us_presidents', name: 'アメリカ<ruby>大統領<rt>だいとうりょう</rt></ruby>' },
-                    { id: 'world_figures', name: '<ruby>世界史<rt>せかいし</rt></ruby>の<ruby>有名人<rt>ゆうめいじん</rt></ruby>' },
-                    { id: 'historic_battles', name: '<ruby>歴史<rt>れきし</rt></ruby>の<ruby>戦<rt>たたか</rt></ruby>い' },
-                    { id: 'mythology', name: '<ruby>神話<rt>しんわ</rt></ruby>の<ruby>人物<rt>じんぶつ</rt></ruby>' },
-                    { id: 'haiku', name: '<ruby>俳句<rt>はいく</rt></ruby>' },
-                    { id: 'hyakunin', name: '<ruby>百人一首<rt>ひゃくにんいっしゅ</rt></ruby>' },
-                    { id: 'sumo', name: '<ruby>相撲<rt>すもう</rt></ruby>' }
+                    { id: 'sengoku', name: '<ruby>戦<rt>せん</rt></ruby><ruby>国<rt>ごく</rt></ruby><ruby>武<rt>ぶ</rt></ruby><ruby>将<rt>しょう</rt></ruby>' },
+                    { id: 'sangokushi', name: '<ruby>三<rt>さん</rt></ruby><ruby>国<rt>ごく</rt></ruby><ruby>志<rt>し</rt></ruby>の<ruby>武<rt>ぶ</rt></ruby><ruby>将<rt>しょう</rt></ruby>' },
+                    { id: 'pm_japan', name: '<ruby>総<rt>そう</rt></ruby><ruby>理<rt>り</rt></ruby><ruby>大<rt>だい</rt></ruby><ruby>臣<rt>じん</rt></ruby>' },
+                    { id: 'us_presidents', name: 'アメリカ<ruby>大<rt>だい</rt></ruby><ruby>統<rt>とう</rt></ruby><ruby>領<rt>りょう</rt></ruby>' },
+                    { id: 'world_figures', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby><ruby>史<rt>し</rt></ruby>の<ruby>有<rt>ゆう</rt></ruby><ruby>名<rt>めい</rt></ruby><ruby>人<rt>じん</rt></ruby>' },
+                    { id: 'historic_battles', name: '<ruby>歴<rt>れき</rt></ruby><ruby>史<rt>し</rt></ruby>の<ruby>戦<rt>たたか</rt></ruby>い' },
+                    { id: 'mythology', name: '<ruby>神<rt>しん</rt></ruby><ruby>話<rt>わ</rt></ruby>の<ruby>人<rt>じん</rt></ruby><ruby>物<rt>ぶつ</rt></ruby>' },
+                    { id: 'haiku', name: '<ruby>俳<rt>はい</rt></ruby><ruby>句<rt>く</rt></ruby>' },
+                    { id: 'hyakunin', name: '<ruby>百<rt>ひゃく</rt></ruby><ruby>人<rt>にん</rt></ruby><ruby>一<rt>いっ</rt></ruby><ruby>首<rt>しゅ</rt></ruby>' },
+                    { id: 'sumo', name: '<ruby>相<rt>す</rt></ruby><ruby>撲<rt>もう</rt></ruby>' }
                 ]
             },
             {
@@ -642,31 +800,31 @@
                 color: 'rose',
                 courses: [
                     { id: 'sushi', name: 'おすしのメニュー' },
-                    { id: 'japanese_food', name: '<ruby>日本料理<rt>にほんりょうり</rt></ruby>' },
-                    { id: 'chinese_food', name: '<ruby>中華料理<rt>ちゅうかりょうり</rt></ruby>' },
-                    { id: 'world_food', name: '<ruby>世界<rt>せかい</rt></ruby>の<ruby>料理<rt>りょうり</rt></ruby>' },
+                    { id: 'japanese_food', name: '<ruby>日<rt>に</rt></ruby><ruby>本<rt>ほん</rt></ruby><ruby>料<rt>りょう</rt></ruby><ruby>理<rt>り</rt></ruby>' },
+                    { id: 'chinese_food', name: '<ruby>中<rt>ちゅう</rt></ruby><ruby>華<rt>か</rt></ruby><ruby>料<rt>りょう</rt></ruby><ruby>理<rt>り</rt></ruby>' },
+                    { id: 'world_food', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby>の<ruby>料<rt>りょう</rt></ruby><ruby>理<rt>り</rt></ruby>' },
                     { id: 'ramen', name: 'ラーメン' },
                     { id: 'sweets', name: 'スイーツ' },
                     { id: 'vegetables', name: 'やさい' },
                     { id: 'fruits', name: 'くだもの' },
-                    { id: 'tea', name: '<ruby>世界<rt>せかい</rt></ruby>のお<ruby>茶<rt>ちゃ</rt></ruby>' },
+                    { id: 'tea', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby>のお<ruby>茶<rt>ちゃ</rt></ruby>' },
                     { id: 'cheese', name: 'チーズ' }
                 ]
             },
             {
                 id: 'nature',
-                name: '<ruby>生<rt>い</rt></ruby>き<ruby>物<rt>もの</rt></ruby>・<ruby>自然<rt>しぜん</rt></ruby>',
+                name: '<ruby>生<rt>い</rt></ruby>き<ruby>物<rt>もの</rt></ruby>・<ruby>自<rt>じ</rt></ruby><ruby>然<rt>ぜん</rt></ruby>',
                 icon: 'fa-paw',
                 color: 'green',
                 courses: [
-                    { id: 'animals', name: '<ruby>動物<rt>どうぶつ</rt></ruby>' },
+                    { id: 'animals', name: '<ruby>動<rt>どう</rt></ruby><ruby>物<rt>ぶつ</rt></ruby>' },
                     { id: 'dogs', name: '<ruby>犬<rt>いぬ</rt></ruby>' },
                     { id: 'cats', name: 'ネコ' },
                     { id: 'birds', name: '<ruby>鳥<rt>とり</rt></ruby>' },
-                    { id: 'insects', name: '<ruby>昆虫<rt>こんちゅう</rt></ruby>' },
+                    { id: 'insects', name: '<ruby>昆<rt>こん</rt></ruby><ruby>虫<rt>ちゅう</rt></ruby>' },
                     { id: 'sea_fish', name: '<ruby>海<rt>うみ</rt></ruby>の<ruby>魚<rt>さかな</rt></ruby>' },
                     { id: 'river_fish', name: '<ruby>川<rt>かわ</rt></ruby>の<ruby>魚<rt>さかな</rt></ruby>' },
-                    { id: 'dinosaurs', name: '<ruby>恐竜<rt>きょうりゅう</rt></ruby>' },
+                    { id: 'dinosaurs', name: '<ruby>恐<rt>きょう</rt></ruby><ruby>竜<rt>りゅう</rt></ruby>' },
                     { id: 'flowers', name: '<ruby>花<rt>はな</rt></ruby>' },
                     { id: 'trees', name: '<ruby>木<rt>き</rt></ruby>' },
                     { id: 'clouds', name: '<ruby>雲<rt>くも</rt></ruby>' }
@@ -674,68 +832,68 @@
             },
             {
                 id: 'science',
-                name: '<ruby>身体<rt>しんたい</rt></ruby>・<ruby>科学<rt>かがく</rt></ruby>',
+                name: '<ruby>身<rt>しん</rt></ruby><ruby>体<rt>たい</rt></ruby>・<ruby>科<rt>か</rt></ruby><ruby>学<rt>がく</rt></ruby>',
                 icon: 'fa-atom',
                 color: 'purple',
                 courses: [
-                    { id: 'body_parts', name: '<ruby>体<rt>からだ</rt></ruby>の<ruby>部分<rt>ぶぶん</rt></ruby>' },
+                    { id: 'body_parts', name: '<ruby>体<rt>からだ</rt></ruby>の<ruby>部<rt>ぶ</rt></ruby><ruby>分<rt>ぶん</rt></ruby>' },
                     { id: 'internal_organs', name: '<ruby>体<rt>からだ</rt></ruby>の<ruby>中<rt>なか</rt></ruby>にあるもの' },
-                    { id: 'bones', name: '<ruby>人間<rt>にんげん</rt></ruby>の<ruby>骨<rt>ほね</rt></ruby>' },
-                    { id: 'diseases', name: '<ruby>病気<rt>びょうき</rt></ruby>' },
-                    { id: 'elements', name: '<ruby>元素記号<rt>げんそきごう</rt></ruby>' }
+                    { id: 'bones', name: '<ruby>人<rt>にん</rt></ruby><ruby>間<rt>げん</rt></ruby>の<ruby>骨<rt>ほね</rt></ruby>' },
+                    { id: 'diseases', name: '<ruby>病<rt>びょう</rt></ruby><ruby>気<rt>き</rt></ruby>' },
+                    { id: 'elements', name: '<ruby>元<rt>げん</rt></ruby><ruby>素<rt>そ</rt></ruby><ruby>記<rt>き</rt></ruby><ruby>号<rt>ごう</rt></ruby>' }
                 ]
             },
             {
                 id: 'sports_hobbies',
-                name: '<ruby>乗<rt>の</rt></ruby>り<ruby>物<rt>もの</rt></ruby>・スポーツ・<ruby>趣味<rt>しゅみ</rt></ruby>',
+                name: '<ruby>乗<rt>の</rt></ruby>り<ruby>物<rt>もの</rt></ruby>・スポーツ・<ruby>趣<rt>しゅ</rt></ruby><ruby>味<rt>み</rt></ruby>',
                 icon: 'fa-futbol',
                 color: 'orange',
                 courses: [
-                    { id: 'kanto_trains', name: '<ruby>関東<rt>かんとう</rt></ruby>の<ruby>電車<rt>でんしゃ</rt></ruby>' },
+                    { id: 'kanto_trains', name: '<ruby>関<rt>かん</rt></ruby><ruby>東<rt>とう</rt></ruby>の<ruby>電<rt>でん</rt></ruby><ruby>車<rt>しゃ</rt></ruby>' },
                     { id: 'cars', name: '<ruby>車<rt>くるま</rt></ruby>' },
                     { id: 'sports', name: 'スポーツ' },
-                    { id: 'sports_gear', name: 'スポーツの<ruby>道具<rt>どうぐ</rt></ruby>' },
-                    { id: 'musicians', name: '<ruby>音楽家<rt>おんがくか</rt></ruby>' },
-                    { id: 'shogi', name: '<ruby>将棋<rt>しょうぎ</rt></ruby>' },
+                    { id: 'sports_gear', name: 'スポーツの<ruby>道<rt>どう</rt></ruby><ruby>具<rt>ぐ</rt></ruby>' },
+                    { id: 'musicians', name: '<ruby>音<rt>おん</rt></ruby><ruby>楽<rt>がく</rt></ruby><ruby>家<rt>か</rt></ruby>' },
+                    { id: 'shogi', name: '<ruby>将<rt>しょう</rt></ruby><ruby>棋<rt>ぎ</rt></ruby>' },
                     { id: 'toys', name: 'おもちゃ' }
                 ]
             },
             {
                 id: 'daily_life',
-                name: '<ruby>暮<rt>く</rt></ruby>らし・<ruby>仕事<rt>しごと</rt></ruby>・<ruby>学習<rt>がくしゅう</rt></ruby>のコツ',
+                name: '<ruby>暮<rt>く</rt></ruby>らし・お<ruby>事<rt>し</rt></ruby><ruby>事<rt>ごと</rt></ruby>・<ruby>学<rt>がく</rt></ruby><ruby>習<rt>しゅう</rt></ruby>のコツ',
                 icon: 'fa-briefcase',
                 color: 'teal',
                 courses: [
                     { id: 'motivation_tips', name: 'やる<ruby>気<rt>き</rt></ruby>を<ruby>出<rt>だ</rt></ruby>すコツ' },
-                    { id: 'kanji_tips', name: '<ruby>漢字<rt>かんじ</rt></ruby>を<ruby>読<rt>よ</rt></ruby>む・<ruby>書<rt>か</rt></ruby>くコツ' },
-                    { id: 'study_tips', name: '<ruby>勉強<rt>べんきょう</rt></ruby>のコツ' },
-                    { id: 'jobs', name: '<ruby>職業<rt>しょくぎょう</rt></ruby>' },
+                    { id: 'kanji_tips', name: '<ruby>漢<rt>かん</rt></ruby><ruby>字<rt>じ</rt></ruby>を<ruby>読<rt>よ</rt></ruby>む・<ruby>書<rt>か</rt></ruby>くコツ' },
+                    { id: 'study_tips', name: '<ruby>勉<rt>べん</rt></ruby><ruby>強<rt>きょう</rt></ruby>のコツ' },
+                    { id: 'jobs', name: '<ruby>職<rt>しょく</rt></ruby><ruby>業<rt>ぎょう</rt></ruby>' },
                     { id: 'pc_words', name: 'パソコンのことば' },
-                    { id: 'it_words', name: 'IT<ruby>用語<rt>ようご</rt></ruby>・カタカナ' },
+                    { id: 'it_words', name: 'IT<ruby>用<rt>よう</rt></ruby><ruby>語<rt>ご</rt></ruby>・カタカナ' },
                     { id: 'home_items', name: '<ruby>家<rt>いえ</rt></ruby>にあるもの' }
                 ]
             },
             {
                 id: 'language',
-                name: '<ruby>言葉<rt>ことば</rt></ruby>・<ruby>表現<rt>ひょうげん</rt></ruby>',
+                name: '<ruby>言<rt>こと</rt></ruby><ruby>葉<rt>ば</rt></ruby>・<ruby>表<rt>ひょう</rt></ruby><ruby>現<rt>げん</rt></ruby>',
                 icon: 'fa-shapes',
                 color: 'pink',
                 courses: [
-                    { id: 'idioms', name: '<ruby>慣用句<rt>かんようく</rt></ruby>' },
+                    { id: 'idioms', name: '<ruby>慣<rt>かん</rt></ruby><ruby>用<rt>よう</rt></ruby><ruby>句<rt>く</rt></ruby>' },
                     { id: 'greetings', name: 'あいさつ' },
-                    { id: 'daily_phrases', name: '<ruby>日常会話<rt>にちじょうかいわ</rt></ruby>' },
+                    { id: 'daily_phrases', name: '<ruby>日<rt>にち</rt></ruby><ruby>常<rt>じょう</rt></ruby><ruby>会<rt>かい</rt></ruby><ruby>話<rt>わ</rt></ruby>' },
                     { id: 'proverbs', name: 'ことわざ' },
-                    { id: 'four_kanji', name: '<ruby>四字熟語<rt>よじじゅくご</rt></ruby>' },
+                    { id: 'four_kanji', name: '<ruby>四<rt>よ</rt></ruby><ruby>字<rt>じ</rt></ruby><ruby>熟<rt>じゅく</rt></ruby><ruby>語<rt>ご</rt></ruby>' },
                     { id: 'compliments', name: 'ほめことば' },
                     { id: 'onomatopoeia', name: 'オノマトペ' },
-                    { id: 'animal_sounds', name: '<ruby>動物<rt>どうぶつ</rt></ruby>のなきごえ' },
-                    { id: 'kanji_radicals', name: '<ruby>部首<rt>ぶしゅ</rt></ruby>' },
-                    { id: 'difficult_kanji', name: '<ruby>難読漢字<rt>なんどくかんじ</rt></ruby>' },
-                    { id: 'honorifics', name: '<ruby>敬語<rt>けいご</rt></ruby>' },
+                    { id: 'animal_sounds', name: '<ruby>動<rt>どう</rt></ruby><ruby>物<rt>ぶつ</rt></ruby>のなきごえ' },
+                    { id: 'kanji_radicals', name: '<ruby>部<rt>ぶ</rt></ruby><ruby>首<rt>しゅ</rt></ruby>' },
+                    { id: 'difficult_kanji', name: '<ruby>難<rt>なん</rt></ruby><ruby>読<rt>どく</rt></ruby><ruby>漢<rt>かん</rt></ruby><ruby>字<rt>じ</rt></ruby>' },
+                    { id: 'honorifics', name: '<ruby>敬<rt>けい</rt></ruby><ruby>語<rt>ご</rt></ruby>' },
                     { id: 'colors', name: '<ruby>色<rt>いろ</rt></ruby>' },
-                    { id: 'holidays', name: '<ruby>日本<rt>にほん</rt></ruby>の<ruby>祝日<rt>しゅくじつ</rt></ruby>' },
-                    { id: 'constellations', name: '<ruby>星座<rt>せいざ</rt></ruby>' },
-                    { id: 'world_currencies', name: '<ruby>世界<rt>せかい</rt></ruby>のお<ruby>金<rt>かね</rt></ruby>' },
+                    { id: 'holidays', name: '<ruby>日<rt>に</rt></ruby><ruby>本<rt>ほん</rt></ruby>の<ruby>祝<rt>しゅく</rt></ruby><ruby>日<rt>じつ</rt></ruby>' },
+                    { id: 'constellations', name: '<ruby>星<rt>せい</rt></ruby><ruby>座<rt>ざ</rt></ruby>' },
+                    { id: 'world_currencies', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby>のお<ruby>金<rt>かね</rt></ruby>' },
                     { id: 'spring_items', name: '<ruby>春<rt>はる</rt></ruby>のもの' },
                     { id: 'summer_items', name: '<ruby>夏<rt>なつ</rt></ruby>のもの' },
                     { id: 'autumn_items', name: '<ruby>秋<rt>あき</rt></ruby>のもの' },
@@ -746,10 +904,10 @@
 
         // Fully Audited and Matched Word Data for all Courses
         const WORD_DATA = {
-            aiueo: [["あいうえお","あいうえお"],["かきくけこ","かきくけこ"],["さしすせそ","さしすせそ"],["たちつてと","たちつてと"],["なにぬねの","なにぬねの"],["はひふへほ","hahi huheho"],["まみむめも","まみむめも"],["やゆよ","やゆよ"],["らりるれろ","らりるれろ"],["わをん","わをん"]],
+            aiueo: [["あいうえお","あいうえお"],["かきくけこ","かきくけこ"],["さしすせそ","さしすせそ"],["たちつてと","たちつてと"],["なにぬねの","なにぬねの"],["はひふへほ","はひふへほ"],["まみむめも","まみむめも"],["やゆよ","やゆよ"],["らりるれろ","らりるれろ"],["わをん","わをん"]],
             dakuon_handakuon: [["がぎぐげご","がぎぐげご"],["ざじずぜぞ","ざじずぜぞ"],["だぢづでど","だぢづでど"],["ばびぶべぼ","ばびぶべぼ"],["ぱぴぷぺぽ","ぱぴぷぺぽ"],["ガギグゲゴ","がぎぐげご"],["ザジズゼゾ","ざじずぜぞ"],["ダヂヅデド","だぢづでど"],["バビブベボ","ばびぶべぼ"],["パピプペポ","ぱぴぷぺぽ"]],
             sokuon_youon: [["きゃきゅきょ","きゃきゅきょ"],["しゃしゅしょ","しゃしゅしょ"],["ちゃちゅちょ","ちゃちゅちょ"],["にゃにゅにょ","にゃにゅにょ"],["ひゃひゅひょ","ひゃひゅひょ"],["みゃみゅみょ","みゃみゅみょ"],["りゃりゅりょ","りゃりゅりょ"],["学校","がっこう"],["切手","きって"],["雑誌","ざっし"],["おもちゃ","おもちゃ"]],
-            motivation_tips: [["とりあえず5分間やってみる","とりあえずごふんかんやってみる"],["ごほうびを用意する","ごほうびをよういする"],["好きな教科から始める","すきなきょうかからはじめる"],["机の上をきれいに片付ける","つくえのうえをきれいにかたづける"],["やることを紙に書き出す","やることをかみにかきだす"],["終わった後の楽しみを考える","おわったあとのたのしみをかんがえる"],["まず1問だけ解いてみる","まずいちもんだけといてみる"],["深呼吸をして気持ちを整える","しんこきゅうをしてきもちをととのえる"],["友達や家族に宣言する","ともだちやかぞくにせんげんする"],["タイマーをセットしてスタート","たいまーをせっとしてすたーと"],["静かな場所に移動してみる","しずかなばしょにいどうしてみる"],["少し散歩して気分転換する","すこしさんぽしてきぶんてんかんする"],["出来たらカレンダーに丸をつける","できたらかれんだーにまるをつける"],["自分を思い切りほめてあげる","じぶんをおもいきりほめてあげる"]],
+            motivation_tips: [["とりあえず5分間やってみる","とりあえずごふんかんやってみる"],["ごほうびを用意する","ごほうびをよういする"],["好きな教科から始める","すきなきょうかからはじめる"],["机の上をきれいに片付ける","つくえのうえをきれいにかたづける"],["やることを紙に書き出す","やることをかみにかきだす"],["終わった後の楽しみを考える","おわったあとのたのしみをかんがえる"],["まず1問だけ解いてみる","まずいちもんだけといてみる"],["深呼吸をして気持ちを整える","しんこきゅうをしてきもちをととのえる"],["友達や家族に宣言する","ともだちやかぞくにせんげんする"],["タイマーをセットしてスタート","たいまーをせっとてすたーと"],["静かな場所に移動してみる","しずかなばしょにいどうしてみる"],["少し散歩して気分転換する","すこしさんぽしてきぶんてんかんする"],["出来たらカレンダーに丸をつける","できたらかれんだーにまるをつける"],["自分を思い切りほめてあげる","じぶんをおもいきりほめてあげる"]],
             kanji_tips: [["本をたくさん読む","ほんをたくさんよむ"],["教科書をたくさん音読する","きょうかしょをたくさんおんどくする"],["同じ部首の漢字をまとめて覚える","おなじぶしゅのかんじをまとめておぼえる"],["反対語・似た意味の言葉をセットで覚える","はんたいごにたいみのことばをせっとでおぼえる"],["図鑑や辞書をパラパラ見る","ずかんやじしょをぱらぱらみる"],["書き順を守って漢字を書く","かきじゅんをまもってかんじをかく"],["漢字を声に出しながら書く","かんじをこえにだしながらかく"],["空書きをする","そらがきをする"],["部首やパーツに分解して覚える","ぶしゅやぱーつにぶんかいしておぼえる"],["とめ・はね・はらいに気をつけて書く","とめはねはらいにきをつけてかく"],["自分で文を作って書いてみる","じぶんでぶんをつくってかいてみる"],["間違えた漢字だけを練習","まちがえたかんじだけをれんしゅう"],["もう一度自分で同じ問題のテストをする","もういちどじぶんでおなじもんだいのテストをする"],["大きく書いて練習する","おおきくかいてれんしゅうする"]],
             study_tips: [
                 ["毎日決まった時こくに宿題や学習をする。","まいにちきまったときこくにしゅくだいやがくしゅうをする。"],
@@ -820,7 +978,7 @@
             sea_fish: [["マグロ","まぐろ"],["サケ","さけ"],["タイ","たい"],["ヒラメ","ひらめ"],["カツオ","かつお"],["サンマ","さんま"],["アジ","あじ"],["イワシ","いわし"],["サバ","さば"],["ブリ","ぶり"]],
             river_fish: [["アユ","あゆ"],["ヤマメ","やまめ"],["イワナ","いわな"],["ニジマス","にじます"],["メダカ","めだか"],["ドジョウ","どじょう"],["ナマズ","なまず"],["コイ","こい"],["フナ","ふな"],["ウナギ","うなぎ"]],
             dinosaurs: [["ティラノサウルス","てぃらのさうるす"],["トリケラトプス","とりけらとぷす"],["プテラノドン","ぷてらのどん"],["ステゴサウルス","すてごさうるす"],["ブラキオサウルス","ぶらきおさうるす"],["ヴェロキラプトル","ゔぇろきらぷとる"],["スピノサウルス","すぴのさうるす"],["アンキロサウルス","あんきろさうるす"],["プレシオサウルス","ぷれしおさうるす"],["パキケファロサウルス","ぱきけふぁろさうるす"]],
-            flowers: [["サクラ","さくら"],["ヒマワリ","ひまわり"],["チューリップ","ちゅーりっぷ"],["タンポポ","たんぽぽ"],["アサガオ","あさがお"],["バラ","ばら"],["ユリ","ゆり"],["コスモス","こすもす"],["アジサイ","あじさい"],["カーネーション","かーねーしょん"]],
+            flowers: [["サクラ","さくら"],["ヒマワリ","ひまわり"],["チューリップ","ちゅーりっぷ"],["タンポポ","たんぽぽ"],["アサガオ","あさ顔"],["バラ","ばら"],["ユリ","ゆり"],["コスモス","こすもす"],["アジサイ","あじさい"],["カーネーション","かーねーしょん"]],
             trees: [["スギ","すぎ"],["ヒノキ","ひのき"],["マツ","まつ"],["サクラ","さくら"],["イチョウ","いちょう"],["ケヤキ","けやき"],["モミジ","もみじ"],["クヌギ","くぬぎ"],["ブナ","ぶな"],["ヤシ","やし"]],
             clouds: [["積乱雲","せきらんうん"],["入道雲","にゅうどうぐも"],["巻雲","けんうん"],["ひつじ雲","ひつじぐも"],["うろこ雲","うろこぐも"],["乱層雲","らんそううん"],["雨雲","あまぐも"],["飛行機雲","ひこうきぐも"],["層雲","そううん"],["積雲","せきうん"]],
             body_parts: [["頭","あたま"],["目","め"],["耳","みみ"],["鼻","はな"],["口","くち"],["手","て"],["足","あし"],["指","ゆび"],["首","くび"],["肩","かた"]],
@@ -856,11 +1014,13 @@
             world_currencies: [["円","えん"],["ドル","どる"],["ユーロ","ゆーろ"],["ポンド","ぽんど"],["元","げん"],["ウォン","うぉん"],["ルピー","るぴー"],["バーツ","ばーつ"],["ペソ","ぺそ"],["フラン","ふらん"]],
             spring_items: [["桜","さくら"],["土筆","つくし"],["花見","はなみ"],["入学式","にゅうがくしき"],["卒業式","そつぎょうしき"],["ウグイス","うぐいす"],["菜の花","なのはな"],["鯉のぼり","こいのぼり"],["イチゴ","いちご"],["新学期","しんがっき"]],
             summer_items: [["花火","はなび"],["スイカ","すいか"],["海","うみ"],["プール","ぷーる"],["夏祭り","なつまつり"],["蚊取り線香","かとりせんこう"],["かき氷","かきごおり"],["入道雲","にゅうどうぐも"],["蝉","せみ"],["風鈴","ふうりん"]],
-            autumn_items: [["紅葉","こうよう"],["どんぐり","どんぐり"],["焼き芋","やきいも"],["月見","つきみ"],["松茸","まつたけ"],["秋刀魚","さんま"],["柿","かき"],["ハロウィン","hallowin"],["読書の秋","どくしょのあき"],["運動会","うんどうかい"]],
+            autumn_items: [["紅葉","こうよう"],["どんぐり","どんぐり"],["焼き芋","やきいも"],["月見","つきみ"],["松茸","まつたけ"],["秋刀魚","さんま"],["柿","かき"],["ハロウィン","はろうぃん"],["読書の秋","どくしょのあき"],["運動会","うんどうかい"]],
             winter_items: [["雪だるま","ゆきだるま"],["こたつ","こたつ"],["クリスマス","くりすます"],["お正月","おしょうがつ"],["鏡餅","かがみもち"],["スキー","すきー"],["ミカン","みかん"],["鍋料理","なべりょうり"],["年賀状","ねんがじょう"],["除夜の鐘","じょやのかね"]]
         };
 
-        const DEFAULT_UNLOCKED = ['aiueo', 'dakuon_handakuon', 'sokuon_youon'];
+        const DEFAULT_UNLOCKED = [
+            'aiueo', 'dakuon_handakuon', 'sokuon_youon'
+        ];
 
         function getCourseWords(courseId) {
             if (WORD_DATA[courseId] && WORD_DATA[courseId].length > 0) {
@@ -881,17 +1041,17 @@
             totalScore: 0,
             loginStreak: 1,
             highScores: {},
-            courseRecords: {},
             courseTotalScores: {},
-            missKeyCounts: {},
-            statsSortKey: 'score',
-            pendingUnlockCeremony: false,
-            viewMode: 'category',
-            customUnlockedOrder: []
+            courseMaxWpm: {},
+            missedKeyCounts: {},
+            customCourseOrder: [],
+            viewMode: 'categories',
+            pendingUnlockCeremony: false
         };
 
         let game = {
             active: false,
+            isVsMode: false,
             courseId: '',
             words: [],
             wordIndex: 0,
@@ -907,10 +1067,39 @@
             startTime: 0
         };
 
+        // Firebase Realtime Multiplayer Management
+        let firebaseApp = null;
+        let db = null;
+        let vsRoomId = null;
+        let vsUserId = null;
+        let vsUserNickname = '';
+        let vsIsHost = false;
+        let vsUnsubscribe = null;
+        let vsRoomData = null;
+
+        function initFirebase() {
+            if (!firebaseApp) {
+                const firebaseConfig = {
+                    apiKey: "AIzaSyDummyKeyForPublicAppAccessOnly",
+                    authDomain: "typing-rush-100-vs.firebaseapp.com",
+                    projectId: "typing-rush-100-vs",
+                    storageBucket: "typing-rush-100-vs.appspot.com",
+                    messagingSenderId: "100000000000",
+                    appId: "1:100000000000:web:abcdef123456"
+                };
+                try {
+                    firebaseApp = firebase.initializeApp(firebaseConfig);
+                    db = firebase.firestore();
+                } catch (e) {
+                    console.log("Firebase init fallback mode active");
+                }
+            }
+        }
+
         function loadState() {
             const validIds = Object.keys(WORD_DATA);
             try {
-                const saved = localStorage.getItem('typing_rush_100_v24');
+                const saved = localStorage.getItem('typing_rush_100_v18');
                 if (saved) {
                     const parsed = JSON.parse(saved);
                     state = { ...state, ...parsed };
@@ -932,20 +1121,6 @@
                 state.selectedCourse = state.unlockedCourses[0];
             }
 
-            if (!state.viewMode) state.viewMode = 'category';
-            if (!Array.isArray(state.customUnlockedOrder)) state.customUnlockedOrder = [];
-            if (!state.courseRecords) state.courseRecords = {};
-            if (!state.courseTotalScores) state.courseTotalScores = {};
-            if (!state.missKeyCounts) state.missKeyCounts = {};
-            if (!state.statsSortKey) state.statsSortKey = 'score';
-
-            state.customUnlockedOrder = state.customUnlockedOrder.filter(id => state.unlockedCourses.includes(id));
-            state.unlockedCourses.forEach(id => {
-                if (!state.customUnlockedOrder.includes(id)) {
-                    state.customUnlockedOrder.push(id);
-                }
-            });
-
             const todayStr = new Date().toISOString().split('T')[0];
             const lastLogin = localStorage.getItem('typing_rush_last_login');
             if (lastLogin !== todayStr) {
@@ -966,7 +1141,7 @@
 
         function saveState() {
             try {
-                localStorage.setItem('typing_rush_100_v24', JSON.stringify(state));
+                localStorage.setItem('typing_rush_100_v18', JSON.stringify(state));
             } catch (e) {}
         }
 
@@ -987,21 +1162,21 @@
             if (!msgText) return;
 
             const messages = [
-                `💡 タイピングができると、パソコンを<ruby>使<rt>つか</rt></ruby>った<ruby>勉<rt>べん</rt></ruby><ruby>強<rt>きょう</rt></ruby>が<ruby>簡<rt>かん</rt></ruby><ruby>単<rt>たん</rt></ruby>にできるようになるよ！`,
-                `💡 タイピングができると、わからないことをパソコンで<ruby>簡<rt>かん</rt></ruby><ruby>単<rt>たん</rt></ruby>に<ruby>調<rt>しら</rt></ruby>べられるようになるよ！`,
-                `🎨 3<ruby>回<rt>かい</rt></ruby>プレイしたコースは、<ruby>色<rt>いろ</rt></ruby>が<ruby>緑<rt>みどり</rt></ruby><ruby>色<rt>いろ</rt></ruby>にかわるよ！`,
-                `すごい<ruby>人<rt>ひと</rt></ruby>は、えんぴつで<ruby>書<rt>か</rt></ruby>くよりも<ruby>早<rt>はや</rt></ruby>くタイピングできるよ！`,
-                `すごい<ruby>人<rt>ひと</rt></ruby>は、キーボードを<ruby>見<rt>み</rt></ruby>なくてもタイピングできるよ！`,
-                `タイピングがはやくできれば、<ruby>作<rt>さく</rt></ruby><ruby>文<rt>ぶん</rt></ruby>もパソコンで<ruby>作<rt>つく</rt></ruby>れるよ！`
+                `💡 タイピングができると、パソコンを<ruby>使<rt>つか</rt></ruby>った<ruby>勉<rt>べん</rt></ruby><ruby>強<rt>きょう</rt></ruby>が<ruby>簡<rt>かん</rt></ruby><ruby>短<rt>たん</rt></ruby>にできるようになるよ！`,
+                `💡 タイピングができると、わからないことをパソコンで<ruby>簡<rt>かん</rt></ruby><ruby>短<rt>たん</rt></ruby>に<ruby>調<rt>しら</rt></ruby>べられるようになるよ！`,
+                `✏️ すごい人は、えんぴつで<ruby>書<rt>か</rt></ruby>くよりも<ruby>早<rt>はや</rt></ruby>くタイピングできるよ！`,
+                `👀 すごい人は、キーボードを<ruby>見<rt>み</rt></ruby>なくてもタイピングできるよ！`,
+                `📝 タイピングがはやくできれば、<ruby>作<rt>さく</rt></ruby><ruby>文<rt>ぶん</rt></ruby>もパソコンで<ruby>作<rt>つく</rt></ruby>れるよ！`,
+                `🎨 3回プレイしたコースは、色が緑色にかわるよ！`
             ];
 
             if (state.loginStreak >= 2) {
                 messages.unshift(`🔥 ${state.loginStreak}<ruby>日<rt>にち</rt></ruby><ruby>連<rt>れん</rt></ruby><ruby>続<rt>ぞく</rt></ruby>でアクセス<ruby>中<rt>ちゅう</rt></ruby>！すばらしい<ruby>継<rt>けい</rt></ruby><ruby>続<rt>ぞく</rt></ruby><ruby>力<rt>りょく</rt></ruby>だね！`);
             }
 
-            const scoreMilestone = Math.floor((state.totalScore || 0) / 1000) * 1000;
-            if (scoreMilestone >= 1000) {
-                messages.unshift(`⭐ <ruby>累<rt>るい</rt></ruby><ruby>計<rt>けい</rt></ruby>スコアが ${scoreMilestone.toLocaleString()} ポイントをこえたよ！すごい！`);
+            if (state.totalScore >= 1000) {
+                const milestone = Math.floor(state.totalScore / 1000) * 1000;
+                messages.unshift(`⭐ <ruby>累<rt>るい</rt></ruby><ruby>計<rt>けい</rt></ruby>スコアが ${milestone.toLocaleString()} ポイントをこえたよ！すごい！`);
             }
 
             let uncompletedUnlockedCourses = [];
@@ -1020,7 +1195,7 @@
                 const course = uncompletedUnlockedCourses[0];
                 const count = state.coursePlayCounts[course.id] || 0;
                 const remainingPlays = 3 - count;
-                messages.unshift(`🎯 『${getPlainTitle(course.name)}』コースをあと${remainingPlays}<ruby>回<rt>かい</rt></ruby>プレイしたら、<ruby>新<rt>あたら</rt></ruby>しいコースがゲットできるよ！`);
+                messages.unshift(`🎯 『${getPlainTitle(course.name)}』コースをあと${remainingPlays}回プレイしたら、新しいコースがゲットできるよ！`);
             }
 
             const chosen = messages[Math.floor(Math.random() * messages.length)];
@@ -1032,152 +1207,14 @@
             if (!container) return;
             container.innerHTML = '';
 
-            const viewBtn = document.getElementById('toggle-view-btn');
-            if (viewBtn) {
-                if (state.viewMode === 'flat') {
-                    viewBtn.classList.add('bg-indigo-100', 'border-indigo-400', 'text-indigo-800');
-                    viewBtn.classList.remove('bg-slate-100', 'border-slate-300', 'text-slate-700');
-                } else {
-                    viewBtn.classList.remove('bg-indigo-100', 'border-indigo-400', 'text-indigo-800');
-                    viewBtn.classList.add('bg-slate-100', 'border-slate-300', 'text-slate-700');
-                }
+            if (state.viewMode === 'consolidated') {
+                renderConsolidatedList(container);
+            } else {
+                renderCategoryGridList(container);
             }
+        }
 
-            if (state.viewMode === 'flat') {
-                const flatWrapper = document.createElement('div');
-                flatWrapper.className = 'space-y-3';
-
-                const infoBar = document.createElement('div');
-                infoBar.className = 'text-xs text-slate-500 font-bold flex items-center justify-between pb-1.5 border-b border-slate-200';
-                infoBar.innerHTML = `
-                    <span><i class="fa-solid fa-unlock text-sky-500 mr-1"></i><ruby>解<rt>かい</rt></ruby><ruby>放<rt>ほう</rt></ruby>ずみコース<ruby>一<rt>いち</rt></ruby><ruby>覧<rt>らん</rt></ruby>（ドラッグ＆ドロップで<ruby>自<rt>じ</rt></ruby><ruby>由<rt>ゆう</rt></ruby>に<ruby>並<rt>なら</rt></ruby>び<ruby>替<rt>か</rt></ruby>えできます）</span>
-                    <span class="bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full font-black text-[11px]">${state.unlockedCourses.length} コース</span>
-                `;
-                flatWrapper.appendChild(infoBar);
-
-                const grid = document.createElement('div');
-                grid.className = 'grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-1.5 sm:gap-2';
-                grid.id = 'flat-unlocked-grid';
-
-                const courseMap = {};
-                COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => courseMap[c.id] = c));
-
-                const orderedUnlockedIds = state.customUnlockedOrder.filter(id => state.unlockedCourses.includes(id));
-                state.unlockedCourses.forEach(id => {
-                    if (!orderedUnlockedIds.includes(id)) orderedUnlockedIds.push(id);
-                });
-
-                let draggedCourseId = null;
-
-                orderedUnlockedIds.forEach(courseId => {
-                    const course = courseMap[courseId];
-                    if (!course) return;
-
-                    const playCount = state.coursePlayCounts[course.id] || 0;
-                    const isCompleted = playCount >= 3;
-                    const isSelected = state.selectedCourse === course.id;
-
-                    const btn = document.createElement('button');
-                    btn.dataset.courseId = course.id;
-                    btn.draggable = true;
-
-                    let btnClasses = "p-1.5 rounded-xl border text-center transition-all shadow-sm flex flex-col items-center justify-between min-h-[38px] relative overflow-hidden cursor-grab active:cursor-grabbing ";
-                    if (isCompleted) {
-                        btnClasses += "bg-emerald-50 hover:bg-emerald-100 border-emerald-400 text-emerald-800 ";
-                        if (isSelected) btnClasses += "ring-2 ring-emerald-300 scale-105 font-black ";
-                    } else {
-                        btnClasses += "bg-white hover:border-sky-400 text-slate-700 border-slate-200 ";
-                        if (isSelected) btnClasses += "border-sky-500 ring-2 ring-sky-200 scale-105 font-black ";
-                    }
-
-                    btn.className = btnClasses;
-                    btn.innerHTML = `
-                        <div class="font-bold text-[10px] sm:text-xs leading-tight pointer-events-none">
-                            ${renderRubyTitle(course.name)}
-                        </div>
-                        ${isCompleted ? '<div class="mt-0.5 text-[9px] bg-emerald-500 text-white font-extrabold px-1.5 py-0.2 rounded-full leading-none pointer-events-none"><i class="fa-solid fa-check mr-0.5"></i>済</div>' : '<div class="mt-0.5 text-[9px] text-slate-400 leading-none pointer-events-none">PLAY:' + playCount + '/3</div>'}
-                    `;
-
-                    btn.onclick = () => {
-                        sound.playTick();
-                        state.selectedCourse = course.id;
-                        saveState();
-                        renderCategories();
-                    };
-
-                    btn.addEventListener('dragstart', (e) => {
-                        draggedCourseId = course.id;
-                        e.dataTransfer.effectAllowed = 'move';
-                        btn.classList.add('opacity-40');
-                    });
-
-                    btn.addEventListener('dragend', () => {
-                        btn.classList.remove('opacity-40');
-                        draggedCourseId = null;
-                    });
-
-                    btn.addEventListener('dragover', (e) => {
-                        e.preventDefault();
-                        e.dataTransfer.dropEffect = 'move';
-                    });
-
-                    btn.addEventListener('dragenter', (e) => {
-                        e.preventDefault();
-                        btn.classList.add('ring-2', 'ring-indigo-400');
-                    });
-
-                    btn.addEventListener('dragleave', () => {
-                        btn.classList.remove('ring-2', 'ring-indigo-400');
-                    });
-
-                    btn.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        btn.classList.remove('ring-2', 'ring-indigo-400');
-                        if (draggedCourseId && draggedCourseId !== course.id) {
-                            const fromIdx = state.customUnlockedOrder.indexOf(draggedCourseId);
-                            const toIdx = state.customUnlockedOrder.indexOf(course.id);
-                            if (fromIdx !== -1 && toIdx !== -1) {
-                                state.customUnlockedOrder.splice(fromIdx, 1);
-                                state.customUnlockedOrder.splice(toIdx, 0, draggedCourseId);
-                                saveState();
-                                renderCategories();
-                            }
-                        }
-                    });
-
-                    let touchCourseId = null;
-                    btn.addEventListener('touchstart', () => {
-                        touchCourseId = course.id;
-                    }, { passive: true });
-
-                    btn.addEventListener('touchend', (e) => {
-                        if (!touchCourseId) return;
-                        const touch = e.changedTouches[0];
-                        const target = document.elementFromPoint(touch.clientX, touch.clientY);
-                        if (target) {
-                            const dropBtn = target.closest('button[data-course-id]');
-                            if (dropBtn && dropBtn.dataset.courseId && dropBtn.dataset.courseId !== touchCourseId) {
-                                const fromIdx = state.customUnlockedOrder.indexOf(touchCourseId);
-                                const toIdx = state.customUnlockedOrder.indexOf(dropBtn.dataset.courseId);
-                                if (fromIdx !== -1 && toIdx !== -1) {
-                                    state.customUnlockedOrder.splice(fromIdx, 1);
-                                    state.customUnlockedOrder.splice(toIdx, 0, touchCourseId);
-                                    saveState();
-                                    renderCategories();
-                                }
-                            }
-                        }
-                        touchCourseId = null;
-                    });
-
-                    grid.appendChild(btn);
-                });
-
-                flatWrapper.appendChild(grid);
-                container.appendChild(flatWrapper);
-                return;
-            }
-
+        function renderCategoryGridList(container) {
             COURSE_CATEGORIES.forEach(cat => {
                 const catEl = document.createElement('div');
                 catEl.className = 'space-y-2';
@@ -1219,7 +1256,7 @@
                     if (!isUnlocked) {
                         btn.innerHTML = `
                             <div class="text-[10px] sm:text-xs text-slate-400"><i class="fa-solid fa-lock mr-0.5"></i>？？？</div>
-                            <div class="text-[9px] text-slate-400 mt-0.5 leading-none">ロック<ruby>中<rt>ちゅう</rt></ruby></div>
+                            <div class="text-[9px] text-slate-400 mt-0.5 leading-none">ロック中</div>
                         `;
                         btn.onclick = () => {
                             sound.playLock();
@@ -1243,6 +1280,117 @@
                     grid.appendChild(btn);
                 });
             });
+        }
+
+        function renderConsolidatedList(container) {
+            const titleEl = document.createElement('div');
+            titleEl.className = 'text-xs sm:text-sm font-extrabold text-indigo-700 mb-2 flex items-center justify-between bg-indigo-50 p-2.5 rounded-2xl border border-indigo-200';
+            titleEl.innerHTML = `
+                <span><i class="fa-solid fa-unlock-keyhole mr-1.5"></i>解放中コース一覧（ドラッグ＆ドロップで並び替えできます）</span>
+                <span class="text-[11px] text-indigo-500">${state.unlockedCourses.length}コース</span>
+            `;
+            container.appendChild(titleEl);
+
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2';
+            grid.id = 'consolidated-drag-grid';
+
+            let orderedUnlocked = [];
+            const allCourses = [];
+            COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
+
+            if (state.customCourseOrder && state.customCourseOrder.length > 0) {
+                state.customCourseOrder.forEach(id => {
+                    if (state.unlockedCourses.includes(id)) {
+                        const found = allCourses.find(c => c.id === id);
+                        if (found) orderedUnlocked.push(found);
+                    }
+                });
+            }
+
+            state.unlockedCourses.forEach(id => {
+                if (!orderedUnlocked.some(c => c.id === id)) {
+                    const found = allCourses.find(c => c.id === id);
+                    if (found) orderedUnlocked.push(found);
+                }
+            });
+
+            orderedUnlocked.forEach((course) => {
+                const playCount = state.coursePlayCounts[course.id] || 0;
+                const isCompleted = playCount >= 3;
+                const isSelected = state.selectedCourse === course.id;
+
+                const card = document.createElement('div');
+                card.draggable = true;
+                card.dataset.courseId = course.id;
+
+                let cardClasses = "p-2 rounded-2xl border text-center transition-all shadow-sm flex flex-col items-center justify-between min-h-[50px] relative cursor-grab active:cursor-grabbing select-none ";
+                
+                if (isCompleted) {
+                    cardClasses += "bg-emerald-50 border-emerald-400 text-emerald-900 ";
+                    if (isSelected) cardClasses += "ring-2 ring-emerald-400 scale-105 font-black ";
+                } else {
+                    cardClasses += "bg-white border-slate-200 text-slate-800 hover:border-sky-400 ";
+                    if (isSelected) cardClasses += "border-sky-500 ring-2 ring-sky-300 scale-105 font-black ";
+                }
+
+                card.className = cardClasses;
+
+                card.innerHTML = `
+                    <div class="text-[10px] text-slate-400 self-start pointer-events-none"><i class="fa-solid fa-grip-dots-vertical"></i></div>
+                    <div class="font-bold text-[11px] sm:text-xs leading-tight my-1 pointer-events-none">
+                        ${renderRubyTitle(course.name)}
+                    </div>
+                    ${isCompleted ? '<div class="text-[9px] bg-emerald-500 text-white font-extrabold px-1.5 py-0.2 rounded-full pointer-events-none"><i class="fa-solid fa-check mr-0.5"></i>済</div>' : '<div class="text-[9px] text-slate-400 pointer-events-none">PLAY:' + playCount + '/3</div>'}
+                `;
+
+                card.onclick = () => {
+                    sound.playTick();
+                    state.selectedCourse = course.id;
+                    saveState();
+                    renderCategories();
+                };
+
+                card.addEventListener('dragstart', (e) => {
+                    card.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', course.id);
+                });
+
+                card.addEventListener('dragend', () => {
+                    card.classList.remove('dragging');
+                    saveCustomCourseOrderFromDOM();
+                });
+
+                grid.appendChild(card);
+            });
+
+            grid.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const draggingEl = document.querySelector('.dragging');
+                if (!draggingEl) return;
+
+                const siblings = [...grid.querySelectorAll('[draggable="true"]:not(.dragging)')];
+                const nextSibling = siblings.find(sibling => {
+                    const box = sibling.getBoundingClientRect();
+                    return e.clientX < box.left + box.width / 2 && e.clientY < box.top + box.height / 2;
+                });
+
+                if (nextSibling) {
+                    grid.insertBefore(draggingEl, nextSibling);
+                } else {
+                    grid.appendChild(draggingEl);
+                }
+            });
+
+            container.appendChild(grid);
+        }
+
+        function saveCustomCourseOrderFromDOM() {
+            const grid = document.getElementById('consolidated-drag-grid');
+            if (!grid) return;
+            const newOrder = [...grid.querySelectorAll('[data-course-id]')].map(el => el.dataset.courseId);
+            state.customCourseOrder = newOrder;
+            saveState();
         }
 
         function updateHeaderStats() {
@@ -1336,9 +1484,6 @@
                         if (!state.unlockedCourses.includes(winner.id)) {
                             state.unlockedCourses.push(winner.id);
                         }
-                        if (!state.customUnlockedOrder.includes(winner.id)) {
-                            state.customUnlockedOrder.push(winner.id);
-                        }
                         state.selectedCourse = winner.id;
                         saveState();
 
@@ -1352,7 +1497,7 @@
                             renderDailyMessage();
                             renderCategories();
 
-                            const targetBtn = document.querySelector(`button[data-course-id="${winner.id}"]`);
+                            const targetBtn = document.querySelector(`[data-course-id="${winner.id}"]`);
                             if (targetBtn) {
                                 targetBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
                             }
@@ -1364,131 +1509,80 @@
             };
         }
 
-        function renderStatsModal() {
-            document.getElementById('stats-unlocked-count').textContent = state.unlockedCourses.length;
-            document.getElementById('stats-total-score').textContent = (state.totalScore || 0).toLocaleString();
+        function renderStatsModal(sortKey = 'score') {
+            const listContainer = document.getElementById('stats-list-container');
+            const missedContainer = document.getElementById('missed-keys-container');
+            if (!listContainer) return;
 
-            let completedCount = 0;
-            state.unlockedCourses.forEach(id => {
-                if ((state.coursePlayCounts[id] || 0) >= 3) completedCount++;
-            });
-            document.getElementById('stats-completed-count').textContent = completedCount;
+            // Render Missed Keys (Top 5)
+            missedContainer.innerHTML = '';
+            const missedSorted = Object.entries(state.missedKeyCounts || {})
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
 
-            const missContainer = document.getElementById('stats-miss-keys-container');
-            if (missContainer) {
-                missContainer.innerHTML = '';
-                const sortedMissKeys = Object.entries(state.missKeyCounts || {})
-                    .filter(([_, count]) => count > 0)
-                    .sort((a, b) => b[1] - a[1]);
-
-                if (sortedMissKeys.length === 0) {
-                    missContainer.innerHTML = '<span class="text-slate-400 text-xs py-0.5">まだミスの記録はありません🎉</span>';
-                } else {
-                    sortedMissKeys.forEach(([keyChar, count], idx) => {
-                        const badge = document.createElement('div');
-                        badge.className = 'bg-white border border-rose-200 text-rose-700 px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-sm text-[11px]';
-                        let rankTag = `<span class="text-rose-400 text-[9px] font-black">#${idx + 1}</span>`;
-                        if (idx === 0) rankTag = '<i class="fa-solid fa-circle-exclamation text-rose-500 text-[10px]"></i>';
-                        badge.innerHTML = `${rankTag}<span class="font-mono font-black text-xs uppercase">${keyChar}</span>:<span class="font-extrabold">${count}回</span>`;
-                        missContainer.appendChild(badge);
-                    });
-                }
+            if (missedSorted.length === 0) {
+                missedContainer.innerHTML = '<span class="text-xs font-bold text-slate-400">ミスしたキーはまだありません。素晴らしい！</span>';
+            } else {
+                missedSorted.forEach(([key, count], idx) => {
+                    const keyDisplay = state.keyboardCase === 'uppercase' ? key.toUpperCase() : key.toLowerCase();
+                    const chip = document.createElement('div');
+                    chip.className = 'bg-white border border-rose-300 px-2.5 py-1 rounded-xl text-xs font-bold text-rose-800 shadow-sm flex items-center gap-1';
+                    chip.innerHTML = `<span class="text-[10px] text-rose-400 font-extrabold">#${idx + 1}</span> <span class="font-mono font-black text-sm text-indigo-600">${keyDisplay}</span> <span class="text-[10px] text-slate-500">(${count}回)</span>`;
+                    missedContainer.appendChild(chip);
+                });
             }
 
-            const sortBtns = document.querySelectorAll('#stats-sort-group .stats-sort-btn');
-            sortBtns.forEach(btn => {
-                if (btn.dataset.sort === state.statsSortKey) {
-                    btn.className = 'stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl bg-indigo-600 text-white font-black shadow-sm border border-indigo-600 text-[11px] sm:text-xs';
-                } else {
-                    btn.className = 'stats-sort-btn px-2 sm:px-2.5 py-1 rounded-xl bg-white text-slate-600 hover:bg-slate-100 font-bold border border-slate-200 text-[11px] sm:text-xs';
-                }
+            // Render Course Records List
+            const allCourses = [];
+            COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
+
+            let coursesWithStats = state.unlockedCourses.map(id => {
+                const obj = allCourses.find(c => c.id === id);
+                return {
+                    id: id,
+                    name: obj ? obj.name : id,
+                    score: state.highScores[id] || 0,
+                    totalScore: state.courseTotalScores[id] || 0,
+                    wpm: state.courseMaxWpm[id] || 0,
+                    playCount: state.coursePlayCounts[id] || 0
+                };
             });
 
-            const courseMap = {};
-            COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => courseMap[c.id] = c));
+            if (sortKey === 'score') {
+                coursesWithStats.sort((a, b) => b.score - a.score);
+            } else if (sortKey === 'totalScore') {
+                coursesWithStats.sort((a, b) => b.totalScore - a.totalScore);
+            } else if (sortKey === 'wpm') {
+                coursesWithStats.sort((a, b) => b.wpm - a.wpm);
+            }
 
-            const listContainer = document.getElementById('stats-list-container');
             listContainer.innerHTML = '';
 
-            const unlockedItems = state.unlockedCourses.map(id => {
-                const course = courseMap[id] || { id, name: id };
-                const rec = state.courseRecords[id] || {
-                    score: state.highScores[id] || 0,
-                    accuracy: 0,
-                    wpm: 0,
-                    date: '未記録',
-                    timestamp: 0
-                };
-                const courseTotalScore = state.courseTotalScores[id] || 0;
-                const playCount = state.coursePlayCounts[id] || 0;
-                return { course, rec, courseTotalScore, playCount };
-            });
-
-            const sortKey = state.statsSortKey || 'score';
-            unlockedItems.sort((a, b) => {
-                if (sortKey === 'score') {
-                    return b.rec.score - a.rec.score;
-                } else if (sortKey === 'totalScore') {
-                    return b.courseTotalScore - a.courseTotalScore;
-                } else if (sortKey === 'wpm') {
-                    return (b.rec.wpm || 0) - (a.rec.wpm || 0);
-                } else if (sortKey === 'date') {
-                    return (b.rec.timestamp || 0) - (a.rec.timestamp || 0);
-                } else if (sortKey === 'accuracy') {
-                    return (b.rec.accuracy || 0) - (a.rec.accuracy || 0);
-                }
-                return 0;
-            });
-
-            unlockedItems.forEach((item, index) => {
-                const { course, rec, courseTotalScore, playCount } = item;
-                const isPlayed = rec.score > 0 || playCount > 0 || courseTotalScore > 0;
-
+            coursesWithStats.forEach((item, idx) => {
                 const card = document.createElement('div');
-                card.className = 'bg-slate-50 border border-slate-200 p-2.5 sm:p-3 rounded-2xl flex items-center justify-between gap-2 transition hover:bg-slate-100/80';
-
-                let rankBadge = `<div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-black text-xs shrink-0">${index + 1}</div>`;
-                
-                let rankVal = rec.score;
-                if (sortKey === 'totalScore') rankVal = courseTotalScore;
-                if (sortKey === 'wpm') rankVal = rec.wpm || 0;
-
-                if (rankVal > 0) {
-                    if (index === 0) {
-                        rankBadge = `<div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-amber-400 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-sm"><i class="fa-solid fa-crown text-[11px]"></i></div>`;
-                    } else if (index === 1) {
-                        rankBadge = `<div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-400 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-sm">2</div>`;
-                    } else if (index === 2) {
-                        rankBadge = `<div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-amber-700 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-sm">3</div>`;
-                    }
-                }
+                card.className = 'bg-white p-2 sm:p-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between gap-2';
 
                 card.innerHTML = `
-                    <div class="flex items-center gap-2 sm:gap-3 truncate min-w-0">
-                        ${rankBadge}
-                        <div class="truncate">
-                            <div class="font-bold text-xs sm:text-sm text-slate-800 truncate">
-                                ${renderRubyTitle(course.name)}
-                            </div>
-                            <div class="text-[10px] sm:text-xs text-slate-400 font-semibold flex items-center gap-2 mt-0.5">
-                                <span>PLAY: ${playCount}/3回</span>
-                                ${rec.date !== '未記録' ? `<span><i class="fa-regular fa-clock mr-0.5"></i>${rec.date}</span>` : ''}
-                            </div>
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="w-6 h-6 rounded-lg bg-amber-100 text-amber-800 font-extrabold text-xs flex items-center justify-center flex-shrink-0">
+                            ${idx + 1}
+                        </div>
+                        <div class="font-extrabold text-xs sm:text-sm text-slate-800 truncate">
+                            ${renderRubyTitle(item.name)}
                         </div>
                     </div>
-                    <div class="text-right shrink-0">
-                        <div class="text-amber-600 font-black text-xs sm:text-sm">
-                            最高: ${rec.score.toLocaleString()} <span class="text-[10px] font-bold text-slate-500">pt</span>
+                    <div class="flex items-center gap-3 text-xs font-bold flex-shrink-0">
+                        <div class="text-amber-600">
+                            <span class="text-[10px] text-slate-400">最高:</span> ${item.score} pt
                         </div>
-                        <div class="text-indigo-600 font-black text-xs sm:text-sm">
-                            速度: <span class="text-indigo-700 font-extrabold">${rec.wpm || 0}</span> <span class="text-[10px] font-bold text-slate-500">キー/分</span>
+                        <div class="text-indigo-600">
+                            <span class="text-[10px] text-slate-400">累計:</span> ${item.totalScore} pt
                         </div>
-                        <div class="text-[10px] font-bold text-slate-500 space-x-1.5 mt-0.5">
-                            ${isPlayed ? `<span class="text-sky-600 font-extrabold">正解率 ${rec.accuracy || 100}%</span><span class="text-slate-500">累計 ${courseTotalScore.toLocaleString()}pt</span>` : '<span class="text-slate-400">未プレイ</span>'}
+                        <div class="text-emerald-600">
+                            <span class="text-[10px] text-slate-400">速度:</span> ${item.wpm} <span class="text-[9px]">キー/分</span>
                         </div>
                     </div>
                 `;
-
                 listContainer.appendChild(card);
             });
         }
@@ -1523,6 +1617,7 @@
 
         function initPlayScreen() {
             document.getElementById('top-screen').classList.add('hidden');
+            document.getElementById('vs-screen').classList.add('hidden');
             document.getElementById('play-screen').classList.remove('hidden');
 
             let courseObj = null;
@@ -1552,6 +1647,11 @@
                 game.timerInterval = setInterval(() => {
                     game.timer -= 1;
                     document.getElementById('game-timer').textContent = game.timer;
+
+                    if (game.isVsMode && vsRoomId && vsUserId) {
+                        updateVsLiveScore();
+                    }
+
                     if (game.timer <= 0) {
                         endGame();
                     }
@@ -1723,6 +1823,7 @@
             }
 
             const isUpper = state.keyboardCase === 'uppercase';
+
             document.getElementById('romaji-done').textContent = isUpper ? done.toUpperCase() : done.toLowerCase();
             document.getElementById('romaji-next').textContent = isUpper ? next.toUpperCase() : next.toLowerCase();
             document.getElementById('romaji-todo').textContent = isUpper ? todo.toUpperCase() : todo.toLowerCase();
@@ -1742,7 +1843,7 @@
             if (matching.length > 0) {
                 sound.playType();
                 game.correctCount += 1;
-                game.score += 1; // 1キー正解で1pt加算
+                game.score += 1; // 1 point per correct key
                 document.getElementById('game-score').textContent = game.score;
 
                 currNode.currentOptions = matching;
@@ -1762,13 +1863,10 @@
                 sound.playMiss();
                 game.missCount += 1;
 
-                if (currNode && currNode.currentOptions && currNode.currentOptions[0]) {
-                    const expectedKeyChar = currNode.currentOptions[0][currNode.typedCount];
-                    if (expectedKeyChar) {
-                        const k = expectedKeyChar.toLowerCase();
-                        if (!state.missKeyCounts) state.missKeyCounts = {};
-                        state.missKeyCounts[k] = (state.missKeyCounts[k] || 0) + 1;
-                    }
+                // Track missed key
+                const expectedKey = document.getElementById('romaji-next').textContent.toLowerCase();
+                if (expectedKey) {
+                    state.missedKeyCounts[expectedKey] = (state.missedKeyCounts[expectedKey] || 0) + 1;
                 }
             }
         }
@@ -1784,38 +1882,20 @@
             let isNewRecord = false;
             let earnedScore = game.score;
 
-            const totalKeys = game.correctCount + game.missCount;
-            const acc = totalKeys > 0 ? Math.round((game.correctCount / totalKeys) * 100) : 100;
-            const elapsedSec = Math.max(1, (Date.now() - game.startTime) / 1000);
-            const wpm = Math.round((game.correctCount / elapsedSec) * 60);
-
-            const dateNow = new Date();
-            const dateStr = `${dateNow.getMonth() + 1}/${dateNow.getDate()} ${String(dateNow.getHours()).padStart(2,'0')}:${String(dateNow.getMinutes()).padStart(2,'0')}`;
-
-            if (!state.courseRecords) state.courseRecords = {};
-            const existingRecord = state.courseRecords[courseId];
-
-            if (!existingRecord || game.score > existingRecord.score) {
-                state.courseRecords[courseId] = {
-                    score: game.score,
-                    accuracy: acc,
-                    wpm: wpm,
-                    correct: game.correctCount,
-                    miss: game.missCount,
-                    date: dateStr,
-                    timestamp: Date.now()
-                };
-            }
-
             if (game.score > prevHigh) {
                 isNewRecord = true;
-                earnedScore += 100; // 新記録ボーナス100pt
+                earnedScore += 100; // 100pt record bonus
                 state.highScores[courseId] = game.score;
             }
 
-            if (!state.courseTotalScores) state.courseTotalScores = {};
             state.courseTotalScores[courseId] = (state.courseTotalScores[courseId] || 0) + earnedScore;
             state.totalScore += earnedScore;
+
+            const elapsedSec = Math.max(1, (Date.now() - game.startTime) / 1000);
+            const wpm = Math.round((game.correctCount / elapsedSec) * 60);
+            if (wpm > (state.courseMaxWpm[courseId] || 0)) {
+                state.courseMaxWpm[courseId] = wpm;
+            }
 
             const allUnlockedCompleted = state.unlockedCourses.every(id => (state.coursePlayCounts[id] || 0) >= 3);
             if (allUnlockedCompleted) {
@@ -1824,9 +1904,21 @@
 
             saveState();
 
+            if (game.isVsMode) {
+                submitVsFinalResult(game.score, wpm);
+            } else {
+                showSinglePlayerResult(earnedScore, isNewRecord, elapsedSec, wpm);
+            }
+        }
+
+        function showSinglePlayerResult(earnedScore, isNewRecord, elapsedSec, wpm) {
             document.getElementById('res-score').textContent = `${earnedScore} pt ${isNewRecord ? '(新記録+100pt!)' : ''}`;
+            
+            const totalKeys = game.correctCount + game.missCount;
+            const acc = totalKeys > 0 ? Math.round((game.correctCount / totalKeys) * 100) : 100;
             document.getElementById('res-accuracy').textContent = `${acc}%`;
             document.getElementById('res-wpm').textContent = `${wpm} キー/分`;
+
             document.getElementById('res-correct').textContent = game.correctCount;
             document.getElementById('res-miss').textContent = game.missCount;
 
@@ -1843,10 +1935,15 @@
 
         function exitToTop() {
             game.active = false;
+            game.isVsMode = false;
             clearInterval(game.timerInterval);
 
+            if (vsRoomId) leaveVsRoom();
+
             document.getElementById('result-modal').classList.add('hidden');
+            document.getElementById('vs-result-modal').classList.add('hidden');
             document.getElementById('play-screen').classList.add('hidden');
+            document.getElementById('vs-screen').classList.add('hidden');
             document.getElementById('top-screen').classList.remove('hidden');
 
             updateHeaderStats();
@@ -1864,6 +1961,345 @@
             return arr;
         }
 
+        function openVsLobby() {
+            initFirebase();
+            document.getElementById('top-screen').classList.add('hidden');
+            document.getElementById('vs-screen').classList.remove('hidden');
+            document.getElementById('vs-lobby-view').classList.remove('hidden');
+            document.getElementById('vs-room-view').classList.add('hidden');
+
+            const nickInput = document.getElementById('vs-nickname-input');
+            if (!nickInput.value.trim()) {
+                nickInput.value = getRandomNickname();
+            }
+        }
+
+        function createVsRoom() {
+            const nickname = document.getElementById('vs-nickname-input').value.trim();
+            if (!nickname) {
+                alert("ニックネームを入力してください！");
+                return;
+            }
+
+            vsUserNickname = nickname;
+            vsUserId = 'user_' + Math.random().toString(36).substr(2, 9);
+            vsIsHost = true;
+
+            const codeChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let roomCode = '';
+            for (let i = 0; i < 8; i++) {
+                roomCode += codeChars.charAt(Math.floor(Math.random() * codeChars.length));
+            }
+
+            vsRoomId = roomCode;
+
+            const roomRef = db ? db.collection('vs_rooms').doc(vsRoomId) : null;
+            const initialData = {
+                code: vsRoomId,
+                hostId: vsUserId,
+                status: 'waiting', // waiting, playing, closed
+                courseId: 'aiueo',
+                members: {
+                    [vsUserId]: {
+                        id: vsUserId,
+                        name: vsUserNickname,
+                        isHost: true,
+                        score: 0,
+                        wpm: 0,
+                        unlocked: state.unlockedCourses
+                    }
+                },
+                createdAt: firebase.firestore.FieldValue.serverTimestamp ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
+            };
+
+            if (db) {
+                roomRef.set(initialData).then(() => {
+                    subscribeVsRoom(vsRoomId);
+                    enterVsRoomUI();
+                });
+            } else {
+                vsRoomData = initialData;
+                enterVsRoomUI();
+            }
+        }
+
+        function joinVsRoom() {
+            const nickname = document.getElementById('vs-nickname-input').value.trim();
+            const code = document.getElementById('vs-room-code-input').value.trim().toLowerCase();
+
+            if (!nickname) {
+                alert("ニックネームを入力してください！");
+                return;
+            }
+            if (!code || code.length !== 8) {
+                alert("8桁の対戦コードを正しく入力してください！");
+                return;
+            }
+
+            vsUserNickname = nickname;
+            vsUserId = 'user_' + Math.random().toString(36).substr(2, 9);
+            vsIsHost = false;
+            vsRoomId = code;
+
+            if (db) {
+                const roomRef = db.collection('vs_rooms').doc(vsRoomId);
+                roomRef.get().then(doc => {
+                    if (!doc.exists || doc.data().status === 'closed') {
+                        alert("指定された対戦部屋が見つかりません。");
+                        return;
+                    }
+
+                    const roomInfo = doc.data();
+                    const existingNames = Object.values(roomInfo.members || {}).map(m => m.name);
+                    if (existingNames.includes(nickname)) {
+                        alert("同じニックネームのプレイヤーがすでに部屋にいます。別の名前を入力してください。");
+                        return;
+                    }
+
+                    roomRef.update({
+                        [`members.${vsUserId}`]: {
+                            id: vsUserId,
+                            name: vsUserNickname,
+                            isHost: false,
+                            score: 0,
+                            wpm: 0,
+                            unlocked: state.unlockedCourses
+                        }
+                    }).then(() => {
+                        subscribeVsRoom(vsRoomId);
+                        enterVsRoomUI();
+                    });
+                });
+            } else {
+                enterVsRoomUI();
+            }
+        }
+
+        function subscribeVsRoom(roomId) {
+            if (!db) return;
+            if (vsUnsubscribe) vsUnsubscribe();
+
+            vsUnsubscribe = db.collection('vs_rooms').doc(roomId).onSnapshot(doc => {
+                if (!doc.exists) {
+                    alert("部屋が解散されました。");
+                    exitToTop();
+                    return;
+                }
+
+                vsRoomData = doc.data();
+
+                if (vsRoomData.status === 'closed') {
+                    alert("対戦部屋が閉じるか、解散されました。");
+                    exitToTop();
+                    return;
+                }
+
+                if (vsRoomData.status === 'playing' && !game.active) {
+                    state.selectedCourse = vsRoomData.courseId;
+                    game.isVsMode = true;
+                    startGame();
+                }
+
+                updateVsRoomUI();
+            });
+        }
+
+        function enterVsRoomUI() {
+            document.getElementById('vs-lobby-view').classList.add('hidden');
+            document.getElementById('vs-room-view').classList.remove('hidden');
+            document.getElementById('vs-room-code-display').textContent = vsRoomId;
+
+            if (vsIsHost) {
+                document.getElementById('vs-start-game-btn').classList.remove('hidden');
+                document.getElementById('vs-random-course-btn').classList.remove('hidden');
+                document.getElementById('vs-course-select').disabled = false;
+                document.getElementById('vs-guest-waiting-msg').classList.add('hidden');
+            } else {
+                document.getElementById('vs-start-game-btn').classList.add('hidden');
+                document.getElementById('vs-random-course-btn').classList.add('hidden');
+                document.getElementById('vs-course-select').disabled = true;
+                document.getElementById('vs-guest-waiting-msg').classList.remove('hidden');
+            }
+
+            updateVsRoomUI();
+        }
+
+        function updateVsRoomUI() {
+            if (!vsRoomData) return;
+
+            const members = Object.values(vsRoomData.members || {});
+            document.getElementById('vs-member-count').textContent = members.length;
+
+            // Render Member Cards with 1/3 height
+            const memberList = document.getElementById('vs-member-list');
+            memberList.innerHTML = '';
+
+            members.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-50 border border-slate-200 px-2 py-1 rounded-xl text-xs font-bold flex items-center justify-between shadow-sm';
+                card.innerHTML = `
+                    <span class="truncate max-w-[100px] text-slate-800">${m.name}</span>
+                    ${m.isHost ? '<span class="text-[9px] bg-purple-500 text-white px-1.5 py-0.2 rounded-full font-black">👑 ホスト</span>' : ''}
+                `;
+                memberList.appendChild(card);
+            });
+
+            // Update course options based on participants' unlocked courses (Hide fully locked ones)
+            const allCourses = [];
+            COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
+
+            // Find courses unlocked by AT LEAST ONE participant
+            let unionUnlocked = new Set();
+            members.forEach(m => {
+                if (m.unlocked && Array.isArray(m.unlocked)) {
+                    m.unlocked.forEach(id => unionUnlocked.add(id));
+                }
+            });
+
+            const courseSelect = document.getElementById('vs-course-select');
+            const currentSelectedVal = courseSelect.value;
+            courseSelect.innerHTML = '';
+
+            allCourses.forEach(c => {
+                if (unionUnlocked.has(c.id)) {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = getPlainTitle(c.name);
+                    courseSelect.appendChild(opt);
+                }
+            });
+
+            if (currentSelectedVal && unionUnlocked.has(currentSelectedVal)) {
+                courseSelect.value = currentSelectedVal;
+            } else if (vsRoomData.courseId) {
+                courseSelect.value = vsRoomData.courseId;
+            }
+
+            // Automatic Room Cleanup rule check (Host left or all non-host members left)
+            if (vsIsHost) {
+                if (members.length === 1 && members[0].id !== vsUserId) {
+                    leaveVsRoom();
+                }
+            } else {
+                const hostExists = members.some(m => m.isHost);
+                if (!hostExists) {
+                    alert("オーナーが退出したため、対戦部屋は解散されました。");
+                    exitToTop();
+                }
+            }
+        }
+
+        function startVsGameHost() {
+            if (!vsIsHost || !vsRoomId) return;
+            const courseId = document.getElementById('vs-course-select').value;
+
+            if (db) {
+                db.collection('vs_rooms').doc(vsRoomId).update({
+                    status: 'playing',
+                    courseId: courseId
+                });
+            } else {
+                state.selectedCourse = courseId;
+                game.isVsMode = true;
+                startGame();
+            }
+        }
+
+        function updateVsLiveScore() {
+            if (!db || !vsRoomId || !vsUserId) return;
+            db.collection('vs_rooms').doc(vsRoomId).update({
+                [`members.${vsUserId}.score`]: game.score
+            });
+        }
+
+        function submitVsFinalResult(finalScore, wpm) {
+            if (db && vsRoomId && vsUserId) {
+                db.collection('vs_rooms').doc(vsRoomId).update({
+                    [`members.${vsUserId}.score`]: finalScore,
+                    [`members.${vsUserId}.wpm`]: wpm
+                }).then(() => {
+                    setTimeout(showVsResultModal, 1200);
+                });
+            } else {
+                showVsResultModal();
+            }
+        }
+
+        function showVsResultModal() {
+            const modal = document.getElementById('vs-result-modal');
+            const members = Object.values(vsRoomData ? vsRoomData.members : {});
+
+            members.sort((a, b) => b.score - a.score);
+
+            const myRank = members.findIndex(m => m.id === vsUserId) + 1;
+            const totalCount = members.length;
+
+            const headline = document.getElementById('vs-outcome-headline');
+            const rankBadge = document.getElementById('vs-user-rank-badge');
+
+            if (totalCount === 2) {
+                if (members[0].score === members[1].score) {
+                    headline.textContent = '🤝 ひきわけ！';
+                    headline.className = 'text-3xl sm:text-4xl font-black mb-2 text-indigo-600';
+                } else if (myRank === 1) {
+                    headline.textContent = '🎉 勝ち！';
+                    headline.className = 'text-3xl sm:text-4xl font-black mb-2 text-amber-500';
+                    confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+                } else {
+                    headline.textContent = '😭 負け...';
+                    headline.className = 'text-3xl sm:text-4xl font-black mb-2 text-slate-500';
+                }
+                rankBadge.textContent = `あなたのスコア: ${game.score} pt`;
+            } else {
+                headline.textContent = '対戦結果';
+                headline.className = 'text-3xl sm:text-4xl font-black mb-2 text-purple-600';
+                rankBadge.textContent = `あなたの順位: ${myRank}位 / ${totalCount}人中`;
+            }
+
+            const leaderboard = document.getElementById('vs-final-leaderboard');
+            leaderboard.innerHTML = '';
+
+            const top3 = members.slice(0, 3);
+            top3.forEach((m, idx) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200 font-bold text-xs sm:text-sm';
+                item.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full ${idx === 0 ? 'bg-amber-400 text-white' : idx === 1 ? 'bg-slate-300 text-slate-800' : 'bg-amber-700 text-white'} font-black text-xs flex items-center justify-center">${idx + 1}</span>
+                        <span class="text-slate-800">${m.name}</span>
+                    </div>
+                    <span class="text-amber-600 font-extrabold">${m.score} pt</span>
+                `;
+                leaderboard.appendChild(item);
+            });
+
+            const rematchBtn = document.getElementById('vs-rematch-btn');
+            if (vsIsHost) {
+                rematchBtn.classList.remove('hidden');
+            } else {
+                rematchBtn.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function leaveVsRoom() {
+            if (db && vsRoomId && vsUserId) {
+                if (vsIsHost) {
+                    db.collection('vs_rooms').doc(vsRoomId).update({ status: 'closed' });
+                } else {
+                    db.collection('vs_rooms').doc(vsRoomId).update({
+                        [`members.${vsUserId}`]: firebase.firestore.FieldValue.delete()
+                    });
+                }
+            }
+            if (vsUnsubscribe) vsUnsubscribe();
+            vsRoomId = null;
+            vsUserId = null;
+            vsRoomData = null;
+            vsIsHost = false;
+        }
+
         function setupSettingsModalUI() {
             const soundBtn = document.getElementById('modal-sound-btn');
             const rubyBtn = document.getElementById('modal-ruby-btn');
@@ -1871,44 +2307,42 @@
             const updateModalStateUI = () => {
                 if (state.soundOn) {
                     soundBtn.textContent = 'ON';
-                    soundBtn.className = 'px-4 py-1.5 rounded-xl text-white font-black bg-sky-500 hover:bg-sky-600 transition shadow-sm';
+                    soundBtn.className = 'px-4 py-1 rounded-lg text-white font-black bg-sky-500 hover:bg-sky-600 transition shadow-sm text-xs';
                 } else {
                     soundBtn.textContent = 'OFF';
-                    soundBtn.className = 'px-4 py-1.5 rounded-xl text-slate-600 font-bold bg-slate-200 hover:bg-slate-300 transition';
+                    soundBtn.className = 'px-4 py-1 rounded-lg text-slate-600 font-bold bg-slate-200 hover:bg-slate-300 transition text-xs';
                 }
 
                 if (state.rubyOn) {
                     rubyBtn.textContent = 'ON';
-                    rubyBtn.className = 'px-4 py-1.5 rounded-xl text-white font-black bg-indigo-500 hover:bg-indigo-600 transition shadow-sm';
+                    rubyBtn.className = 'px-4 py-1 rounded-lg text-white font-black bg-indigo-500 hover:bg-indigo-600 transition shadow-sm text-xs';
                 } else {
                     rubyBtn.textContent = 'OFF';
-                    rubyBtn.className = 'px-4 py-1.5 rounded-xl text-slate-600 font-bold bg-slate-200 hover:bg-slate-300 transition';
+                    rubyBtn.className = 'px-4 py-1 rounded-lg text-slate-600 font-bold bg-slate-200 hover:bg-slate-300 transition text-xs';
                 }
 
                 document.querySelectorAll('#romaji-style-group .romaji-btn').forEach(btn => {
-                    const styleVal = btn.dataset.style;
-                    if (styleVal === (state.romajiStyle || 'kunrei')) {
-                        btn.className = 'romaji-btn px-2 py-1.5 rounded-xl bg-emerald-500 text-white font-black shadow-sm border border-emerald-500';
+                    if (btn.dataset.style === (state.romajiStyle || 'kunrei')) {
+                        btn.className = 'romaji-btn px-2 py-1.5 rounded-lg bg-emerald-500 text-white font-black shadow-sm border border-emerald-500';
                     } else {
-                        btn.className = 'romaji-btn px-2 py-1.5 rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 font-bold';
+                        btn.className = 'romaji-btn px-2 py-1.5 rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 font-bold';
                     }
                 });
 
-                document.querySelectorAll('#kbd-case-group .kbd-case-btn').forEach(btn => {
-                    const caseVal = btn.dataset.case;
-                    if (caseVal === (state.keyboardCase || 'lowercase')) {
-                        btn.className = 'kbd-case-btn px-2 py-1.5 rounded-xl bg-amber-500 text-white font-black shadow-sm border border-amber-500';
+                document.querySelectorAll('#keyboard-case-group .case-btn').forEach(btn => {
+                    if (btn.dataset.case === (state.keyboardCase || 'lowercase')) {
+                        btn.className = 'case-btn px-2 py-1.5 rounded-lg bg-purple-500 text-white font-black shadow-sm border border-purple-500';
                     } else {
-                        btn.className = 'kbd-case-btn px-2 py-1.5 rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 font-bold';
+                        btn.className = 'case-btn px-2 py-1.5 rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 font-bold';
                     }
                 });
 
                 document.querySelectorAll('#time-selector-group .time-btn').forEach(btn => {
                     const t = parseInt(btn.dataset.time, 10);
                     if (t === state.selectedTime) {
-                        btn.className = 'time-btn px-1.5 py-1.5 rounded-xl bg-sky-500 text-white font-black shadow-sm border border-sky-500';
+                        btn.className = 'time-btn px-2 py-1.5 rounded-lg bg-sky-500 text-white font-black shadow-sm border border-sky-500';
                     } else {
-                        btn.className = 'time-btn px-1.5 py-1.5 rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 font-bold';
+                        btn.className = 'time-btn px-2 py-1.5 rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 font-bold';
                     }
                 });
             };
@@ -1938,14 +2372,13 @@
                 };
             });
 
-            document.querySelectorAll('#kbd-case-group .kbd-case-btn').forEach(btn => {
+            document.querySelectorAll('#keyboard-case-group .case-btn').forEach(btn => {
                 btn.onclick = () => {
                     sound.playTick();
                     state.keyboardCase = btn.dataset.case;
                     saveState();
-                    updateModalStateUI();
                     renderKeyboard();
-                    if (game.active) updateRomajiDisplay();
+                    updateModalStateUI();
                 };
             });
 
@@ -1992,37 +2425,6 @@
             }
         }
 
-        function setupStatsModalUI() {
-            const statsModal = document.getElementById('stats-modal');
-            const openStatsBtn = document.getElementById('open-stats-btn');
-            const closeStatsBtn = document.getElementById('close-stats-btn');
-
-            if (openStatsBtn) {
-                openStatsBtn.onclick = () => {
-                    sound.playTick();
-                    renderStatsModal();
-                    statsModal.classList.remove('hidden');
-                };
-            }
-
-            if (closeStatsBtn) {
-                closeStatsBtn.onclick = () => {
-                    sound.playTick();
-                    statsModal.classList.add('hidden');
-                };
-            }
-
-            const sortBtns = document.querySelectorAll('#stats-sort-group .stats-sort-btn');
-            sortBtns.forEach(btn => {
-                btn.onclick = () => {
-                    sound.playTick();
-                    state.statsSortKey = btn.dataset.sort;
-                    saveState();
-                    renderStatsModal();
-                };
-            });
-        }
-
         // Initialize App
         document.addEventListener('DOMContentLoaded', () => {
             loadState();
@@ -2031,19 +2433,37 @@
             renderDailyMessage();
             renderCategories();
             setupSettingsModalUI();
-            setupStatsModalUI();
-
-            const toggleViewBtn = document.getElementById('toggle-view-btn');
-            if (toggleViewBtn) {
-                toggleViewBtn.onclick = () => {
-                    sound.playTick();
-                    state.viewMode = (state.viewMode === 'category') ? 'flat' : 'category';
-                    saveState();
-                    renderCategories();
-                };
-            }
 
             document.getElementById('start-game-btn').onclick = () => startGame();
+            document.getElementById('view-toggle-btn').onclick = () => {
+                sound.playTick();
+                state.viewMode = state.viewMode === 'categories' ? 'consolidated' : 'categories';
+                saveState();
+                renderCategories();
+            };
+
+            document.getElementById('open-stats-btn').onclick = () => {
+                sound.playTick();
+                renderStatsModal('score');
+                document.getElementById('stats-modal').classList.remove('hidden');
+            };
+
+            document.getElementById('close-stats-btn').onclick = () => {
+                sound.playTick();
+                document.getElementById('stats-modal').classList.add('hidden');
+            };
+
+            document.querySelectorAll('#stats-sort-group .sort-btn').forEach(btn => {
+                btn.onclick = () => {
+                    sound.playTick();
+                    document.querySelectorAll('#stats-sort-group .sort-btn').forEach(b => {
+                        b.className = 'sort-btn px-2.5 py-1 rounded-xl transition bg-white text-slate-600 border border-slate-300';
+                    });
+                    btn.className = 'sort-btn px-2.5 py-1 rounded-xl transition bg-amber-500 text-white font-black';
+                    renderStatsModal(btn.dataset.sort);
+                };
+            });
+
             document.getElementById('exit-game-btn').onclick = () => exitToTop();
             document.getElementById('res-retry-btn').onclick = () => {
                 document.getElementById('result-modal').classList.add('hidden');
@@ -2051,13 +2471,64 @@
             };
             document.getElementById('res-return-btn').onclick = () => exitToTop();
 
+            // Multiplayer VS Controls
+            document.getElementById('open-vs-btn').onclick = () => openVsLobby();
+            document.getElementById('exit-vs-btn').onclick = () => exitToTop();
+            document.getElementById('vs-random-name-btn').onclick = () => {
+                sound.playTick();
+                document.getElementById('vs-nickname-input').value = getRandomNickname();
+            };
+            document.getElementById('vs-create-room-btn').onclick = () => createVsRoom();
+            document.getElementById('vs-join-room-btn').onclick = () => joinVsRoom();
+            document.getElementById('vs-leave-room-btn').onclick = () => exitToTop();
+            document.getElementById('vs-start-game-btn').onclick = () => startVsGameHost();
+
+            // Random Course roulette button in VS room
+            document.getElementById('vs-random-course-btn').onclick = () => {
+                sound.playDrumroll(1500);
+                const select = document.getElementById('vs-course-select');
+                const options = [...select.options];
+                if (options.length === 0) return;
+
+                let count = 0;
+                const spin = setInterval(() => {
+                    const randomOpt = options[Math.floor(Math.random() * options.length)];
+                    select.value = randomOpt.value;
+                    count += 1;
+                    if (count > 15) {
+                        clearInterval(spin);
+                        sound.playFanfare();
+                    }
+                }, 80);
+            };
+
+            document.getElementById('vs-copy-code-btn').onclick = () => {
+                if (vsRoomId) {
+                    navigator.clipboard.writeText(vsRoomId);
+                    alert("部屋コードをコピーしました: " + vsRoomId);
+                }
+            };
+
+            document.getElementById('vs-rematch-btn').onclick = () => {
+                document.getElementById('vs-result-modal').classList.add('hidden');
+                if (db && vsRoomId) {
+                    db.collection('vs_rooms').doc(vsRoomId).update({ status: 'waiting' });
+                }
+            };
+
+            document.getElementById('vs-return-lobby-btn').onclick = () => {
+                document.getElementById('vs-result-modal').classList.add('hidden');
+                document.getElementById('vs-room-view').classList.remove('hidden');
+                document.getElementById('play-screen').classList.add('hidden');
+            };
+
             window.addEventListener('keydown', (e) => {
                 if (game.active) {
                     handleKeyPress(e);
                 } else if (!document.getElementById('top-screen').classList.contains('hidden') && 
                            document.getElementById('settings-modal').classList.contains('hidden') && 
-                           document.getElementById('unlock-ceremony-modal').classList.contains('hidden') && 
                            document.getElementById('stats-modal').classList.contains('hidden') && 
+                           document.getElementById('unlock-ceremony-modal').classList.contains('hidden') && 
                            e.key === ' ') {
                     e.preventDefault();
                     startGame();
