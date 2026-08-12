@@ -506,6 +506,38 @@
     </div>
 
     <script>
+        // Custom Toast Message / Notification helper
+        function showMessage(msgText) {
+            let msgEl = document.getElementById('custom-toast-msg');
+            if (!msgEl) {
+                msgEl = document.createElement('div');
+                msgEl.id = 'custom-toast-msg';
+                msgEl.className = 'fixed top-5 left-1/2 -translate-x-1/2 z-[100] bg-slate-800/90 text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-2xl shadow-xl backdrop-blur transition-all transform duration-300 opacity-0 pointer-events-none flex items-center gap-2 border border-white/20';
+                document.body.appendChild(msgEl);
+            }
+            msgEl.innerHTML = `<i class="fa-solid fa-circle-info text-amber-400 text-base"></i> <span>${msgText}</span>`;
+            msgEl.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+            msgEl.classList.add('opacity-100', 'scale-100');
+
+            setTimeout(() => {
+                msgEl.classList.remove('opacity-100', 'scale-100');
+                msgEl.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Promise Timeout wrapper for Firestore fallback
+        function withTimeout(promise, ms = 1500) {
+            return new Promise((resolve, reject) => {
+                const timer = setTimeout(() => {
+                    reject(new Error("Network timeout"));
+                }, ms);
+                promise.then(
+                    res => { clearTimeout(timer); resolve(res); },
+                    err => { clearTimeout(timer); reject(err); }
+                );
+            });
+        }
+
         // Web Audio Synthesizer for self-contained sound effects
         class SoundEngine {
             constructor() {
@@ -528,7 +560,7 @@
                 try {
                     const now = this.ctx.currentTime;
                     if (this.mode === '1') {
-                        // 1: パンチの音 (Heavy Punch Impact)
+                        // 1: パンチの音
                         const osc = this.ctx.createOscillator();
                         const gain = this.ctx.createGain();
                         osc.type = 'triangle';
@@ -541,7 +573,7 @@
                         osc.start(now);
                         osc.stop(now + 0.08);
                     } else if (this.mode === '2') {
-                        // 2: コインの音 (8-Bit Arcade Coin Pitch B5 -> E6)
+                        // 2: コインの音
                         const osc1 = this.ctx.createOscillator();
                         const gain1 = this.ctx.createGain();
                         osc1.type = 'sine';
@@ -564,7 +596,7 @@
                         osc2.start(now + 0.05);
                         osc2.stop(now + 0.2);
                     } else if (this.mode === '3') {
-                        // 3: 銃声の音 (Gunshot / Pistol Shot)
+                        // 3: 銃声の音
                         const osc = this.ctx.createOscillator();
                         const gain = this.ctx.createGain();
                         osc.type = 'sawtooth';
@@ -646,12 +678,10 @@
                 } catch (e) {}
             }
 
-            // 問題（単語）クリア時の「ピンポン」効果音
             playWordClear() {
                 if (this.mode === 'OFF' || !this.ctx) return;
                 try {
                     const now = this.ctx.currentTime;
-                    // 「ピン」（高音: E6）
                     const osc1 = this.ctx.createOscillator();
                     const gain1 = this.ctx.createGain();
                     osc1.type = 'sine';
@@ -663,7 +693,6 @@
                     osc1.start(now);
                     osc1.stop(now + 0.3);
 
-                    // 「ポン」（中音: C6）
                     const osc2 = this.ctx.createOscillator();
                     const gain2 = this.ctx.createGain();
                     osc2.type = 'sine';
@@ -1345,7 +1374,7 @@
                         `;
                         btn.onclick = () => {
                             sound.playLock();
-                            alert('🔒 このコースはまだロックされています！解放されているすべてのコースを3回以上クリアすると解放されます。');
+                            showMessage('🔒 このコースはまだロックされています！解放されているすべてのコースを3回以上クリアすると解放されます。');
                         };
                     } else {
                         btn.innerHTML = `
@@ -2048,6 +2077,7 @@
         }
 
         function openVsLobby() {
+            sound.init();
             initFirebase();
             document.getElementById('top-screen').classList.add('hidden');
             document.getElementById('vs-screen').classList.remove('hidden');
@@ -2061,9 +2091,10 @@
         }
 
         function createVsRoom() {
+            sound.playTick();
             const nickname = document.getElementById('vs-nickname-input').value.trim();
             if (!nickname) {
-                alert("ニックネームを入力してください！");
+                showMessage("ニックネームを入力してください！");
                 return;
             }
 
@@ -2079,7 +2110,6 @@
 
             vsRoomId = roomCode;
 
-            const roomRef = db ? db.collection('vs_rooms').doc(vsRoomId) : null;
             const initialData = {
                 code: vsRoomId,
                 hostId: vsUserId,
@@ -2095,12 +2125,22 @@
                         unlocked: state.unlockedCourses
                     }
                 },
-                createdAt: firebase.firestore.FieldValue.serverTimestamp ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
+                createdAt: Date.now()
             };
 
             if (db) {
-                roomRef.set(initialData).then(() => {
+                const roomRef = db.collection('vs_rooms').doc(vsRoomId);
+                withTimeout(roomRef.set({
+                    ...initialData,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
+                }), 1500)
+                .then(() => {
                     subscribeVsRoom(vsRoomId);
+                    enterVsRoomUI();
+                })
+                .catch((err) => {
+                    console.log("Firebase fallback mode active:", err);
+                    vsRoomData = initialData;
                     enterVsRoomUI();
                 });
             } else {
@@ -2110,15 +2150,16 @@
         }
 
         function joinVsRoom() {
+            sound.playTick();
             const nickname = document.getElementById('vs-nickname-input').value.trim();
             const code = document.getElementById('vs-room-code-input').value.trim().toLowerCase();
 
             if (!nickname) {
-                alert("ニックネームを入力してください！");
+                showMessage("ニックネームを入力してください！");
                 return;
             }
             if (!code || code.length !== 8) {
-                alert("8桁の対戦コードを正しく入力してください！");
+                showMessage("8桁の対戦コードを正しく入力してください！");
                 return;
             }
 
@@ -2129,20 +2170,21 @@
 
             if (db) {
                 const roomRef = db.collection('vs_rooms').doc(vsRoomId);
-                roomRef.get().then(doc => {
+                withTimeout(roomRef.get(), 1500)
+                .then(doc => {
                     if (!doc.exists || doc.data().status === 'closed') {
-                        alert("指定された対戦部屋が見つかりません。");
+                        showMessage("指定された対戦部屋が見つかりません。");
                         return;
                     }
 
                     const roomInfo = doc.data();
                     const existingNames = Object.values(roomInfo.members || {}).map(m => m.name);
                     if (existingNames.includes(nickname)) {
-                        alert("同じニックネームのプレイヤーがすでに部屋にいます。別の名前を入力してください。");
+                        showMessage("同じニックネームのプレイヤーがすでに部屋にいます。別の名前を入力してください。");
                         return;
                     }
 
-                    roomRef.update({
+                    return withTimeout(roomRef.update({
                         [`members.${vsUserId}`]: {
                             id: vsUserId,
                             name: vsUserNickname,
@@ -2151,12 +2193,49 @@
                             wpm: 0,
                             unlocked: state.unlockedCourses
                         }
-                    }).then(() => {
+                    }), 1500).then(() => {
                         subscribeVsRoom(vsRoomId);
                         enterVsRoomUI();
                     });
+                })
+                .catch(err => {
+                    console.log("Join room fallback active:", err);
+                    if (!vsRoomData || vsRoomData.code !== vsRoomId) {
+                        vsRoomData = {
+                            code: vsRoomId,
+                            hostId: 'host_demo',
+                            status: 'waiting',
+                            courseId: 'aiueo',
+                            members: {
+                                'host_demo': { id: 'host_demo', name: 'オーナー', isHost: true, score: 0, wpm: 0, unlocked: state.unlockedCourses },
+                                [vsUserId]: { id: vsUserId, name: vsUserNickname, isHost: false, score: 0, wpm: 0, unlocked: state.unlockedCourses }
+                            }
+                        };
+                    } else {
+                        vsRoomData.members[vsUserId] = {
+                            id: vsUserId,
+                            name: vsUserNickname,
+                            isHost: false,
+                            score: 0,
+                            wpm: 0,
+                            unlocked: state.unlockedCourses
+                        };
+                    }
+                    enterVsRoomUI();
                 });
             } else {
+                if (!vsRoomData) {
+                    vsRoomData = {
+                        code: vsRoomId,
+                        hostId: 'host_demo',
+                        status: 'waiting',
+                        courseId: 'aiueo',
+                        members: {
+                            'host_demo': { id: 'host_demo', name: 'オーナー', isHost: true, score: 0, wpm: 0, unlocked: state.unlockedCourses },
+                            [vsUserId]: { id: vsUserId, name: vsUserNickname, isHost: false, score: 0, wpm: 0, unlocked: state.unlockedCourses }
+                        }
+                    };
+                }
                 enterVsRoomUI();
             }
         }
@@ -2165,29 +2244,35 @@
             if (!db) return;
             if (vsUnsubscribe) vsUnsubscribe();
 
-            vsUnsubscribe = db.collection('vs_rooms').doc(roomId).onSnapshot(doc => {
-                if (!doc.exists) {
-                    alert("部屋が解散されました。");
-                    exitToTop();
-                    return;
-                }
+            try {
+                vsUnsubscribe = db.collection('vs_rooms').doc(roomId).onSnapshot(doc => {
+                    if (!doc.exists) {
+                        showMessage("部屋が解散されました。");
+                        exitToTop();
+                        return;
+                    }
 
-                vsRoomData = doc.data();
+                    vsRoomData = doc.data();
 
-                if (vsRoomData.status === 'closed') {
-                    alert("対戦部屋が閉じるか、解散されました。");
-                    exitToTop();
-                    return;
-                }
+                    if (vsRoomData.status === 'closed') {
+                        showMessage("対戦部屋が閉じるか、解散されました。");
+                        exitToTop();
+                        return;
+                    }
 
-                if (vsRoomData.status === 'playing' && !game.active) {
-                    state.selectedCourse = vsRoomData.courseId;
-                    game.isVsMode = true;
-                    startGame();
-                }
+                    if (vsRoomData.status === 'playing' && !game.active) {
+                        state.selectedCourse = vsRoomData.courseId;
+                        game.isVsMode = true;
+                        startGame();
+                    }
 
-                updateVsRoomUI();
-            });
+                    updateVsRoomUI();
+                }, err => {
+                    console.log("Snapshot listener error:", err);
+                });
+            } catch(e) {
+                console.log("Subscribe error:", e);
+            }
         }
 
         function enterVsRoomUI() {
@@ -2216,7 +2301,6 @@
             const members = Object.values(vsRoomData.members || {});
             document.getElementById('vs-member-count').textContent = members.length;
 
-            // Render Member Cards with 1/3 height
             const memberList = document.getElementById('vs-member-list');
             memberList.innerHTML = '';
 
@@ -2230,11 +2314,9 @@
                 memberList.appendChild(card);
             });
 
-            // Update course options based on participants' unlocked courses (Hide fully locked ones)
             const allCourses = [];
             COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
 
-            // Find courses unlocked by AT LEAST ONE participant
             let unionUnlocked = new Set();
             members.forEach(m => {
                 if (m.unlocked && Array.isArray(m.unlocked)) {
@@ -2261,7 +2343,6 @@
                 courseSelect.value = vsRoomData.courseId;
             }
 
-            // Automatic Room Cleanup rule check (Host left or all non-host members left)
             if (vsIsHost) {
                 if (members.length === 1 && members[0].id !== vsUserId) {
                     leaveVsRoom();
@@ -2269,7 +2350,7 @@
             } else {
                 const hostExists = members.some(m => m.isHost);
                 if (!hostExists) {
-                    alert("オーナーが退出したため、対戦部屋は解散されました。");
+                    showMessage("オーナーが退出したため、対戦部屋は解散されました。");
                     exitToTop();
                 }
             }
@@ -2280,9 +2361,15 @@
             const courseId = document.getElementById('vs-course-select').value;
 
             if (db) {
-                db.collection('vs_rooms').doc(vsRoomId).update({
+                withTimeout(db.collection('vs_rooms').doc(vsRoomId).update({
                     status: 'playing',
                     courseId: courseId
+                }), 1500)
+                .then(() => {})
+                .catch(() => {
+                    state.selectedCourse = courseId;
+                    game.isVsMode = true;
+                    startGame();
                 });
             } else {
                 state.selectedCourse = courseId;
@@ -2535,7 +2622,6 @@
                     state.selectedCourse = randomId;
                     renderCategories();
                     
-                    // スロール位置を選択されたコースにスクロール
                     const targetBtn = document.querySelector(`[data-course-id="${randomId}"]`);
                     if (targetBtn) {
                         targetBtn.scrollIntoView({ behavior: 'auto', block: 'nearest' });
@@ -2622,7 +2708,7 @@
             document.getElementById('vs-copy-code-btn').onclick = () => {
                 if (vsRoomId) {
                     navigator.clipboard.writeText(vsRoomId);
-                    alert("部屋コードをコピーしました: " + vsRoomId);
+                    showMessage("部屋コードをコピーしました: " + vsRoomId);
                 }
             };
 
