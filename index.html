@@ -118,6 +118,9 @@
                 <button id="start-game-btn" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold text-base sm:text-lg px-8 py-2 rounded-2xl shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-play"></i>スタート！
                 </button>
+                <button id="random-start-btn" class="bg-rose-100 hover:bg-rose-200 text-rose-900 font-bold text-xs sm:text-sm px-3.5 py-2 rounded-2xl border border-rose-300 transition active:scale-95 flex items-center gap-1.5">
+                    <i class="fa-solid fa-dice text-rose-600"></i> おまかせ
+                </button>
                 <button id="view-toggle-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-3.5 py-2 rounded-2xl border border-slate-300 transition active:scale-95 flex items-center gap-1.5">
                     <i class="fa-solid fa-arrows-split-up-and-left text-indigo-500"></i> <ruby>表<rt>ひょう</rt></ruby><ruby>示<rt>じ</rt></ruby>きりかえ
                 </button>
@@ -164,7 +167,7 @@
                 <div class="space-y-4">
                     <!-- Nickname Setup -->
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <label class="block text-xs font-bold text-slate-600 mb-1">あなたのニックネーム</label>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">あなたのニックネーム（自由にかえられるよ）</label>
                         <div class="flex gap-2">
                             <input type="text" id="vs-nickname-input" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="ニックネームを入力" maxlength="10">
                             <button id="vs-random-name-btn" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold px-3 py-2 rounded-xl text-xs transition border border-purple-300 flex items-center gap-1 whitespace-nowrap">
@@ -330,11 +333,14 @@
             
             <div class="space-y-2.5 text-xs sm:text-sm font-bold text-slate-700">
                 <!-- Sound Option -->
-                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-volume-high text-sky-500"></i> <ruby>効<rt>こう</rt></ruby><ruby>果<rt>か</rt></ruby><ruby>音<rt>おん</rt></ruby></span>
-                    <button id="modal-sound-btn" class="px-4 py-1 rounded-lg text-white font-black bg-sky-500 hover:bg-sky-600 transition shadow-sm text-xs">
-                        ON
-                    </button>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1.5">
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-volume-high text-sky-500"></i> <ruby>効<rt>こう</rt></ruby><ruby>果<rt>か</rt></ruby><ruby>音<rt>おん</rt></ruby></div>
+                    <div class="grid grid-cols-4 gap-1.5 text-xs font-bold" id="sound-mode-group">
+                        <button data-sound="1" class="sound-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">1</button>
+                        <button data-sound="2" class="sound-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">2</button>
+                        <button data-sound="3" class="sound-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">3</button>
+                        <button data-sound="OFF" class="sound-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">OFF</button>
+                    </div>
                 </div>
                 <!-- Ruby Option -->
                 <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100">
@@ -504,7 +510,7 @@
         class SoundEngine {
             constructor() {
                 this.ctx = null;
-                this.enabled = true;
+                this.mode = '1'; // '1', '2', '3', 'OFF'
             }
 
             init() {
@@ -512,27 +518,70 @@
                     const AudioCtx = window.AudioContext || window.webkitAudioContext;
                     if (AudioCtx) this.ctx = new AudioCtx();
                 }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
             }
 
             playType() {
-                if (!this.enabled || !this.ctx) return;
+                if (this.mode === 'OFF' || !this.ctx) return;
                 try {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(600, this.ctx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.04);
-                    gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start();
-                    osc.stop(this.ctx.currentTime + 0.04);
+                    const now = this.ctx.currentTime;
+                    if (this.mode === '1') {
+                        // 1: パンチの音 (Heavy Punch Impact)
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(360, now);
+                        osc.frequency.exponentialRampToValueAtTime(35, now + 0.08);
+                        gain.gain.setValueAtTime(0.4, now);
+                        gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.08);
+                    } else if (this.mode === '2') {
+                        // 2: コインの音 (8-Bit Arcade Coin Pitch B5 -> E6)
+                        const osc1 = this.ctx.createOscillator();
+                        const gain1 = this.ctx.createGain();
+                        osc1.type = 'sine';
+                        osc1.frequency.setValueAtTime(987.77, now);
+                        gain1.gain.setValueAtTime(0.2, now);
+                        gain1.gain.linearRampToValueAtTime(0.01, now + 0.06);
+                        osc1.connect(gain1);
+                        gain1.connect(this.ctx.destination);
+                        osc1.start(now);
+                        osc1.stop(now + 0.06);
+
+                        const osc2 = this.ctx.createOscillator();
+                        const gain2 = this.ctx.createGain();
+                        osc2.type = 'sine';
+                        osc2.frequency.setValueAtTime(1318.51, now + 0.05);
+                        gain2.gain.setValueAtTime(0.25, now + 0.05);
+                        gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                        osc2.connect(gain2);
+                        gain2.connect(this.ctx.destination);
+                        osc2.start(now + 0.05);
+                        osc2.stop(now + 0.2);
+                    } else if (this.mode === '3') {
+                        // 3: 銃声の音 (Gunshot / Pistol Shot)
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(950, now);
+                        osc.frequency.exponentialRampToValueAtTime(40, now + 0.05);
+                        gain.gain.setValueAtTime(0.5, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.05);
+                    }
                 } catch (e) {}
             }
 
             playMiss() {
-                if (!this.enabled || !this.ctx) return;
+                if (this.mode === 'OFF' || !this.ctx) return;
                 try {
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
@@ -549,7 +598,7 @@
             }
 
             playTick() {
-                if (!this.enabled || !this.ctx) return;
+                if (this.mode === 'OFF' || !this.ctx) return;
                 try {
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
@@ -565,7 +614,7 @@
             }
 
             playStart() {
-                if (!this.enabled || !this.ctx) return;
+                if (this.mode === 'OFF' || !this.ctx) return;
                 try {
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
@@ -581,7 +630,7 @@
             }
 
             playLock() {
-                if (!this.enabled || !this.ctx) return;
+                if (this.mode === 'OFF' || !this.ctx) return;
                 try {
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
@@ -597,8 +646,39 @@
                 } catch (e) {}
             }
 
+            // 問題（単語）クリア時の「ピンポン」効果音
+            playWordClear() {
+                if (this.mode === 'OFF' || !this.ctx) return;
+                try {
+                    const now = this.ctx.currentTime;
+                    // 「ピン」（高音: E6）
+                    const osc1 = this.ctx.createOscillator();
+                    const gain1 = this.ctx.createGain();
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(1318.51, now);
+                    gain1.gain.setValueAtTime(0.25, now);
+                    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc1.connect(gain1);
+                    gain1.connect(this.ctx.destination);
+                    osc1.start(now);
+                    osc1.stop(now + 0.3);
+
+                    // 「ポン」（中音: C6）
+                    const osc2 = this.ctx.createOscillator();
+                    const gain2 = this.ctx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(1046.50, now + 0.18);
+                    gain2.gain.setValueAtTime(0.25, now + 0.18);
+                    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+                    osc2.connect(gain2);
+                    gain2.connect(this.ctx.destination);
+                    osc2.start(now + 0.18);
+                    osc2.stop(now + 0.55);
+                } catch (e) {}
+            }
+
             playDrumroll(duration = 2000) {
-                if (!this.enabled || !this.ctx) return;
+                if (this.mode === 'OFF' || !this.ctx) return;
                 try {
                     const now = this.ctx.currentTime;
                     const interval = 0.06;
@@ -619,7 +699,7 @@
             }
 
             playFanfare() {
-                if (!this.enabled || !this.ctx) return;
+                if (this.mode === 'OFF' || !this.ctx) return;
                 try {
                     const now = this.ctx.currentTime;
                     const notes = [523.25, 659.25, 783.99, 1046.50];
@@ -1034,7 +1114,7 @@
             coursePlayCounts: {},
             selectedCourse: 'aiueo',
             selectedTime: 60,
-            soundOn: true,
+            soundMode: '1',
             rubyOn: true,
             romajiStyle: 'kunrei',
             keyboardCase: 'lowercase',
@@ -1105,6 +1185,11 @@
                     state = { ...state, ...parsed };
                 }
             } catch (e) {}
+
+            if (!state.soundMode) {
+                state.soundMode = state.soundOn === false ? 'OFF' : '1';
+            }
+            sound.mode = state.soundMode;
 
             DEFAULT_UNLOCKED.forEach(id => {
                 if (!state.unlockedCourses.includes(id)) {
@@ -1854,6 +1939,7 @@
                     currNode.finalOption = completed;
                     game.nodeIndex += 1;
                     if (game.nodeIndex >= game.nodes.length) {
+                        sound.playWordClear();
                         nextWord();
                         return;
                     }
@@ -2301,17 +2387,17 @@
         }
 
         function setupSettingsModalUI() {
-            const soundBtn = document.getElementById('modal-sound-btn');
             const rubyBtn = document.getElementById('modal-ruby-btn');
 
             const updateModalStateUI = () => {
-                if (state.soundOn) {
-                    soundBtn.textContent = 'ON';
-                    soundBtn.className = 'px-4 py-1 rounded-lg text-white font-black bg-sky-500 hover:bg-sky-600 transition shadow-sm text-xs';
-                } else {
-                    soundBtn.textContent = 'OFF';
-                    soundBtn.className = 'px-4 py-1 rounded-lg text-slate-600 font-bold bg-slate-200 hover:bg-slate-300 transition text-xs';
-                }
+                document.querySelectorAll('#sound-mode-group .sound-btn').forEach(btn => {
+                    const s = btn.dataset.sound;
+                    if (s === (state.soundMode || '1')) {
+                        btn.className = 'sound-btn px-2 py-1.5 rounded-lg bg-sky-500 text-white font-black shadow-sm border border-sky-500';
+                    } else {
+                        btn.className = 'sound-btn px-2 py-1.5 rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 font-bold';
+                    }
+                });
 
                 if (state.rubyOn) {
                     rubyBtn.textContent = 'ON';
@@ -2347,13 +2433,15 @@
                 });
             };
 
-            soundBtn.onclick = () => {
-                state.soundOn = !state.soundOn;
-                sound.enabled = state.soundOn;
-                if (state.soundOn) sound.playTick();
-                saveState();
-                updateModalStateUI();
-            };
+            document.querySelectorAll('#sound-mode-group .sound-btn').forEach(btn => {
+                btn.onclick = () => {
+                    state.soundMode = btn.dataset.sound;
+                    sound.mode = state.soundMode;
+                    if (state.soundMode !== 'OFF') sound.playType();
+                    saveState();
+                    updateModalStateUI();
+                };
+            });
 
             rubyBtn.onclick = () => {
                 state.rubyOn = !state.rubyOn;
@@ -2435,6 +2523,35 @@
             setupSettingsModalUI();
 
             document.getElementById('start-game-btn').onclick = () => startGame();
+            document.getElementById('random-start-btn').onclick = () => {
+                if (!state.unlockedCourses || state.unlockedCourses.length === 0) return;
+                sound.init();
+                sound.playDrumroll(1500);
+
+                let spinCount = 0;
+                const spinInterval = setInterval(() => {
+                    sound.playTick();
+                    const randomId = state.unlockedCourses[Math.floor(Math.random() * state.unlockedCourses.length)];
+                    state.selectedCourse = randomId;
+                    renderCategories();
+                    
+                    // スロール位置を選択されたコースにスクロール
+                    const targetBtn = document.querySelector(`[data-course-id="${randomId}"]`);
+                    if (targetBtn) {
+                        targetBtn.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+                    }
+
+                    spinCount++;
+                    if (spinCount >= 15) {
+                        clearInterval(spinInterval);
+                        sound.playFanfare();
+                        saveState();
+                        setTimeout(() => {
+                            startGame();
+                        }, 400);
+                    }
+                }, 90);
+            };
             document.getElementById('view-toggle-btn').onclick = () => {
                 sound.playTick();
                 state.viewMode = state.viewMode === 'categories' ? 'consolidated' : 'categories';
