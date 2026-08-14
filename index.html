@@ -341,10 +341,15 @@
                     <div class="text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
                         スコア: <span id="game-score">0</span>
                     </div>
-                    <div class="text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200">
+                    <div id="timer-box" class="text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200 transition-colors">
                         残り時間: <span id="game-timer">60</span>s
                     </div>
                 </div>
+            </div>
+
+            <!-- VS Countdown Notice Banner -->
+            <div id="vs-10s-notice" class="hidden bg-rose-500 text-white text-xs sm:text-sm font-black py-1.5 px-4 rounded-xl text-center shadow animate-pulse">
+                <i class="fa-solid fa-clock-rotate-left mr-1"></i><span id="vs-notice-text">クリア者が出ました！あと 10 秒で対戦が終了します！</span>
             </div>
 
             <!-- Main Typing Card -->
@@ -578,6 +583,14 @@
             } catch (e) {
                 return fallback;
             }
+        }
+
+        function normalizeCode(str) {
+            if (!str) return '';
+            return str
+                .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
+                .replace(/\s+/g, '')
+                .toLowerCase();
         }
 
         function copyToClipboard(text, successMsg) {
@@ -1056,7 +1069,7 @@
                 this.listeners = [];
                 if (this.channel) {
                     this.channel.onmessage = (e) => {
-                        this.listeners.forEach(cb => cb(e.data));
+                        this.handleMessage(e.data);
                     };
                 }
                 window.addEventListener('storage', (e) => {
@@ -1064,6 +1077,18 @@
                         this.listeners.forEach(cb => cb({ type: 'STORAGE_CHANGE', key: e.key }));
                     }
                 });
+            }
+
+            handleMessage(data) {
+                if (data && data.type === 'VS_ROOM_UPDATE' && data.payload && data.payload.roomData) {
+                    const rooms = getStoredVsRooms();
+                    rooms[data.payload.roomId] = data.payload.roomData;
+                    if (data.payload.rooms) {
+                        Object.assign(rooms, data.payload.rooms);
+                    }
+                    saveVsRooms(rooms);
+                }
+                this.listeners.forEach(cb => cb(data));
             }
 
             broadcast(type, payload) {
@@ -1101,7 +1126,6 @@
             if (!state.unlockedCourses || state.unlockedCourses.length === 0) {
                 state.unlockedCourses = [...DEFAULT_UNLOCKED];
             }
-            // 各種記録用オブジェクトの初期化を保証
             state.highScores = state.highScores || {};
             state.coursePlayCounts = state.coursePlayCounts || {};
             state.courseTotalScores = state.courseTotalScores || {};
@@ -1235,7 +1259,6 @@
                 const allCourses = [];
                 COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
 
-                // 解放されているコースのみにフィルタリング
                 const unlockedCoursesList = allCourses.filter(course => state.unlockedCourses.includes(course.id));
 
                 if (unlockedCoursesList.length === 0) {
@@ -1436,7 +1459,10 @@
             sound.init();
             sound.playStart();
 
-            // 選択中のコースIDをゲーム状態に確実に紐付け
+            document.getElementById('vs-10s-notice').classList.add('hidden');
+            const timerBox = document.getElementById('timer-box');
+            timerBox.className = 'text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200 transition-colors';
+
             game.courseId = state.selectedCourse;
             const courseWords = getCourseWords(state.selectedCourse);
             game.words = [...courseWords].sort(() => Math.random() - 0.5);
@@ -1824,7 +1850,8 @@
         function joinGroupWithCode() {
             sound.playTick();
             const nickname = document.getElementById('group-nickname-input').value.trim();
-            const code = document.getElementById('group-code-input').value.trim().toLowerCase();
+            const rawCode = document.getElementById('group-code-input').value;
+            const code = normalizeCode(rawCode);
 
             if (!nickname) {
                 showMessage("ニックネームを入力してください！");
@@ -1975,9 +2002,11 @@
                         isHost: true,
                         score: 0,
                         wpm: 0,
+                        finished: false,
                         unlocked: state.unlockedCourses
                     }
                 },
+                firstFinishTime: null,
                 createdAt: Date.now()
             };
 
@@ -1986,32 +2015,12 @@
             saveVsRooms(rooms);
             vsRoomData = initialData;
 
-            syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId });
+            syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: initialData, rooms: rooms });
             subscribeVsRoom(vsRoomId);
             enterVsRoomUI();
         }
 
-        function joinVsRoom() {
-            const nickname = document.getElementById('vs-nickname-input').value.trim();
-            const code = document.getElementById('vs-room-code-input').value.trim().toLowerCase();
-
-            if (!nickname) {
-                showMessage("ニックネームを入力してください！");
-                return;
-            }
-            if (!code || code.length !== 8) {
-                showMessage("8桁の対戦コードを正しく入力してください！");
-                return;
-            }
-
-            const rooms = getStoredVsRooms();
-            let room = rooms[code];
-
-            if (!room || room.status === 'closed') {
-                showMessage("指定された対戦部屋が見つかりません。");
-                return;
-            }
-
+        function processJoinVsRoom(room, code, nickname) {
             const existingNames = Object.values(room.members || {}).map(m => m.name);
             if (existingNames.includes(nickname)) {
                 showMessage("同じニックネームのプレイヤーがすでに部屋にいます。別の名前を入力してください。");
@@ -2029,21 +2038,64 @@
                 isHost: false,
                 score: 0,
                 wpm: 0,
+                finished: false,
                 unlocked: state.unlockedCourses
             };
 
+            const rooms = getStoredVsRooms();
             rooms[code] = room;
             saveVsRooms(rooms);
             vsRoomData = room;
 
-            syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId });
+            syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: room, rooms: rooms });
             subscribeVsRoom(vsRoomId);
             enterVsRoomUI();
         }
 
+        function joinVsRoom() {
+            const nickname = document.getElementById('vs-nickname-input').value.trim();
+            const rawCode = document.getElementById('vs-room-code-input').value;
+            const code = normalizeCode(rawCode);
+
+            if (!nickname) {
+                showMessage("ニックネームを入力してください！");
+                return;
+            }
+            if (!code || code.length !== 8) {
+                showMessage("8桁の対戦コードを正しく入力してください！");
+                return;
+            }
+
+            let rooms = getStoredVsRooms();
+            let room = rooms[code];
+
+            if (!room || room.status === 'closed') {
+                syncEngine.broadcast('REQ_VS_ROOM', { roomId: code });
+                setTimeout(() => {
+                    rooms = getStoredVsRooms();
+                    room = rooms[code];
+                    if (!room || room.status === 'closed') {
+                        showMessage("指定された対戦部屋が見つかりません。");
+                    } else {
+                        processJoinVsRoom(room, code, nickname);
+                    }
+                }, 120);
+                return;
+            }
+
+            processJoinVsRoom(room, code, nickname);
+        }
+
         function subscribeVsRoom(roomId) {
             syncEngine.onMessage((msg) => {
-                if (msg.type === 'VS_ROOM_UPDATE' || msg.type === 'STORAGE_CHANGE') {
+                if (msg.type === 'REQ_VS_ROOM') {
+                    if (vsIsHost && vsRoomId && msg.payload && msg.payload.roomId === vsRoomId && vsRoomData) {
+                        const rooms = getStoredVsRooms();
+                        rooms[vsRoomId] = vsRoomData;
+                        saveVsRooms(rooms);
+                        syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: vsRoomData, rooms: rooms });
+                    }
+                } else if (msg.type === 'VS_ROOM_UPDATE' || msg.type === 'STORAGE_CHANGE') {
                     const rooms = getStoredVsRooms();
                     const updated = rooms[roomId];
 
@@ -2057,10 +2109,16 @@
 
                     vsRoomData = updated;
 
-                    if (vsRoomData.status === 'playing' && !game.active) {
+                    if (vsRoomData.status === 'playing' && !game.active && !document.getElementById('play-screen').classList.contains('hidden')) {
+                        // already in play screen
+                    } else if (vsRoomData.status === 'playing' && !game.active) {
                         state.selectedCourse = vsRoomData.courseId;
                         game.isVsMode = true;
                         startGame();
+                    }
+
+                    if (game.active && vsRoomData.firstFinishTime) {
+                        handleVsCountdownTrigger(vsRoomData.firstFinishTime, vsRoomData.firstFinishName);
                     }
 
                     updateVsRoomUI();
@@ -2153,10 +2211,16 @@
             if (rooms[vsRoomId]) {
                 rooms[vsRoomId].status = 'playing';
                 rooms[vsRoomId].courseId = courseId;
+                rooms[vsRoomId].firstFinishTime = null;
+                rooms[vsRoomId].firstFinishName = null;
+                Object.keys(rooms[vsRoomId].members).forEach(id => {
+                    rooms[vsRoomId].members[id].score = 0;
+                    rooms[vsRoomId].members[id].finished = false;
+                });
                 saveVsRooms(rooms);
                 vsRoomData = rooms[vsRoomId];
 
-                syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId });
+                syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: vsRoomData, rooms: rooms });
                 state.selectedCourse = courseId;
                 game.isVsMode = true;
                 startGame();
@@ -2169,7 +2233,34 @@
             if (rooms[vsRoomId] && rooms[vsRoomId].members[vsUserId]) {
                 rooms[vsRoomId].members[vsUserId].score = game.score;
                 saveVsRooms(rooms);
-                syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId });
+                syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: rooms[vsRoomId], rooms: rooms });
+            }
+        }
+
+        function handleVsCountdownTrigger(firstFinishTime, winnerName) {
+            const noticeEl = document.getElementById('vs-10s-notice');
+            const noticeText = document.getElementById('vs-notice-text');
+            const timerBox = document.getElementById('timer-box');
+
+            noticeEl.classList.remove('hidden');
+            if (winnerName) {
+                noticeText.textContent = `🎉 ${winnerName}さんがクリア！あと 10 秒で対戦が終了します！`;
+            } else {
+                noticeText.textContent = `クリア者が出ました！あと 10 秒で対戦が終了します！`;
+            }
+
+            timerBox.className = 'text-rose-600 bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-300 transition-colors animate-pulse';
+
+            if (!game.vsEndTime) {
+                game.vsEndTime = Math.min(Date.now() + 10000, game.startTime + state.selectedTime * 1000);
+            }
+            
+            const remaining = Math.max(0, Math.ceil((game.vsEndTime - Date.now()) / 1000));
+            game.timer = remaining;
+            document.getElementById('game-timer').textContent = remaining;
+
+            if (remaining <= 0) {
+                endGame();
             }
         }
 
@@ -2179,12 +2270,19 @@
                 if (rooms[vsRoomId] && rooms[vsRoomId].members[vsUserId]) {
                     rooms[vsRoomId].members[vsUserId].score = finalScore;
                     rooms[vsRoomId].members[vsUserId].wpm = wpm;
+                    rooms[vsRoomId].members[vsUserId].finished = true;
+
+                    if (!rooms[vsRoomId].firstFinishTime) {
+                        rooms[vsRoomId].firstFinishTime = Date.now();
+                        rooms[vsRoomId].firstFinishName = vsUserNickname;
+                    }
+
                     saveVsRooms(rooms);
                     vsRoomData = rooms[vsRoomId];
-                    syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId });
+                    syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: vsRoomData, rooms: rooms });
                 }
             }
-            setTimeout(showVsResultModal, 1000);
+            setTimeout(showVsResultModal, 800);
         }
 
         function showVsResultModal() {
@@ -2255,7 +2353,7 @@
                         delete rooms[vsRoomId].members[vsUserId];
                     }
                     saveVsRooms(rooms);
-                    syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId });
+                    syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: rooms[vsRoomId], rooms: rooms });
                 }
             }
             vsRoomId = null;
@@ -2521,7 +2619,7 @@
                     if (rooms[vsRoomId]) {
                         rooms[vsRoomId].status = 'waiting';
                         saveVsRooms(rooms);
-                        syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId });
+                        syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: rooms[vsRoomId], rooms: rooms });
                     }
                 }
             };
