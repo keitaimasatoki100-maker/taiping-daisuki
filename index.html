@@ -22,11 +22,23 @@
             -webkit-user-select: none;
         }
         
+        ruby {
+            display: inline-flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            vertical-align: bottom;
+            line-height: 1.15;
+            margin: 0 1px;
+        }
+
         ruby rt {
             font-size: 0.55em;
             color: #0284c7;
             font-weight: bold;
             line-height: 1;
+            display: block;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .key-cap {
@@ -50,7 +62,7 @@
             animation: pulse-zoom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        /* Custom scrollbar for menu */
+        /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -69,10 +81,9 @@
 </head>
 <body class="bg-gradient-to-br from-sky-100 via-indigo-50 to-pink-100 min-h-screen text-slate-800 flex flex-col">
 
-    <!-- Toast Notification Container -->
+    <!-- Toast Notifications -->
     <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none flex flex-col gap-2 w-full max-w-sm px-4"></div>
 
-    <!-- Top Main App Shell -->
     <div id="app" class="flex-1 flex flex-col max-w-6xl mx-auto w-full p-2 sm:p-4">
         
         <!-- TOP SCREEN -->
@@ -123,25 +134,25 @@
                 </button>
             </div>
 
-            <!-- Course Grid Container -->
-            <div class="flex-1 bg-white/70 backdrop-blur p-3 sm:p-5 rounded-3xl shadow-sm border border-white overflow-y-auto max-h-[calc(100vh-280px)]">
+            <!-- Course Categories Container -->
+            <div class="flex-1 bg-white/70 backdrop-blur p-3 sm:p-5 rounded-3xl shadow-sm border border-white overflow-y-auto max-h-[calc(100vh-320px)]">
                 <div id="categories-container" class="space-y-6">
-                    <!-- Dynamic Categories or Consolidated List Inserted by JavaScript -->
+                    <!-- Dynamic Categories Inserted by JS -->
                 </div>
             </div>
 
-            <!-- Bottom Multiplayer VS & Group Mode Triggers -->
-            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-center">
-                <button id="open-vs-btn" class="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-rose-500 hover:from-purple-700 hover:to-rose-600 text-white font-extrabold text-base sm:text-lg py-3 rounded-2xl shadow-lg transition transform active:scale-98 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-users text-amber-300 text-xl animate-bounce"></i> 友だちと対戦（マルチプレイ）
+            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-center">
+                <button id="open-vs-btn" class="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-rose-500 hover:from-purple-700 hover:to-rose-600 text-white font-extrabold text-sm sm:text-base py-3 rounded-2xl shadow-md transition transform active:scale-98 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-users text-amber-300 text-lg"></i> 友だちと対戦（マルチプレイ）
                 </button>
-                <button id="open-group-btn" class="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white font-extrabold text-base sm:text-lg py-3 rounded-2xl shadow-lg transition transform active:scale-98 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-users-rectangle text-amber-300 text-xl"></i> グループ
+                <!-- REQUIRED: Group Button placed at the VERY BOTTOM of the top page -->
+                <button id="open-group-btn" class="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-extrabold text-sm sm:text-base py-3 rounded-2xl shadow-md transition transform active:scale-98 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-users-rectangle text-amber-300 text-lg"></i> <ruby>グ<rt>ぐ</rt></ruby><ruby>ルー<rt>るー</rt></ruby><ruby>プ<rt>ぷ</rt></ruby><ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>・<ruby>管<rt>かん</rt></ruby><ruby>理<rt>り</rt></ruby>
                 </button>
             </div>
         </div>
 
-        <!-- MULTIPLAYER VS SCREEN -->
+        <!-- VS MULTIPLAYER SCREEN -->
         <div id="vs-screen" class="hidden flex-1 flex flex-col">
             <!-- VS Header -->
             <div class="bg-white/90 backdrop-blur px-4 py-2.5 rounded-2xl shadow-sm border border-white mb-3 flex items-center justify-between">
@@ -158,15 +169,15 @@
             <div id="vs-lobby-view" class="flex-1 bg-white/80 backdrop-blur p-4 sm:p-6 rounded-3xl shadow-sm border border-white flex flex-col justify-center max-w-xl mx-auto w-full">
                 <div class="text-center mb-6">
                     <h2 class="text-xl sm:text-2xl font-black text-slate-800 mb-1">対戦部屋に入る・作る</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 font-bold">友だちとリアルタイムでタイピング勝負！</p>
+                    <p class="text-xs sm:text-sm text-slate-500 font-bold">スマホやパソコン同士でオンライン対戦！</p>
                 </div>
 
                 <div class="space-y-4">
                     <!-- Nickname Setup -->
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <label class="block text-xs font-bold text-slate-600 mb-1">あなたのニックネーム（自由にかえられるよ）</label>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">あなたのニックネーム</label>
                         <div class="flex gap-2">
-                            <input type="text" id="vs-nickname-input" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="ニックネームを入力" maxlength="10">
+                            <input type="text" id="vs-nickname-input" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="ニックネームを入力" maxlength="12">
                             <button id="vs-random-name-btn" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold px-3 py-2 rounded-xl text-xs transition border border-purple-300 flex items-center gap-1 whitespace-nowrap">
                                 <i class="fa-solid fa-dice text-purple-600"></i> チェンジ
                             </button>
@@ -210,11 +221,11 @@
                     </button>
                 </div>
 
-                <!-- Course Selection (Host only) / Course Display (Guest) -->
+                <!-- Course Selection (Host only) -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 mb-4 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
                         <label class="text-xs font-bold text-slate-700 flex items-center gap-1">
-                            <i class="fa-solid fa-book-open text-indigo-500"></i> 対戦コース
+                            <i class="fa-solid fa-book-open text-indigo-500"></i> 対戦コースを選んでね
                         </label>
                         <div id="vs-course-picker-controls" class="flex gap-2">
                             <button id="vs-random-course-btn" class="hidden text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 font-extrabold px-3 py-1 rounded-xl border border-amber-300 transition">
@@ -223,7 +234,7 @@
                         </div>
                     </div>
                     <select id="vs-course-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-purple-400">
-                        <!-- Options generated by JavaScript -->
+                        <!-- Options generated dynamically -->
                     </select>
                 </div>
 
@@ -231,7 +242,7 @@
                 <div class="flex-1 bg-white p-4 rounded-2xl border border-slate-200 mb-4 shadow-sm flex flex-col min-h-[160px]">
                     <div class="text-xs font-bold text-slate-600 mb-2 flex justify-between items-center">
                         <span>参加メンバー一覧 (<span id="vs-member-count">0</span>人)</span>
-                        <span class="text-[10px] text-slate-400">リアルタイム同期中</span>
+                        <span class="text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-wifi mr-1"></i>リアルタイム同期中</span>
                     </div>
                     <div id="vs-member-list" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-1.5 overflow-y-auto max-h-[220px] p-1">
                         <!-- Dynamic Member Cards -->
@@ -253,75 +264,7 @@
             </div>
         </div>
 
-        <!-- GROUP MANAGEMENT SCREEN -->
-        <div id="group-screen" class="hidden flex-1 flex flex-col">
-            <!-- Group Header -->
-            <div class="bg-white/90 backdrop-blur px-4 py-2.5 rounded-2xl shadow-sm border border-white mb-3 flex items-center justify-between">
-                <button id="exit-group-btn" class="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition">
-                    <i class="fa-solid fa-arrow-left mr-1"></i>トップへもどる
-                </button>
-                <div class="font-extrabold text-base sm:text-lg text-teal-700 flex items-center gap-2">
-                    <i class="fa-solid fa-users-rectangle text-teal-600"></i> グループ機能
-                </div>
-                <div class="w-16"></div>
-            </div>
-
-            <!-- Group Main View -->
-            <div class="flex-1 bg-white/80 backdrop-blur p-4 sm:p-6 rounded-3xl shadow-sm border border-white flex flex-col max-w-2xl mx-auto w-full overflow-y-auto space-y-4">
-                <div class="text-center">
-                    <h2 class="text-xl sm:text-2xl font-black text-slate-800 mb-1">グループを作成・参加</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 font-bold">みんなでグループを作って所属しよう！</p>
-                </div>
-
-                <!-- Nickname Setup -->
-                <div class="bg-slate-50 p-3.5 sm:p-4 rounded-2xl border border-slate-200">
-                    <label class="block text-xs font-bold text-slate-600 mb-1">あなたのニックネーム（自由にかえられるよ）</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="group-nickname-input" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-teal-400" placeholder="ニックネームを入力" maxlength="10">
-                        <button id="group-random-name-btn" class="bg-teal-100 hover:bg-teal-200 text-teal-800 font-bold px-3 py-2 rounded-xl text-xs transition border border-teal-300 flex items-center gap-1 whitespace-nowrap">
-                            <i class="fa-solid fa-dice text-teal-600"></i> チェンジ
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Create Group Button -->
-                <button id="group-create-btn" class="w-full bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-extrabold py-3.5 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-plus-circle text-lg"></i> 新しくグループを作る
-                </button>
-
-                <div class="relative flex py-1 items-center">
-                    <div class="flex-grow border-t border-slate-300"></div>
-                    <span class="flex-shrink mx-4 text-xs font-bold text-slate-400">または</span>
-                    <div class="flex-grow border-t border-slate-300"></div>
-                </div>
-
-                <!-- Join Group Input -->
-                <div class="bg-slate-50 p-3.5 sm:p-4 rounded-2xl border border-slate-200 space-y-2">
-                    <label class="block text-xs font-bold text-slate-600">グループコード（8桁）を入力して参加</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="group-code-input" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-mono uppercase font-black text-center text-sm focus:outline-none focus:ring-2 focus:ring-teal-400" placeholder="例: g8m9k2a4" maxlength="8">
-                        <button id="group-join-btn" class="bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold px-5 py-2 rounded-xl text-sm transition shadow-sm active:scale-95">
-                            参加する
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Joined Groups List -->
-                <div class="bg-slate-50 p-3.5 sm:p-4 rounded-2xl border border-slate-200 space-y-3">
-                    <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                        <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                            <i class="fa-solid fa-layer-group text-teal-600"></i> 所属中のグループ一覧
-                        </span>
-                        <span id="my-groups-count" class="text-xs font-black bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">0個</span>
-                    </div>
-                    <div id="my-groups-list" class="space-y-2 max-h-[260px] overflow-y-auto">
-                        <div class="text-center py-4 text-xs font-bold text-slate-400">所属しているグループはありません</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PLAY SCREEN (NO-SCROLL LAYOUT) -->
+        <!-- PLAY GAME SCREEN -->
         <div id="play-screen" class="hidden flex-1 flex flex-col justify-between max-h-[calc(100vh-20px)] overflow-hidden">
             <!-- Header Bar -->
             <div class="bg-white/90 backdrop-blur px-4 py-2 rounded-2xl shadow-sm border border-white flex items-center justify-between">
@@ -329,7 +272,6 @@
                     <button id="exit-game-btn" class="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition">
                         <i class="fa-solid fa-arrow-left mr-1"></i>もどる
                     </button>
-                    <!-- In-game Ruby Toggle Button -->
                     <button id="ingame-ruby-btn" class="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-xl transition">
                         ルビ: <span id="ingame-ruby-state">ON</span>
                     </button>
@@ -354,23 +296,139 @@
 
             <!-- Main Typing Card -->
             <div class="my-2 flex-1 flex flex-col items-center justify-center bg-white/95 backdrop-blur p-3 sm:p-5 rounded-3xl shadow-md border border-white relative text-center min-h-[140px] overflow-hidden">
-                <!-- Target Kanji Display -->
                 <div id="target-display" class="font-extrabold text-slate-800 mb-2 pt-3 leading-relaxed whitespace-nowrap max-w-full overflow-x-auto text-2xl sm:text-4xl">
-                    <ruby>漢<rt>かん</rt></ruby><ruby>字<rt>じ</rt></ruby>
+                    漢字
                 </div>
-                <!-- Romaji typing progress display -->
                 <div class="bg-slate-100 px-4 py-2 rounded-xl border border-slate-200 font-mono text-base sm:text-2xl tracking-widest whitespace-nowrap max-w-full overflow-x-auto">
                     <span id="romaji-done" class="text-emerald-500 font-black"></span><span id="romaji-next" class="text-rose-500 font-black underline underline-offset-4 animate-pulse"></span><span id="romaji-todo" class="text-slate-400"></span>
                 </div>
             </div>
 
-            <!-- Virtual Keyboard Layout -->
+            <!-- Virtual Keyboard -->
             <div class="bg-white/90 backdrop-blur p-2 sm:p-2.5 rounded-2xl shadow-sm border border-white">
                 <div class="max-w-4xl mx-auto space-y-1 sm:space-y-1.5 text-xs sm:text-sm font-bold text-slate-600">
                     <div class="flex justify-center gap-1 sm:gap-1.5" id="kbd-row-1"></div>
                     <div class="flex justify-center gap-1 sm:gap-1.5" id="kbd-row-2"></div>
                     <div class="flex justify-center gap-1 sm:gap-1.5" id="kbd-row-3"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ENHANCED GROUP MODAL WITH FULL FIRESTORE / OWNER / PRIVACY CONTROLS -->
+    <div id="group-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-2xl w-full p-4 sm:p-6 relative my-auto flex flex-col max-h-[90vh]">
+            <h2 class="text-xl font-black text-slate-800 text-center mb-2 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-users-rectangle text-purple-600"></i> <ruby>グ<rt>ぐ</rt></ruby><ruby>ルー<rt>るー</rt></ruby><ruby>プ<rt>ぷ</rt></ruby><ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>・<ruby>管<rt>かん</rt></ruby><ruby>理<rt>り</rt></ruby>
+            </h2>
+
+            <!-- Nickname Config Box -->
+            <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl mb-3 space-y-1.5">
+                <label class="block text-xs font-bold text-slate-600">あなたのニックネーム（自動生成／変更可）</label>
+                <div class="flex gap-2">
+                    <input type="text" id="group-user-nickname" class="flex-1 px-3 py-1.5 border border-slate-300 rounded-xl font-bold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="ニックネーム" maxlength="12">
+                    <button id="group-change-nickname-btn" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold px-3 py-1.5 rounded-xl text-xs transition border border-purple-300 flex items-center gap-1">
+                        <i class="fa-solid fa-dice text-purple-600"></i> チェンジ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Group Selector & Creation Controls -->
+            <div class="bg-purple-50 border border-purple-200 p-3.5 rounded-2xl mb-3 space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span class="text-xs font-extrabold text-purple-900">所属グループ切り替え</span>
+                    <select id="group-select-dropdown" class="px-3 py-1 border border-purple-300 rounded-xl font-bold text-xs bg-white text-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-400 flex-1 max-w-xs">
+                        <option value="">グループ未選択</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-purple-200">
+                    <!-- Create Group -->
+                    <button id="group-create-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-extrabold py-2 px-3 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-plus-circle"></i> 新しくグループを作る
+                    </button>
+
+                    <!-- Join Group by 8-char Code -->
+                    <div class="flex gap-1.5">
+                        <input type="text" id="group-join-code-input" class="flex-1 px-2.5 py-1.5 border border-purple-300 rounded-xl font-mono text-center font-bold text-xs uppercase focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="8桁コード" maxlength="8">
+                        <button id="group-join-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs transition shadow-sm">
+                            参加
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected Group Details -->
+            <div id="group-active-view" class="hidden flex-1 flex flex-col space-y-3 overflow-hidden">
+                <!-- Group Info Header -->
+                <div class="bg-white p-3 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-2 shadow-sm text-xs font-bold">
+                    <div>
+                        <span class="text-slate-500">グループ名:</span>
+                        <span id="group-display-name" class="text-purple-900 font-extrabold ml-1">グループ</span>
+                        <span id="group-role-badge" class="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-800">オーナー</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-500">グループコード:</span>
+                        <span id="group-display-code" class="font-mono font-black text-purple-700 ml-1">------</span>
+                        <button id="group-copy-code-btn" class="ml-1 text-[10px] bg-purple-100 hover:bg-purple-200 text-purple-800 px-2 py-0.5 rounded-lg border border-purple-300">
+                            コピー
+                        </button>
+                    </div>
+                </div>
+
+                <!-- OWNER PRIVACY SETTINGS PANEL (Host Only) -->
+                <div id="group-owner-settings-box" class="hidden bg-amber-50 border border-amber-200 p-3 rounded-2xl text-xs space-y-2">
+                    <div class="font-extrabold text-amber-900 flex items-center justify-between">
+                        <span><i class="fa-solid fa-user-shield text-amber-600 mr-1"></i> オーナー公開設定（初期値：全非公開）</span>
+                        <span class="text-[10px] text-amber-700 font-normal">オンにすると全員が閲覧可能になります</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-bold text-slate-700 text-[11px]">
+                        <label class="flex items-center gap-1.5 cursor-pointer bg-white p-1.5 rounded-xl border border-amber-200">
+                            <input type="checkbox" id="privacy-ranking" class="rounded text-purple-600 focus:ring-purple-400">
+                            <span>ランキング</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer bg-white p-1.5 rounded-xl border border-amber-200">
+                            <input type="checkbox" id="privacy-total-score" class="rounded text-purple-600 focus:ring-purple-400">
+                            <span>累計スコア</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer bg-white p-1.5 rounded-xl border border-amber-200">
+                            <input type="checkbox" id="privacy-last-played" class="rounded text-purple-600 focus:ring-purple-400">
+                            <span>最終プレイ日</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer bg-white p-1.5 rounded-xl border border-amber-200">
+                            <input type="checkbox" id="privacy-last-score" class="rounded text-purple-600 focus:ring-purple-400">
+                            <span>最終スコア</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Sorting Controls -->
+                <div class="flex items-center justify-between bg-slate-100 p-2 rounded-xl text-xs font-bold text-slate-600">
+                    <span>メンバー一覧並び替え:</span>
+                    <div class="flex gap-1" id="group-sort-buttons">
+                        <button data-sort="score" class="group-sort-btn px-2.5 py-1 rounded-lg bg-purple-600 text-white font-black">スコア順</button>
+                        <button data-sort="memo" class="group-sort-btn px-2.5 py-1 rounded-lg bg-white text-slate-600 border border-slate-300">メモ順</button>
+                        <button data-sort="custom" class="group-sort-btn px-2.5 py-1 rounded-lg bg-white text-slate-600 border border-slate-300">手動順</button>
+                    </div>
+                </div>
+
+                <!-- Member Scores List -->
+                <div id="group-member-list-container" class="flex-1 overflow-y-auto space-y-2 pr-1 max-h-[220px]">
+                    <!-- Dynamically populated -->
+                </div>
+
+                <!-- Leave Group Button -->
+                <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
+                    <button id="group-leave-btn" class="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold px-3 py-1.5 rounded-xl text-xs transition border border-rose-300">
+                        <i class="fa-solid fa-right-from-bracket mr-1"></i> グループをやめる（脱退）
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-2 border-t border-slate-200">
+                <button id="close-group-btn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-extrabold py-2.5 rounded-xl shadow-md transition active:scale-95 text-sm">
+                    とじる
+                </button>
             </div>
         </div>
     </div>
@@ -398,13 +456,12 @@
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-md w-full p-4 sm:p-5 relative my-auto">
             <h2 class="text-lg font-black text-slate-800 text-center mb-3 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-gear text-indigo-500"></i> ゲーム<ruby>設<rt>せっ</rt></ruby><ruby>定<rt>てい</rt></ruby>
+                <i class="fa-solid fa-gear text-indigo-500"></i> ゲーム設定
             </h2>
             
             <div class="space-y-2.5 text-xs sm:text-sm font-bold text-slate-700">
-                <!-- Sound Option -->
                 <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1.5">
-                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-volume-high text-sky-500"></i> <ruby>効<rt>こう</rt></ruby><ruby>果<rt>か</rt></ruby><ruby>音<rt>おん</rt></ruby></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-volume-high text-sky-500"></i> 効果音</div>
                     <div class="grid grid-cols-4 gap-1.5 text-xs font-bold" id="sound-mode-group">
                         <button data-sound="1" class="sound-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">1 (パンチ)</button>
                         <button data-sound="2" class="sound-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">2 (コイン)</button>
@@ -412,32 +469,28 @@
                         <button data-sound="OFF" class="sound-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">OFF</button>
                     </div>
                 </div>
-                <!-- Ruby Option -->
                 <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                     <span class="flex items-center gap-1.5"><i class="fa-solid fa-language text-indigo-500"></i> ルビ（ふりがな）</span>
                     <button id="modal-ruby-btn" class="px-4 py-1 rounded-lg text-white font-black bg-indigo-500 hover:bg-indigo-600 transition shadow-sm text-xs">
                         ON
                     </button>
                 </div>
-                <!-- Romaji Style Option -->
                 <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1.5">
-                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-keyboard text-emerald-500"></i> ローマ<ruby>字<rt>じ</rt></ruby><ruby>表<rt>ひょう</rt></ruby><ruby>示<rt>じ</rt></ruby></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-keyboard text-emerald-500"></i> ローマ字表示</div>
                     <div class="grid grid-cols-2 gap-1.5 text-xs font-bold" id="romaji-style-group">
                         <button data-style="kunrei" class="romaji-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">訓令式 (si, ti, tu)</button>
                         <button data-style="hepburn" class="romaji-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">ヘボン式 (shi, chi, tsu)</button>
                     </div>
                 </div>
-                <!-- Keyboard Case Option -->
                 <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1.5">
-                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-font text-purple-500"></i> キーボード<ruby>文<rt>も</rt></ruby><ruby>字<rt>じ</rt></ruby><ruby>表<rt>ひょう</rt></ruby><ruby>示<rt>じ</rt></ruby></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-font text-purple-500"></i> キーボード文字表示</div>
                     <div class="grid grid-cols-2 gap-1.5 text-xs font-bold" id="keyboard-case-group">
                         <button data-case="lowercase" class="case-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">小文字 (abc)</button>
                         <button data-case="uppercase" class="case-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">大文字 (ABC)</button>
                     </div>
                 </div>
-                <!-- Time Limit Option -->
                 <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1.5">
-                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-stopwatch text-rose-500"></i> <ruby>制<rt>せい</rt></ruby><ruby>限<rt>げん</rt></ruby><ruby>時<rt>じ</rt></ruby><ruby>間<rt>かん</rt></ruby></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-stopwatch text-rose-500"></i> 制限時間</div>
                     <div class="grid grid-cols-3 gap-1.5 text-xs font-bold" id="time-selector-group">
                         <button data-time="60" class="time-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">60秒</button>
                         <button data-time="120" class="time-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">120秒</button>
@@ -461,14 +514,12 @@
                 <i class="fa-solid fa-trophy text-amber-500"></i> <ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>・ランキング
             </h2>
 
-            <!-- Frequently Missed Keys Section (Top 5) -->
+            <!-- Frequently Missed Keys Section -->
             <div class="bg-rose-50 border border-rose-200 rounded-2xl p-3 mb-3">
                 <div class="text-xs font-bold text-rose-900 mb-1.5 flex items-center gap-1.5">
-                    <i class="fa-solid fa-keyboard text-rose-500"></i> よく<ruby>間<rt>ま</rt></ruby><ruby>違<rt>ちが</rt></ruby>えるキー<ruby>文<rt>も</rt></ruby><ruby>字<rt>じ</rt></ruby><ruby>順<rt>じゅん</rt></ruby>（上位5位）
+                    <i class="fa-solid fa-keyboard text-rose-500"></i> よく間違えるキー文字順（上位5位）
                 </div>
-                <div id="missed-keys-container" class="flex flex-wrap gap-1.5">
-                    <!-- Top 5 missed key chips inserted by JS -->
-                </div>
+                <div id="missed-keys-container" class="flex flex-wrap gap-1.5"></div>
             </div>
 
             <!-- Sort Bar -->
@@ -482,9 +533,7 @@
             </div>
 
             <!-- Course Records List -->
-            <div id="stats-list-container" class="flex-1 overflow-y-auto space-y-1.5 pr-1 max-h-[360px]">
-                <!-- Dynamic Course Cards -->
-            </div>
+            <div id="stats-list-container" class="flex-1 overflow-y-auto space-y-1.5 pr-1 max-h-[360px]"></div>
 
             <div class="mt-4 pt-2 border-t border-slate-200">
                 <button id="close-stats-btn" class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold py-2.5 rounded-xl shadow-md transition active:scale-95 text-sm">
@@ -513,7 +562,7 @@
                 🎉 クリア！ 🎉
             </div>
             <div id="new-record-badge" class="hidden my-2 inline-block bg-gradient-to-r from-amber-400 to-rose-500 text-white font-black text-xs px-3 py-1 rounded-full shadow animate-bounce">
-                ✨ 自己ベスト更新 (+100pt ボーナス!) ✨
+                ✨ 自己ベスト更新 ✨
             </div>
 
             <div class="bg-slate-50 p-4 rounded-2xl my-4 space-y-2 text-sm font-bold text-slate-700 border border-slate-100">
@@ -549,19 +598,16 @@
     <!-- VS RESULT MODAL (Multiplayer) -->
     <div id="vs-result-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-lg w-full p-6 text-center relative overflow-hidden">
-            <!-- Outcome Headline -->
             <div id="vs-outcome-headline" class="text-3xl sm:text-4xl font-black mb-2 text-purple-600">
                 対戦結果
             </div>
 
-            <!-- Player Rank / Outcome Badge -->
             <div id="vs-user-rank-badge" class="my-3 py-2 px-4 bg-purple-50 border border-purple-200 rounded-2xl inline-block text-purple-900 font-extrabold text-lg sm:text-xl shadow-inner">
                 あなたの順位: 1位
             </div>
 
-            <!-- Final Leaderboard List -->
             <div class="bg-slate-50 rounded-2xl p-3 my-4 border border-slate-200 max-h-[220px] overflow-y-auto space-y-1.5" id="vs-final-leaderboard">
-                <!-- Dynamically populated top 3 / all players -->
+                <!-- Dynamically populated leaderboard -->
             </div>
 
             <div class="space-y-2">
@@ -575,14 +621,58 @@
         </div>
     </div>
 
-    <script>
+    <!-- Firebase Imports for Realtime Multiplayer & Groups -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'typing-rush-100';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "",
+            authDomain: "typing-rush-100.firebaseapp.com",
+            projectId: "typing-rush-100",
+            storageBucket: "typing-rush-100.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef123456"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let authInitialized = false;
+
+        async function initAuth() {
+            if (authInitialized) return currentUser;
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    const userCredential = await signInWithCustomToken(auth, __initial_auth_token);
+                    currentUser = userCredential.user;
+                } else {
+                    const userCredential = await signInAnonymously(auth);
+                    currentUser = userCredential.user;
+                }
+            } catch (err) {
+                console.warn("Auth initialization fallback:", err);
+                currentUser = { uid: 'anon_' + Math.random().toString(36).substr(2, 9) };
+            }
+            authInitialized = true;
+            return currentUser;
+        }
+
+        function getVsRoomDocRef(roomId) {
+            return doc(db, 'artifacts', appId, 'public', 'data', 'vs_rooms', roomId);
+        }
+
+        function getGroupDocRef(groupId) {
+            return doc(db, 'artifacts', appId, 'public', 'data', 'groups', groupId);
+        }
+
         function safeJsonParse(str, fallback) {
             if (!str || typeof str !== 'string' || !str.trim()) return fallback;
-            try {
-                return JSON.parse(str);
-            } catch (e) {
-                return fallback;
-            }
+            try { return JSON.parse(str); } catch (e) { return fallback; }
         }
 
         function normalizeCode(str) {
@@ -615,10 +705,7 @@
             toast.textContent = msg;
             container.appendChild(toast);
 
-            setTimeout(() => {
-                toast.classList.remove('translate-y-2', 'opacity-0');
-            }, 10);
-
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
             setTimeout(() => {
                 toast.classList.add('translate-y-[-8px]', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
@@ -628,7 +715,7 @@
         class SoundEngine {
             constructor() {
                 this.ctx = null;
-                this.soundMode = '1'; // '1', '2', '3', 'OFF'
+                this.soundMode = '1';
             }
 
             init() {
@@ -645,7 +732,6 @@
                 if (this.soundMode === 'OFF') return;
                 this.init();
                 if (!this.ctx) return;
-
                 try {
                     const now = this.ctx.currentTime;
                     if (this.soundMode === '1') {
@@ -692,7 +778,6 @@
                 if (this.soundMode === 'OFF') return;
                 this.init();
                 if (!this.ctx) return;
-
                 try {
                     const now = this.ctx.currentTime;
                     const osc1 = this.ctx.createOscillator();
@@ -845,17 +930,21 @@
 
         const sound = new SoundEngine();
 
-        const ANIMAL_NICKNAMES = [
+        const RAND_NICKNAMES_100 = [
             "しばいぬ", "とらねこ", "らいおん", "ぱんだ", "こあら", "ペンギン", "うさぎ", "りす", "きつね", "たぬき",
             "ぞう", "きりん", "かば", "さい", "らくだ", "あるぱか", "かぴばら", "はりねずみ", "ももんが", "ふくろう",
             "わし", "たか", "つばめ", "すずめ", "ひよこ", "あひる", "はくちょう", "かわせみ", "オウム", "フラミンゴ",
-            "イルカ", "クジラ", "シャチ", "ラッコ", "アシカ", "アザラシ", "ペンギン", "マンボウ", "ジンベエザメ", "タツノオトシゴ",
-            "クマノミ", "クリオネ", "クラゲ", "メンダコ", "ダイオウグソクムシ", "カブトムシ", "クワガタ", "テントウムシ", "アゲハチョウ", "ホタル",
-            "トンボ", "ミツバチ", "セミ", "バッタ", "カマキリ", "ダンゴムシ", "カナブン", "タマムシ", "ヘラクレス", "オオクワガタ"
+            "イルカ", "クジラ", "シャチ", "ラッコ", "アシカ", "アザラシ", "マンボウ", "ジンベエザメ", "タツノオトシゴ", "チーター",
+            "ヒョウ", "クマ", "オオカミ", "カンガルー", "ウォンバット", "ナマケモノ", "プレーリードッグ", "カブトムシ", "クワガタ", "テントウムシ",
+            "ミツバチ", "トンボ", "セミ", "カマキリ", "ホタル", "バッタ", "コオロギ", "アゲハチョウ", "スズムシ", "ダンゴムシ",
+            "カナブン", "アメンボ", "ヒマワリ", "チューリップ", "サクラ", "アジサイ", "アサガオ", "タンポポ", "コスモス", "バラ",
+            "ユリ", "カーネーション", "マリーゴールド", "スズラン", "クローバー", "サボテン", "モミジ", "イチョウ", "スイレン", "カスミソウ",
+            "ダリア", "パンジー", "ハイビスカス", "オリーブ", "パセリ", "ミント", "カモミール", "ラベンダー", "シクラメン", "アネモネ",
+            "スイセン", "ポインセチア", "センニチコウ", "ネモフィラ", "ギボウシ", "アロエ", "ガーベラ", "ペチュニア", "ベゴニア", "マツムシ"
         ];
 
         function getRandomNickname() {
-            return ANIMAL_NICKNAMES[Math.floor(Math.random() * ANIMAL_NICKNAMES.length)];
+            return RAND_NICKNAMES_100[Math.floor(Math.random() * RAND_NICKNAMES_100.length)];
         }
 
         const KANA_ROMAJI_MAP = {
@@ -912,7 +1001,6 @@
         function getRomajiOptions(kanaChar, style = 'kunrei') {
             const rawOpts = KANA_ROMAJI_MAP[kanaChar];
             if (!rawOpts) return null;
-
             if (style === 'kunrei' && KUNREI_PREFERRED[kanaChar]) {
                 return [...KUNREI_PREFERRED[kanaChar]];
             } else if (style === 'hepburn' && HEPBURN_PREFERRED[kanaChar]) {
@@ -924,13 +1012,13 @@
         const COURSE_CATEGORIES = [
             {
                 id: 'practice',
-                name: 'れんしゅう',
+                name: '<ruby>れんしゅう<rt></rt></ruby>',
                 icon: 'fa-graduation-cap',
                 color: 'sky',
                 courses: [
-                    { id: 'aiueo', name: 'あいうえお' },
-                    { id: 'dakuon_handakuon', name: 'がざだばぱ' },
-                    { id: 'sokuon_youon', name: 'っゃゅょ' }
+                    { id: 'aiueo', name: '<ruby>あいうえお<rt></rt></ruby>' },
+                    { id: 'dakuon_handakuon', name: '<ruby>がざだばぱ<rt></rt></ruby>' },
+                    { id: 'sokuon_youon', name: '<ruby>っゃゅょ<rt></rt></ruby>' }
                 ]
             },
             {
@@ -970,7 +1058,7 @@
             },
             {
                 id: 'food',
-                name: 'たべもの・お<ruby>茶<rt>ちゃ</rt></ruby>・スイーツ',
+                name: 'たべもの・スイーツ',
                 icon: 'fa-utensils',
                 color: 'rose',
                 courses: [
@@ -1013,15 +1101,10 @@
             fruits: [["リンゴ","りんご"],["バナナ","ばなな"],["イチゴ","いちご"],["ブドウ","ぶどう"]]
         };
 
-        const DEFAULT_UNLOCKED = [
-            'aiueo', 'dakuon_handakuon', 'sokuon_youon'
-        ];
+        const DEFAULT_UNLOCKED = ['aiueo', 'dakuon_handakuon', 'sokuon_youon'];
 
         function getCourseWords(courseId) {
-            if (WORD_DATA[courseId] && WORD_DATA[courseId].length > 0) {
-                return WORD_DATA[courseId];
-            }
-            return WORD_DATA['aiueo'];
+            return WORD_DATA[courseId] || WORD_DATA['aiueo'];
         }
 
         let state = {
@@ -1040,9 +1123,10 @@
             courseTotalScores: {},
             courseMaxWpm: {},
             missedKeyCounts: {},
-            customCourseOrder: [],
             viewMode: 'categories',
-            pendingUnlockCeremony: false
+            userNickname: getRandomNickname(),
+            joinedGroupIds: [],
+            selectedGroupId: ''
         };
 
         let game = {
@@ -1052,7 +1136,6 @@
             words: [],
             wordIndex: 0,
             currWord: null,
-            currKana: '',
             nodes: [],
             nodeIndex: 0,
             score: 0,
@@ -1060,68 +1143,26 @@
             timerInterval: null,
             correctCount: 0,
             missCount: 0,
-            startTime: 0
+            startTime: 0,
+            vsEndTime: null
         };
-
-        class LocalSyncEngine {
-            constructor() {
-                this.channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('typing_rush_local_sync') : null;
-                this.listeners = [];
-                if (this.channel) {
-                    this.channel.onmessage = (e) => {
-                        this.handleMessage(e.data);
-                    };
-                }
-                window.addEventListener('storage', (e) => {
-                    if (e.key === 'typing_rush_vs_rooms' || e.key === 'typing_rush_groups') {
-                        this.listeners.forEach(cb => cb({ type: 'STORAGE_CHANGE', key: e.key }));
-                    }
-                });
-            }
-
-            handleMessage(data) {
-                if (data && data.type === 'VS_ROOM_UPDATE' && data.payload && data.payload.roomData) {
-                    const rooms = getStoredVsRooms();
-                    rooms[data.payload.roomId] = data.payload.roomData;
-                    if (data.payload.rooms) {
-                        Object.assign(rooms, data.payload.rooms);
-                    }
-                    saveVsRooms(rooms);
-                }
-                this.listeners.forEach(cb => cb(data));
-            }
-
-            broadcast(type, payload) {
-                if (this.channel) {
-                    try {
-                        this.channel.postMessage({ type, payload, time: Date.now() });
-                    } catch (err) {}
-                }
-            }
-
-            onMessage(callback) {
-                this.listeners.push(callback);
-            }
-        }
-
-        const syncEngine = new LocalSyncEngine();
 
         let vsRoomId = null;
         let vsUserId = null;
         let vsUserNickname = '';
         let vsIsHost = false;
         let vsRoomData = null;
+        let vsUnsubscribe = null;
 
-        let groupUserId = localStorage.getItem('typing_rush_group_user_id') || ('guser_' + Math.random().toString(36).substr(2, 9));
-        localStorage.setItem('typing_rush_group_user_id', groupUserId);
+        let activeGroupData = null;
+        let groupUnsubscribe = null;
+        let groupSortMode = 'score'; // score | memo | custom
 
         function loadState() {
             const saved = localStorage.getItem('typing_rush_state');
             if (saved) {
                 const parsed = safeJsonParse(saved, null);
-                if (parsed) {
-                    state = { ...state, ...parsed };
-                }
+                if (parsed) state = { ...state, ...parsed };
             }
             if (!state.unlockedCourses || state.unlockedCourses.length === 0) {
                 state.unlockedCourses = [...DEFAULT_UNLOCKED];
@@ -1131,6 +1172,8 @@
             state.courseTotalScores = state.courseTotalScores || {};
             state.courseMaxWpm = state.courseMaxWpm || {};
             state.missedKeyCounts = state.missedKeyCounts || {};
+            state.joinedGroupIds = state.joinedGroupIds || [];
+            if (!state.userNickname) state.userNickname = getRandomNickname();
 
             const lastLogin = localStorage.getItem('typing_rush_last_login_date');
             const today = new Date().toDateString();
@@ -1159,8 +1202,7 @@
 
         function renderRubyTitle(str) {
             if (!str) return '';
-            if (state.rubyOn) return str;
-            return getPlainTitle(str);
+            return state.rubyOn ? str : getPlainTitle(str);
         }
 
         function updateHeaderStats() {
@@ -1179,7 +1221,7 @@
                 "落ち着いて、画面を見てリラックスして打とう！",
                 "好きなコースを何回もプレイしてスコアアップを目指そう！",
                 "間違えても大丈夫！何度もチャレンジして覚えよう！",
-                "友達や家族と対戦（マルチプレイ）で盛り上がろう！"
+                "友達や家族と対戦（マルチプレイ）やグループ機能で盛り上がろう！"
             ];
             const msg = messages[Math.floor(Math.random() * messages.length)];
             const el = document.getElementById('daily-message-text');
@@ -1258,7 +1300,6 @@
             } else {
                 const allCourses = [];
                 COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
-
                 const unlockedCoursesList = allCourses.filter(course => state.unlockedCourses.includes(course.id));
 
                 if (unlockedCoursesList.length === 0) {
@@ -1341,13 +1382,6 @@
             const target = document.querySelector(`.key-cap[data-key="${lower}"]`);
             if (target) {
                 target.classList.add('active');
-            }
-        }
-
-        function updateIngameRubyBtnUI() {
-            const stateEl = document.getElementById('ingame-ruby-state');
-            if (stateEl) {
-                stateEl.textContent = state.rubyOn ? 'ON' : 'OFF';
             }
         }
 
@@ -1459,7 +1493,14 @@
             sound.init();
             sound.playStart();
 
+            document.getElementById('result-modal').classList.add('hidden');
+            document.getElementById('vs-result-modal').classList.add('hidden');
+            document.getElementById('unlock-ceremony-modal').classList.add('hidden');
+            document.getElementById('settings-modal').classList.add('hidden');
+            document.getElementById('stats-modal').classList.add('hidden');
+            document.getElementById('group-modal').classList.add('hidden');
             document.getElementById('vs-10s-notice').classList.add('hidden');
+
             const timerBox = document.getElementById('timer-box');
             timerBox.className = 'text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200 transition-colors';
 
@@ -1472,6 +1513,7 @@
             game.correctCount = 0;
             game.missCount = 0;
             game.startTime = Date.now();
+            game.vsEndTime = null;
             game.active = false;
 
             document.getElementById('game-score').textContent = '0';
@@ -1490,6 +1532,8 @@
             let count = 3;
             cdText.textContent = count;
 
+            if (game.timerInterval) clearInterval(game.timerInterval);
+
             const cdInterval = setInterval(() => {
                 count--;
                 if (count > 0) {
@@ -1504,7 +1548,6 @@
 
                     document.getElementById('top-screen').classList.add('hidden');
                     document.getElementById('vs-screen').classList.add('hidden');
-                    document.getElementById('group-screen').classList.add('hidden');
                     document.getElementById('play-screen').classList.remove('hidden');
 
                     game.active = true;
@@ -1527,9 +1570,7 @@
 
             const key = e.key.toLowerCase();
             if (key.length !== 1 || key < 'a' || key > 'z') {
-                if (key !== '-' && key !== ',' && key !== '.' && key !== '!' && key !== '?') {
-                    return;
-                }
+                if (key !== '-' && key !== ',' && key !== '.' && key !== '!' && key !== '?') return;
             }
 
             const currentNode = game.nodes[game.nodeIndex];
@@ -1540,7 +1581,8 @@
 
             if (validOpt) {
                 sound.playType();
-                game.score += 10;
+                // Rule: 基本打鍵点 +1点/1文字
+                game.score += 1;
                 game.correctCount++;
                 document.getElementById('game-score').textContent = game.score;
 
@@ -1551,7 +1593,8 @@
                     game.nodeIndex += 1;
                     if (game.nodeIndex >= game.nodes.length) {
                         sound.playPingPong();
-                        game.score += 50;
+                        // Rule: 単語クリアボーナス +10点/1単語
+                        game.score += 10;
                         document.getElementById('game-score').textContent = game.score;
 
                         if (game.isVsMode) {
@@ -1577,6 +1620,35 @@
                 display.classList.add('animate-bounce');
                 setTimeout(() => display.classList.remove('animate-bounce'), 300);
             }
+        }
+
+        async function syncGameStatsToGroups(finalScore) {
+            await initAuth();
+            const uId = auth.currentUser?.uid;
+            if (!uId || !state.joinedGroupIds || state.joinedGroupIds.length === 0) return;
+
+            const dateStr = new Date().toLocaleDateString('ja-JP', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+            state.joinedGroupIds.forEach(async (gId) => {
+                try {
+                    const gRef = getGroupDocRef(gId);
+                    const snap = await getDoc(gRef);
+                    if (snap.exists()) {
+                        const gData = snap.data();
+                        if (gData.members && gData.members[uId]) {
+                            const curTotal = gData.members[uId].totalScore || 0;
+                            await updateDoc(gRef, {
+                                [`members.${uId}.totalScore`]: curTotal + finalScore,
+                                [`members.${uId}.lastScore`]: finalScore,
+                                [`members.${uId}.lastPlayedAt`]: dateStr,
+                                [`members.${uId}.nickname`]: state.userNickname
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Group sync update error:", e);
+                }
+            });
         }
 
         function endGame() {
@@ -1608,6 +1680,9 @@
             saveState();
             updateHeaderStats();
             renderCategories();
+
+            // Sync score to all joined Firestore groups
+            syncGameStatsToGroups(game.score);
 
             if (game.isVsMode) {
                 submitVsFinalResult(game.score, wpm);
@@ -1642,7 +1717,6 @@
 
             document.getElementById('play-screen').classList.add('hidden');
             document.getElementById('vs-screen').classList.add('hidden');
-            document.getElementById('group-screen').classList.add('hidden');
             document.getElementById('top-screen').classList.remove('hidden');
             document.getElementById('result-modal').classList.add('hidden');
             document.getElementById('vs-result-modal').classList.add('hidden');
@@ -1651,327 +1725,21 @@
             renderCategories();
         }
 
-        function renderStatsModal(sortBy = 'score') {
-            const missedContainer = document.getElementById('missed-keys-container');
-            missedContainer.innerHTML = '';
-
-            const missedArray = Object.entries(state.missedKeyCounts || {}).sort((a, b) => b[1] - a[1]).slice(0, 5);
-            if (missedArray.length === 0) {
-                missedContainer.innerHTML = '<span class="text-xs text-slate-400 font-bold">まだミスの記録はありません。素晴らしい！</span>';
-            } else {
-                missedArray.forEach(([key, count], idx) => {
-                    const chip = document.createElement('span');
-                    chip.className = 'px-2.5 py-1 bg-white border border-rose-300 text-rose-700 font-black rounded-lg text-xs shadow-sm flex items-center gap-1';
-                    chip.innerHTML = `<span class="bg-rose-500 text-white rounded-md w-4 h-4 flex items-center justify-center text-[10px]">${idx + 1}</span> <span class="font-mono text-sm">${key.toUpperCase()}</span> (${count}回)`;
-                    missedContainer.appendChild(chip);
-                });
-            }
-
-            const listContainer = document.getElementById('stats-list-container');
-            listContainer.innerHTML = '';
-
-            const allCourses = [];
-            COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
-
-            allCourses.sort((a, b) => {
-                if (sortBy === 'score') {
-                    return (state.highScores[b.id] || 0) - (state.highScores[a.id] || 0);
-                } else if (sortBy === 'totalScore') {
-                    return (state.courseTotalScores[b.id] || 0) - (state.courseTotalScores[a.id] || 0);
-                } else if (sortBy === 'wpm') {
-                    return (state.courseMaxWpm[b.id] || 0) - (state.courseMaxWpm[a.id] || 0);
-                }
-                return 0;
-            });
-
-            allCourses.forEach(course => {
-                const highScore = state.highScores[course.id] || 0;
-                const playCount = state.coursePlayCounts[course.id] || 0;
-                const maxWpm = state.courseMaxWpm[course.id] || 0;
-                const isUnlocked = state.unlockedCourses.includes(course.id);
-
-                const card = document.createElement('div');
-                card.className = 'bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between text-xs sm:text-sm font-bold text-slate-700 h-12';
-                card.innerHTML = `
-                    <div class="flex items-center gap-2 truncate max-w-[180px] sm:max-w-xs">
-                        ${isUnlocked ? '<i class="fa-solid fa-circle-check text-emerald-500"></i>' : '<i class="fa-solid fa-lock text-slate-300"></i>'}
-                        <span class="truncate">${renderRubyTitle(course.name)}</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-right">
-                        <div>
-                            <span class="text-[10px] text-slate-400 block">最高</span>
-                            <span class="text-amber-600 font-black">${highScore} pt</span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 block">速度</span>
-                            <span class="text-indigo-600 font-black">${maxWpm} キー/分</span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 block">プレイ回数</span>
-                            <span class="text-slate-600 font-black">${playCount} 回</span>
-                        </div>
-                    </div>
-                `;
-                listContainer.appendChild(card);
-            });
-        }
-
-        function checkAndTriggerUnlockCeremony() {
-            const allCourses = [];
-            COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
-
-            const lockedCourses = allCourses.filter(c => !state.unlockedCourses.includes(c.id));
-            if (lockedCourses.length === 0) return;
-
-            const allUnlockedPlayedThrice = state.unlockedCourses.every(id => (state.coursePlayCounts[id] || 0) >= 3);
-
-            if (allUnlockedPlayedThrice) {
-                const modal = document.getElementById('unlock-ceremony-modal');
-                const titleEl = document.getElementById('roulette-course-title');
-                const startBtn = document.getElementById('start-roulette-btn');
-
-                modal.classList.remove('hidden');
-
-                startBtn.onclick = () => {
-                    sound.playDrumroll(2500);
-                    startBtn.disabled = true;
-
-                    let count = 0;
-                    const spin = setInterval(() => {
-                        sound.playTick();
-                        const randomCourse = lockedCourses[Math.floor(Math.random() * lockedCourses.length)];
-                        titleEl.innerHTML = renderRubyTitle(randomCourse.name);
-                        count++;
-
-                        if (count >= 20) {
-                            clearInterval(spin);
-                            const selected = lockedCourses[Math.floor(Math.random() * lockedCourses.length)];
-                            if (!state.unlockedCourses.includes(selected.id)) {
-                                state.unlockedCourses.push(selected.id);
-                            }
-                            saveState();
-
-                            titleEl.innerHTML = `<span class="text-emerald-600 font-black">✨ 解放！ ${renderRubyTitle(selected.name)} ✨</span>`;
-                            sound.playFanfare();
-                            confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
-
-                            setTimeout(() => {
-                                modal.classList.add('hidden');
-                                startBtn.disabled = false;
-                                updateHeaderStats();
-                                renderCategories();
-                            }, 2500);
-                        }
-                    }, 100);
-                };
-            }
-        }
-
-        function getStoredGroups() {
-            return safeJsonParse(localStorage.getItem('typing_rush_groups'), {});
-        }
-
-        function saveGroups(groups) {
-            localStorage.setItem('typing_rush_groups', JSON.stringify(groups));
-        }
-
-        function getMyGroupCodes() {
-            const raw = localStorage.getItem('typing_rush_my_groups');
-            return safeJsonParse(raw, []);
-        }
-
-        function addMyGroupCode(code) {
-            const list = getMyGroupCodes();
-            if (!list.includes(code)) {
-                list.push(code);
-                localStorage.setItem('typing_rush_my_groups', JSON.stringify(list));
-            }
-        }
-
-        function removeMyGroupCode(code) {
-            let list = getMyGroupCodes();
-            list = list.filter(c => c !== code);
-            localStorage.setItem('typing_rush_my_groups', JSON.stringify(list));
-        }
-
-        function openGroupPage() {
-            sound.init();
+        async function openVsLobby() {
+            await initAuth();
             document.getElementById('top-screen').classList.add('hidden');
-            document.getElementById('vs-screen').classList.add('hidden');
-            document.getElementById('play-screen').classList.add('hidden');
-            document.getElementById('group-screen').classList.remove('hidden');
-
-            const nickInput = document.getElementById('group-nickname-input');
-            if (!nickInput.value.trim()) {
-                nickInput.value = getRandomNickname();
-            }
-
-            renderMyGroupsList();
-        }
-
-        function generate8DigitGroupCode() {
-            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-            let code = '';
-            for (let i = 0; i < 8; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
-        }
-
-        function createNewGroup() {
-            sound.playTick();
-            const nickname = document.getElementById('group-nickname-input').value.trim();
-            if (!nickname) {
-                showMessage("ニックネームを入力してください！");
-                return;
-            }
-
-            const code = generate8DigitGroupCode();
-            const groups = getStoredGroups();
-            groups[code] = {
-                code: code,
-                createdBy: groupUserId,
-                createdAt: Date.now(),
-                members: {
-                    [groupUserId]: {
-                        id: groupUserId,
-                        name: nickname,
-                        joinedAt: Date.now()
-                    }
-                }
-            };
-            saveGroups(groups);
-            addMyGroupCode(code);
-            syncEngine.broadcast('GROUP_UPDATED', { code });
-            showMessage(`グループを作成しました！コード: ${code}`);
-            renderMyGroupsList();
-        }
-
-        function joinGroupWithCode() {
-            sound.playTick();
-            const nickname = document.getElementById('group-nickname-input').value.trim();
-            const rawCode = document.getElementById('group-code-input').value;
-            const code = normalizeCode(rawCode);
-
-            if (!nickname) {
-                showMessage("ニックネームを入力してください！");
-                return;
-            }
-            if (!code || code.length !== 8) {
-                showMessage("8桁のグループコードを正しく入力してください！");
-                return;
-            }
-
-            const groups = getStoredGroups();
-            if (!groups[code]) {
-                groups[code] = {
-                    code: code,
-                    createdBy: 'external',
-                    createdAt: Date.now(),
-                    members: {}
-                };
-            }
-
-            groups[code].members[groupUserId] = {
-                id: groupUserId,
-                name: nickname,
-                joinedAt: Date.now()
-            };
-
-            saveGroups(groups);
-            addMyGroupCode(code);
-            document.getElementById('group-code-input').value = '';
-            syncEngine.broadcast('GROUP_UPDATED', { code });
-            showMessage(`グループ「${code}」に参加しました！`);
-            renderMyGroupsList();
-        }
-
-        function leaveGroup(code) {
-            sound.playTick();
-            const groups = getStoredGroups();
-            if (groups[code] && groups[code].members) {
-                delete groups[code].members[groupUserId];
-                saveGroups(groups);
-            }
-            removeMyGroupCode(code);
-            syncEngine.broadcast('GROUP_UPDATED', { code });
-            showMessage(`グループ「${code}」から脱退しました。`);
-            renderMyGroupsList();
-        }
-
-        function renderMyGroupsList() {
-            const listContainer = document.getElementById('my-groups-list');
-            const countEl = document.getElementById('my-groups-count');
-            const codes = getMyGroupCodes();
-
-            countEl.textContent = `${codes.length}個`;
-
-            if (codes.length === 0) {
-                listContainer.innerHTML = '<div class="text-center py-4 text-xs font-bold text-slate-400">所属しているグループはありません</div>';
-                return;
-            }
-
-            listContainer.innerHTML = '';
-            const groups = getStoredGroups();
-
-            codes.forEach(code => {
-                const card = document.createElement('div');
-                card.className = 'bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2';
-                
-                const groupData = groups[code];
-                let membersText = '';
-                if (groupData && groupData.members) {
-                    const memberArray = Object.values(groupData.members);
-                    const names = memberArray.map(m => m.name).join(', ');
-                    membersText = `<span class="text-slate-600 font-bold">メンバー (${memberArray.length}人):</span> <span class="text-slate-800">${names || 'あなた'}</span>`;
-                } else {
-                    membersText = `<span class="text-slate-600 font-bold">グループコード: ${code}</span>`;
-                }
-
-                card.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-black text-slate-400">コード:</span>
-                            <span class="font-mono text-base font-black text-teal-800 tracking-wider">${code}</span>
-                            <button onclick="copyToClipboard('${code}', 'コードをコピーしました: ${code}')" class="text-[10px] bg-teal-50 text-teal-700 font-bold px-2 py-0.5 rounded-md hover:bg-teal-100 transition border border-teal-200">
-                                <i class="fa-solid fa-copy mr-1"></i>コピー
-                            </button>
-                        </div>
-                        <button onclick="leaveGroup('${code}')" class="text-xs bg-rose-50 text-rose-600 hover:bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-200 font-bold transition">
-                            脱退
-                        </button>
-                    </div>
-                    <div class="text-xs text-slate-500 font-bold" id="group-members-${code}">
-                        ${membersText}
-                    </div>
-                `;
-
-                listContainer.appendChild(card);
-            });
-        }
-
-        function getStoredVsRooms() {
-            return safeJsonParse(localStorage.getItem('typing_rush_vs_rooms'), {});
-        }
-
-        function saveVsRooms(rooms) {
-            localStorage.setItem('typing_rush_vs_rooms', JSON.stringify(rooms));
-        }
-
-        function openVsLobby() {
-            document.getElementById('top-screen').classList.add('hidden');
-            document.getElementById('group-screen').classList.add('hidden');
             document.getElementById('vs-screen').classList.remove('hidden');
             document.getElementById('vs-lobby-view').classList.remove('hidden');
             document.getElementById('vs-room-view').classList.add('hidden');
 
             const nickInput = document.getElementById('vs-nickname-input');
             if (!nickInput.value.trim()) {
-                nickInput.value = getRandomNickname();
+                nickInput.value = state.userNickname || getRandomNickname();
             }
         }
 
-        function createVsRoom() {
+        async function createVsRoom() {
+            await initAuth();
             const nickname = document.getElementById('vs-nickname-input').value.trim();
             if (!nickname) {
                 showMessage("ニックネームを入力してください！");
@@ -1979,7 +1747,10 @@
             }
 
             vsUserNickname = nickname;
-            vsUserId = 'user_' + Math.random().toString(36).substr(2, 9);
+            state.userNickname = nickname;
+            saveState();
+
+            vsUserId = auth.currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
             vsIsHost = true;
 
             const codeChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -2007,52 +1778,23 @@
                     }
                 },
                 firstFinishTime: null,
+                firstFinishName: null,
                 createdAt: Date.now()
             };
 
-            const rooms = getStoredVsRooms();
-            rooms[vsRoomId] = initialData;
-            saveVsRooms(rooms);
-            vsRoomData = initialData;
-
-            syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: initialData, rooms: rooms });
-            subscribeVsRoom(vsRoomId);
-            enterVsRoomUI();
-        }
-
-        function processJoinVsRoom(room, code, nickname) {
-            const existingNames = Object.values(room.members || {}).map(m => m.name);
-            if (existingNames.includes(nickname)) {
-                showMessage("同じニックネームのプレイヤーがすでに部屋にいます。別の名前を入力してください。");
-                return;
+            try {
+                const roomRef = getVsRoomDocRef(vsRoomId);
+                await setDoc(roomRef, initialData);
+                vsRoomData = initialData;
+                subscribeVsRoom(vsRoomId);
+                enterVsRoomUI();
+            } catch (e) {
+                showMessage("部屋の作成に失敗しました。再試行してください。");
             }
-
-            vsUserNickname = nickname;
-            vsUserId = 'user_' + Math.random().toString(36).substr(2, 9);
-            vsIsHost = false;
-            vsRoomId = code;
-
-            room.members[vsUserId] = {
-                id: vsUserId,
-                name: vsUserNickname,
-                isHost: false,
-                score: 0,
-                wpm: 0,
-                finished: false,
-                unlocked: state.unlockedCourses
-            };
-
-            const rooms = getStoredVsRooms();
-            rooms[code] = room;
-            saveVsRooms(rooms);
-            vsRoomData = room;
-
-            syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: room, rooms: rooms });
-            subscribeVsRoom(vsRoomId);
-            enterVsRoomUI();
         }
 
-        function joinVsRoom() {
+        async function joinVsRoom() {
+            await initAuth();
             const nickname = document.getElementById('vs-nickname-input').value.trim();
             const rawCode = document.getElementById('vs-room-code-input').value;
             const code = normalizeCode(rawCode);
@@ -2066,63 +1808,95 @@
                 return;
             }
 
-            let rooms = getStoredVsRooms();
-            let room = rooms[code];
+            try {
+                const roomRef = getVsRoomDocRef(code);
+                const snapshot = await getDoc(roomRef);
 
-            if (!room || room.status === 'closed') {
-                syncEngine.broadcast('REQ_VS_ROOM', { roomId: code });
-                setTimeout(() => {
-                    rooms = getStoredVsRooms();
-                    room = rooms[code];
-                    if (!room || room.status === 'closed') {
-                        showMessage("指定された対戦部屋が見つかりません。");
-                    } else {
-                        processJoinVsRoom(room, code, nickname);
-                    }
-                }, 120);
-                return;
+                if (!snapshot.exists()) {
+                    showMessage("指定された対戦部屋が見つかりません。");
+                    return;
+                }
+
+                const room = snapshot.data();
+                if (room.status === 'closed') {
+                    showMessage("この対戦部屋はすでに閉じられています。");
+                    return;
+                }
+
+                vsUserNickname = nickname;
+                state.userNickname = nickname;
+                saveState();
+
+                vsUserId = auth.currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
+                vsIsHost = false;
+                vsRoomId = code;
+
+                room.members[vsUserId] = {
+                    id: vsUserId,
+                    name: vsUserNickname,
+                    isHost: false,
+                    score: 0,
+                    wpm: 0,
+                    finished: false,
+                    unlocked: state.unlockedCourses
+                };
+
+                await updateDoc(roomRef, {
+                    [`members.${vsUserId}`]: room.members[vsUserId]
+                });
+
+                vsRoomData = room;
+                subscribeVsRoom(vsRoomId);
+                enterVsRoomUI();
+            } catch (e) {
+                showMessage("対戦部屋への参加に失敗しました。");
             }
-
-            processJoinVsRoom(room, code, nickname);
         }
 
         function subscribeVsRoom(roomId) {
-            syncEngine.onMessage((msg) => {
-                if (msg.type === 'REQ_VS_ROOM') {
-                    if (vsIsHost && vsRoomId && msg.payload && msg.payload.roomId === vsRoomId && vsRoomData) {
-                        const rooms = getStoredVsRooms();
-                        rooms[vsRoomId] = vsRoomData;
-                        saveVsRooms(rooms);
-                        syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: vsRoomData, rooms: rooms });
+            if (vsUnsubscribe) vsUnsubscribe();
+
+            const roomRef = getVsRoomDocRef(roomId);
+            vsUnsubscribe = onSnapshot(roomRef, (snapshot) => {
+                if (!snapshot.exists()) {
+                    if (vsRoomData && vsRoomData.status !== 'closed') {
+                        showMessage("対戦部屋が解散されました。");
+                        exitToTop();
                     }
-                } else if (msg.type === 'VS_ROOM_UPDATE' || msg.type === 'STORAGE_CHANGE') {
-                    const rooms = getStoredVsRooms();
-                    const updated = rooms[roomId];
+                    return;
+                }
 
-                    if (!updated || updated.status === 'closed') {
-                        if (vsRoomData && vsRoomData.status !== 'closed') {
-                            showMessage("部屋が解散されたか、閉じられました。");
-                            exitToTop();
-                        }
-                        return;
+                const updated = snapshot.data();
+                if (updated.status === 'closed') {
+                    showMessage("対戦部屋が閉じられました。");
+                    exitToTop();
+                    return;
+                }
+
+                vsRoomData = updated;
+                updateVsRoomUI();
+
+                if (vsRoomData.status === 'waiting') {
+                    document.getElementById('vs-result-modal').classList.add('hidden');
+                    if (!document.getElementById('play-screen').classList.contains('hidden')) {
+                        document.getElementById('play-screen').classList.add('hidden');
+                        document.getElementById('vs-screen').classList.remove('hidden');
+                        document.getElementById('vs-room-view').classList.remove('hidden');
                     }
-
-                    vsRoomData = updated;
-
-                    if (vsRoomData.status === 'playing' && !game.active && !document.getElementById('play-screen').classList.contains('hidden')) {
-                        // already in play screen
-                    } else if (vsRoomData.status === 'playing' && !game.active) {
+                } else if (vsRoomData.status === 'playing') {
+                    document.getElementById('vs-result-modal').classList.add('hidden');
+                    if (!game.active && document.getElementById('play-screen').classList.contains('hidden')) {
                         state.selectedCourse = vsRoomData.courseId;
                         game.isVsMode = true;
                         startGame();
                     }
-
-                    if (game.active && vsRoomData.firstFinishTime) {
-                        handleVsCountdownTrigger(vsRoomData.firstFinishTime, vsRoomData.firstFinishName);
-                    }
-
-                    updateVsRoomUI();
                 }
+
+                if (game.active && vsRoomData.firstFinishTime) {
+                    handleVsCountdownTrigger(vsRoomData.firstFinishTime, vsRoomData.firstFinishName);
+                }
+            }, (error) => {
+                console.warn("Firestore snapshot error:", error);
             });
         }
 
@@ -2203,38 +1977,41 @@
             }
         }
 
-        function startVsGameHost() {
+        async function startVsGameHost() {
             if (!vsIsHost || !vsRoomId) return;
             const courseId = document.getElementById('vs-course-select').value;
 
-            const rooms = getStoredVsRooms();
-            if (rooms[vsRoomId]) {
-                rooms[vsRoomId].status = 'playing';
-                rooms[vsRoomId].courseId = courseId;
-                rooms[vsRoomId].firstFinishTime = null;
-                rooms[vsRoomId].firstFinishName = null;
-                Object.keys(rooms[vsRoomId].members).forEach(id => {
-                    rooms[vsRoomId].members[id].score = 0;
-                    rooms[vsRoomId].members[id].finished = false;
-                });
-                saveVsRooms(rooms);
-                vsRoomData = rooms[vsRoomId];
+            try {
+                const roomRef = getVsRoomDocRef(vsRoomId);
+                const snapshot = await getDoc(roomRef);
+                if (snapshot.exists()) {
+                    const room = snapshot.data();
+                    room.status = 'playing';
+                    room.courseId = courseId;
+                    room.firstFinishTime = null;
+                    room.firstFinishName = null;
 
-                syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: vsRoomData, rooms: rooms });
-                state.selectedCourse = courseId;
-                game.isVsMode = true;
-                startGame();
+                    Object.keys(room.members).forEach(id => {
+                        room.members[id].score = 0;
+                        room.members[id].wpm = 0;
+                        room.members[id].finished = false;
+                    });
+
+                    await setDoc(roomRef, room);
+                }
+            } catch (e) {
+                showMessage("対戦スタートの更新に失敗しました。");
             }
         }
 
-        function updateVsLiveScore() {
+        async function updateVsLiveScore() {
             if (!vsRoomId || !vsUserId) return;
-            const rooms = getStoredVsRooms();
-            if (rooms[vsRoomId] && rooms[vsRoomId].members[vsUserId]) {
-                rooms[vsRoomId].members[vsUserId].score = game.score;
-                saveVsRooms(rooms);
-                syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: rooms[vsRoomId], rooms: rooms });
-            }
+            try {
+                const roomRef = getVsRoomDocRef(vsRoomId);
+                await updateDoc(roomRef, {
+                    [`members.${vsUserId}.score`]: game.score
+                });
+            } catch (e) {}
         }
 
         function handleVsCountdownTrigger(firstFinishTime, winnerName) {
@@ -2264,23 +2041,29 @@
             }
         }
 
-        function submitVsFinalResult(finalScore, wpm) {
+        async function submitVsFinalResult(finalScore, wpm) {
             if (vsRoomId && vsUserId) {
-                const rooms = getStoredVsRooms();
-                if (rooms[vsRoomId] && rooms[vsRoomId].members[vsUserId]) {
-                    rooms[vsRoomId].members[vsUserId].score = finalScore;
-                    rooms[vsRoomId].members[vsUserId].wpm = wpm;
-                    rooms[vsRoomId].members[vsUserId].finished = true;
+                try {
+                    const roomRef = getVsRoomDocRef(vsRoomId);
+                    const snapshot = await getDoc(roomRef);
+                    if (snapshot.exists()) {
+                        const room = snapshot.data();
+                        room.members[vsUserId].score = finalScore;
+                        room.members[vsUserId].wpm = wpm;
+                        room.members[vsUserId].finished = true;
 
-                    if (!rooms[vsRoomId].firstFinishTime) {
-                        rooms[vsRoomId].firstFinishTime = Date.now();
-                        rooms[vsRoomId].firstFinishName = vsUserNickname;
+                        let updatePayload = {
+                            [`members.${vsUserId}`]: room.members[vsUserId]
+                        };
+
+                        if (!room.firstFinishTime) {
+                            updatePayload.firstFinishTime = Date.now();
+                            updatePayload.firstFinishName = vsUserNickname;
+                        }
+
+                        await updateDoc(roomRef, updatePayload);
                     }
-
-                    saveVsRooms(rooms);
-                    vsRoomData = rooms[vsRoomId];
-                    syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: vsRoomData, rooms: rooms });
-                }
+                } catch (e) {}
             }
             setTimeout(showVsResultModal, 800);
         }
@@ -2343,23 +2126,505 @@
             modal.classList.remove('hidden');
         }
 
-        function leaveVsRoom() {
-            if (vsRoomId && vsUserId) {
-                const rooms = getStoredVsRooms();
-                if (rooms[vsRoomId]) {
-                    if (vsIsHost) {
-                        rooms[vsRoomId].status = 'closed';
-                    } else if (rooms[vsRoomId].members) {
-                        delete rooms[vsRoomId].members[vsUserId];
-                    }
-                    saveVsRooms(rooms);
-                    syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: rooms[vsRoomId], rooms: rooms });
-                }
+        async function leaveVsRoom() {
+            if (vsUnsubscribe) {
+                vsUnsubscribe();
+                vsUnsubscribe = null;
             }
+
+            if (vsRoomId && vsUserId) {
+                try {
+                    const roomRef = getVsRoomDocRef(vsRoomId);
+                    const snapshot = await getDoc(roomRef);
+
+                    if (snapshot.exists()) {
+                        const room = snapshot.data();
+                        
+                        if (vsIsHost) {
+                            await deleteDoc(roomRef);
+                        } else {
+                            delete room.members[vsUserId];
+                            const remainingGuests = Object.values(room.members).filter(m => !m.isHost).length;
+                            
+                            if (remainingGuests === 0) {
+                                await deleteDoc(roomRef);
+                            } else {
+                                await updateDoc(roomRef, { members: room.members });
+                            }
+                        }
+                    }
+                } catch (e) {}
+            }
+
             vsRoomId = null;
             vsUserId = null;
             vsRoomData = null;
             vsIsHost = false;
+        }
+
+        async function createGroup() {
+            await initAuth();
+            const uId = auth.currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
+            const nickname = document.getElementById('group-user-nickname').value.trim() || getRandomNickname();
+
+            state.userNickname = nickname;
+            saveState();
+
+            const codeChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let gCode = '';
+            for (let i = 0; i < 8; i++) {
+                gCode += codeChars.charAt(Math.floor(Math.random() * codeChars.length));
+            }
+
+            const initialGroup = {
+                code: gCode,
+                name: `${nickname}のグループ`,
+                ownerId: uId,
+                createdAt: Date.now(),
+                // REQUIREMENT: Privacy settings initialized ALL TO FALSE
+                settings: {
+                    showRanking: false,
+                    showTotalScore: false,
+                    showLastPlayedAt: false,
+                    showLastScore: false
+                },
+                members: {
+                    [uId]: {
+                        id: uId,
+                        nickname: nickname,
+                        isOwner: true,
+                        totalScore: state.totalScore || 0,
+                        lastScore: 0,
+                        lastPlayedAt: '-',
+                        memo: '',
+                        order: 1
+                    }
+                }
+            };
+
+            try {
+                const gRef = getGroupDocRef(gCode);
+                await setDoc(gRef, initialGroup);
+
+                if (!state.joinedGroupIds.includes(gCode)) {
+                    state.joinedGroupIds.push(gCode);
+                }
+                state.selectedGroupId = gCode;
+                saveState();
+
+                showMessage(`新しいグループを作りました！（コード: ${gCode}）`);
+                renderGroupModal();
+            } catch (e) {
+                showMessage("グループの作成に失敗しました。");
+            }
+        }
+
+        async function joinGroup() {
+            await initAuth();
+            const rawCode = document.getElementById('group-join-code-input').value;
+            const gCode = normalizeCode(rawCode);
+
+            if (!gCode || gCode.length !== 8) {
+                showMessage("8桁のグループコードを正しく入力してください！");
+                return;
+            }
+
+            const uId = auth.currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
+            const nickname = document.getElementById('group-user-nickname').value.trim() || getRandomNickname();
+
+            state.userNickname = nickname;
+            saveState();
+
+            try {
+                const gRef = getGroupDocRef(gCode);
+                const snap = await getDoc(gRef);
+
+                if (!snap.exists()) {
+                    showMessage("指定されたグループが見つかりません。");
+                    return;
+                }
+
+                const gData = snap.data();
+                const members = gData.members || {};
+                const currentMemberCount = Object.keys(members).length;
+
+                members[uId] = members[uId] || {
+                    id: uId,
+                    nickname: nickname,
+                    isOwner: (gData.ownerId === uId),
+                    totalScore: state.totalScore || 0,
+                    lastScore: 0,
+                    lastPlayedAt: '-',
+                    memo: '',
+                    order: currentMemberCount + 1
+                };
+
+                await updateDoc(gRef, { [`members.${uId}`]: members[uId] });
+
+                if (!state.joinedGroupIds.includes(gCode)) {
+                    state.joinedGroupIds.push(gCode);
+                }
+                state.selectedGroupId = gCode;
+                saveState();
+
+                document.getElementById('group-join-code-input').value = '';
+                showMessage("グループに参加しました！");
+                renderGroupModal();
+            } catch (e) {
+                showMessage("グループへの参加に失敗しました。");
+            }
+        }
+
+        async function leaveCurrentGroup() {
+            if (!state.selectedGroupId) return;
+            await initAuth();
+            const uId = auth.currentUser?.uid;
+            const gCode = state.selectedGroupId;
+
+            try {
+                const gRef = getGroupDocRef(gCode);
+                const snap = await getDoc(gRef);
+
+                if (snap.exists()) {
+                    const gData = snap.data();
+                    if (gData.members && gData.members[uId]) {
+                        delete gData.members[uId];
+                        const remaining = Object.keys(gData.members).length;
+                        if (remaining === 0) {
+                            await deleteDoc(gRef);
+                        } else {
+                            await updateDoc(gRef, { members: gData.members });
+                        }
+                    }
+                }
+            } catch (e) {}
+
+            state.joinedGroupIds = state.joinedGroupIds.filter(id => id !== gCode);
+            state.selectedGroupId = state.joinedGroupIds[0] || '';
+            saveState();
+
+            showMessage("グループを脱退しました。");
+            renderGroupModal();
+        }
+
+        function subscribeGroup(gCode) {
+            if (groupUnsubscribe) {
+                groupUnsubscribe();
+                groupUnsubscribe = null;
+            }
+
+            if (!gCode) return;
+
+            const gRef = getGroupDocRef(gCode);
+            groupUnsubscribe = onSnapshot(gRef, (snap) => {
+                if (!snap.exists()) {
+                    activeGroupData = null;
+                    state.joinedGroupIds = state.joinedGroupIds.filter(id => id !== gCode);
+                    state.selectedGroupId = state.joinedGroupIds[0] || '';
+                    saveState();
+                    renderGroupModal();
+                    return;
+                }
+
+                activeGroupData = snap.data();
+                updateGroupModalContent();
+            }, (err) => {
+                console.warn("Group snapshot error:", err);
+            });
+        }
+
+        async function renderGroupModal() {
+            await initAuth();
+            const uId = auth.currentUser?.uid;
+
+            document.getElementById('group-user-nickname').value = state.userNickname || getRandomNickname();
+
+            // Populate Dropdown
+            const select = document.getElementById('group-select-dropdown');
+            select.innerHTML = '<option value="">グループ未選択</option>';
+
+            if (!state.selectedGroupId && state.joinedGroupIds.length > 0) {
+                state.selectedGroupId = state.joinedGroupIds[0];
+            }
+
+            state.joinedGroupIds.forEach(id => {
+                const opt = document.createElement('option');
+                opt.value = id;
+                opt.textContent = `コード: ${id}`;
+                if (id === state.selectedGroupId) opt.selected = true;
+                select.appendChild(opt);
+            });
+
+            if (state.selectedGroupId) {
+                document.getElementById('group-active-view').classList.remove('hidden');
+                subscribeGroup(state.selectedGroupId);
+            } else {
+                document.getElementById('group-active-view').classList.add('hidden');
+            }
+        }
+
+        function updateGroupModalContent() {
+            if (!activeGroupData) return;
+            const uId = auth.currentUser?.uid;
+            const isOwner = (activeGroupData.ownerId === uId);
+
+            document.getElementById('group-display-name').textContent = activeGroupData.name || 'グループ';
+            document.getElementById('group-display-code').textContent = activeGroupData.code || '------';
+            
+            const roleBadge = document.getElementById('group-role-badge');
+            if (isOwner) {
+                roleBadge.textContent = '👑 オーナー';
+                roleBadge.className = 'ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800';
+            } else {
+                roleBadge.textContent = 'メンバー';
+                roleBadge.className = 'ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-700';
+            }
+
+            // Owner Privacy Settings Panel
+            const ownerSettingsBox = document.getElementById('group-owner-settings-box');
+            if (isOwner) {
+                ownerSettingsBox.classList.remove('hidden');
+                const st = activeGroupData.settings || {};
+                document.getElementById('privacy-ranking').checked = !!st.showRanking;
+                document.getElementById('privacy-total-score').checked = !!st.showTotalScore;
+                document.getElementById('privacy-last-played').checked = !!st.showLastPlayedAt;
+                document.getElementById('privacy-last-score').checked = !!st.showLastScore;
+            } else {
+                ownerSettingsBox.classList.add('hidden');
+            }
+
+            // Members List & Privacy Filtering
+            const membersMap = activeGroupData.members || {};
+            let membersList = Object.values(membersMap);
+
+            // Sorting logic
+            if (groupSortMode === 'score') {
+                membersList.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
+            } else if (groupSortMode === 'memo') {
+                membersList.sort((a, b) => (a.memo || '').localeCompare(b.memo || '', undefined, { numeric: true }));
+            } else if (groupSortMode === 'custom') {
+                membersList.sort((a, b) => (a.order || 0) - (b.order || 0));
+            }
+
+            const listContainer = document.getElementById('group-member-list-container');
+            listContainer.innerHTML = '';
+
+            const settings = activeGroupData.settings || {};
+
+            membersList.forEach((m, idx) => {
+                const isMe = (m.id === uId);
+                const card = document.createElement('div');
+                card.className = `p-2.5 rounded-xl border shadow-sm flex flex-wrap items-center justify-between text-xs font-bold gap-2 ${
+                    isMe ? 'bg-purple-50 border-purple-200' : 'bg-white border-slate-200'
+                }`;
+
+                // Values filtered by privacy settings for non-owner
+                const displayRank = (isOwner || settings.showRanking) ? `${idx + 1}位` : '🔒 非公開';
+                const displayTotalScore = (isOwner || settings.showTotalScore) ? `${m.totalScore || 0} pt` : '🔒 非公開';
+                const displayLastPlayed = (isOwner || settings.showLastPlayedAt) ? (m.lastPlayedAt || '-') : '🔒 非公開';
+                const displayLastScore = (isOwner || settings.showLastScore) ? `${m.lastScore || 0} pt` : '🔒 非公開';
+
+                let ownerMemoHtml = '';
+                let manualOrderHtml = '';
+
+                if (isOwner) {
+                    ownerMemoHtml = `
+                        <input type="text" data-member-id="${m.id}" value="${m.memo || ''}" class="member-memo-input px-2 py-0.5 border border-slate-300 rounded text-[11px] w-20 font-normal focus:outline-none focus:ring-1 focus:ring-purple-400" placeholder="メモ/番号">
+                    `;
+                    manualOrderHtml = `
+                        <div class="flex gap-0.5">
+                            <button data-move="up" data-member-id="${m.id}" class="move-order-btn text-[10px] bg-slate-100 hover:bg-slate-200 px-1.5 py-0.5 rounded">▲</button>
+                            <button data-move="down" data-member-id="${m.id}" class="move-order-btn text-[10px] bg-slate-100 hover:bg-slate-200 px-1.5 py-0.5 rounded">▼</button>
+                        </div>
+                    `;
+                } else if (m.memo) {
+                    ownerMemoHtml = `<span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">メモ: ${m.memo}</span>`;
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-2 truncate">
+                        <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-800 font-black text-xs flex items-center justify-center shrink-0">${displayRank}</span>
+                        <span class="truncate text-slate-800 font-extrabold max-w-[110px]">${m.nickname || '名無し'} ${m.isOwner ? '👑' : ''} ${isMe ? '(自分)' : ''}</span>
+                        ${ownerMemoHtml}
+                    </div>
+                    <div class="flex items-center gap-2 text-right shrink-0">
+                        <div>
+                            <div class="text-[9px] text-slate-400">累計</div>
+                            <div class="text-amber-600 font-black">${displayTotalScore}</div>
+                        </div>
+                        <div>
+                            <div class="text-[9px] text-slate-400">最終プレイ/結果</div>
+                            <div class="text-slate-600 text-[10px]">${displayLastPlayed} (${displayLastScore})</div>
+                        </div>
+                        ${manualOrderHtml}
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+
+            // Bind Owner Memo inputs
+            if (isOwner) {
+                document.querySelectorAll('.member-memo-input').forEach(input => {
+                    input.onchange = async (e) => {
+                        const targetId = e.target.dataset.memberId;
+                        const val = e.target.value.trim();
+                        try {
+                            const gRef = getGroupDocRef(activeGroupData.code);
+                            await updateDoc(gRef, { [`members.${targetId}.memo`]: val });
+                        } catch (err) {}
+                    };
+                });
+
+                document.querySelectorAll('.move-order-btn').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        const targetId = e.target.dataset.memberId;
+                        const dir = e.target.dataset.move;
+                        const currIndex = membersList.findIndex(m => m.id === targetId);
+                        if (currIndex < 0) return;
+
+                        const targetIndex = dir === 'up' ? currIndex - 1 : currIndex + 1;
+                        if (targetIndex >= 0 && targetIndex < membersList.length) {
+                            const temp = membersList[currIndex];
+                            membersList[currIndex] = membersList[targetIndex];
+                            membersList[targetIndex] = temp;
+
+                            const updates = {};
+                            membersList.forEach((m, idx) => {
+                                updates[`members.${m.id}.order`] = idx + 1;
+                            });
+
+                            try {
+                                const gRef = getGroupDocRef(activeGroupData.code);
+                                await updateDoc(gRef, updates);
+                            } catch (err) {}
+                        }
+                    };
+                });
+            }
+        }
+
+        async function updateGroupPrivacySettings(key, value) {
+            if (!activeGroupData || activeGroupData.ownerId !== auth.currentUser?.uid) return;
+            try {
+                const gRef = getGroupDocRef(activeGroupData.code);
+                await updateDoc(gRef, { [`settings.${key}`]: value });
+            } catch (e) {}
+        }
+
+        function renderStatsModal(sortBy = 'score') {
+            const missedContainer = document.getElementById('missed-keys-container');
+            missedContainer.innerHTML = '';
+
+            const missedArray = Object.entries(state.missedKeyCounts || {}).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            if (missedArray.length === 0) {
+                missedContainer.innerHTML = '<span class="text-xs text-slate-400 font-bold">まだミスの記録はありません。素晴らしい！</span>';
+            } else {
+                missedArray.forEach(([key, count], idx) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'px-2.5 py-1 bg-white border border-rose-300 text-rose-700 font-black rounded-lg text-xs shadow-sm flex items-center gap-1';
+                    chip.innerHTML = `<span class="bg-rose-500 text-white rounded-md w-4 h-4 flex items-center justify-center text-[10px]">${idx + 1}</span> <span class="font-mono text-sm">${key.toUpperCase()}</span> (${count}回)`;
+                    missedContainer.appendChild(chip);
+                });
+            }
+
+            const listContainer = document.getElementById('stats-list-container');
+            listContainer.innerHTML = '';
+
+            const allCourses = [];
+            COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
+
+            allCourses.sort((a, b) => {
+                if (sortBy === 'score') {
+                    return (state.highScores[b.id] || 0) - (state.highScores[a.id] || 0);
+                } else if (sortBy === 'totalScore') {
+                    return (state.courseTotalScores[b.id] || 0) - (state.courseTotalScores[a.id] || 0);
+                } else if (sortBy === 'wpm') {
+                    return (state.courseMaxWpm[b.id] || 0) - (state.courseMaxWpm[a.id] || 0);
+                }
+                return 0;
+            });
+
+            allCourses.forEach(course => {
+                const highScore = state.highScores[course.id] || 0;
+                const playCount = state.coursePlayCounts[course.id] || 0;
+                const maxWpm = state.courseMaxWpm[course.id] || 0;
+                const isUnlocked = state.unlockedCourses.includes(course.id);
+
+                const card = document.createElement('div');
+                card.className = 'bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between text-xs sm:text-sm font-bold text-slate-700 h-12';
+                card.innerHTML = `
+                    <div class="flex items-center gap-2 truncate max-w-[180px] sm:max-w-xs">
+                        ${isUnlocked ? '<i class="fa-solid fa-circle-check text-emerald-500"></i>' : '<i class="fa-solid fa-lock text-slate-300"></i>'}
+                        <span class="truncate">${renderRubyTitle(course.name)}</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-right">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">最高</span>
+                            <span class="text-amber-600 font-black">${highScore} pt</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">速度</span>
+                            <span class="text-indigo-600 font-black">${maxWpm} キー/分</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">回数</span>
+                            <span class="text-slate-600 font-black">${playCount} 回</span>
+                        </div>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        function checkAndTriggerUnlockCeremony() {
+            const allCourses = [];
+            COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
+
+            const lockedCourses = allCourses.filter(c => !state.unlockedCourses.includes(c.id));
+            if (lockedCourses.length === 0) return;
+
+            const allUnlockedPlayedThrice = state.unlockedCourses.every(id => (state.coursePlayCounts[id] || 0) >= 3);
+
+            if (allUnlockedPlayedThrice) {
+                const modal = document.getElementById('unlock-ceremony-modal');
+                const titleEl = document.getElementById('roulette-course-title');
+                const startBtn = document.getElementById('start-roulette-btn');
+
+                modal.classList.remove('hidden');
+
+                startBtn.onclick = () => {
+                    sound.playDrumroll(2500);
+                    startBtn.disabled = true;
+
+                    let count = 0;
+                    const spin = setInterval(() => {
+                        sound.playTick();
+                        const randomCourse = lockedCourses[Math.floor(Math.random() * lockedCourses.length)];
+                        titleEl.innerHTML = renderRubyTitle(randomCourse.name);
+                        count++;
+
+                        if (count >= 20) {
+                            clearInterval(spin);
+                            const selected = lockedCourses[Math.floor(Math.random() * lockedCourses.length)];
+                            if (!state.unlockedCourses.includes(selected.id)) {
+                                state.unlockedCourses.push(selected.id);
+                            }
+                            saveState();
+
+                            titleEl.innerHTML = `<span class="text-emerald-600 font-black">✨ 解放！ ${renderRubyTitle(selected.name)} ✨</span>`;
+                            sound.playFanfare();
+                            confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+
+                            setTimeout(() => {
+                                modal.classList.add('hidden');
+                                startBtn.disabled = false;
+                                updateHeaderStats();
+                                renderCategories();
+                            }, 2500);
+                        }
+                    }, 100);
+                };
+            }
         }
 
         function setupSettingsModalUI() {
@@ -2476,7 +2741,6 @@
                     state.rubyOn = !state.rubyOn;
                     sound.playTick();
                     saveState();
-                    updateIngameRubyBtnUI();
 
                     let courseObj = null;
                     COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => {
@@ -2493,7 +2757,7 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             loadState();
             renderKeyboard();
             updateHeaderStats();
@@ -2525,9 +2789,7 @@
                         clearInterval(spinInterval);
                         sound.playFanfare();
                         saveState();
-                        setTimeout(() => {
-                            startGame();
-                        }, 400);
+                        setTimeout(() => startGame(), 400);
                     }
                 }, 90);
             };
@@ -2539,6 +2801,67 @@
                 renderCategories();
             };
 
+            // Group UI Binding
+            document.getElementById('open-group-btn').onclick = () => {
+                sound.playTick();
+                renderGroupModal();
+                document.getElementById('group-modal').classList.remove('hidden');
+            };
+
+            document.getElementById('close-group-btn').onclick = () => {
+                sound.playTick();
+                document.getElementById('group-modal').classList.add('hidden');
+            };
+
+            document.getElementById('group-change-nickname-btn').onclick = () => {
+                sound.playTick();
+                const newNick = getRandomNickname();
+                document.getElementById('group-user-nickname').value = newNick;
+                state.userNickname = newNick;
+                saveState();
+            };
+
+            document.getElementById('group-user-nickname').onchange = (e) => {
+                state.userNickname = e.target.value.trim() || getRandomNickname();
+                saveState();
+            };
+
+            document.getElementById('group-create-btn').onclick = () => createGroup();
+            document.getElementById('group-join-btn').onclick = () => joinGroup();
+            document.getElementById('group-leave-btn').onclick = () => leaveCurrentGroup();
+
+            document.getElementById('group-copy-code-btn').onclick = () => {
+                if (state.selectedGroupId) {
+                    copyToClipboard(state.selectedGroupId, `グループコードをコピーしました: ${state.selectedGroupId}`);
+                }
+            };
+
+            document.getElementById('group-select-dropdown').onchange = (e) => {
+                state.selectedGroupId = e.target.value;
+                saveState();
+                renderGroupModal();
+            };
+
+            // Privacy Switches
+            document.getElementById('privacy-ranking').onchange = (e) => updateGroupPrivacySettings('showRanking', e.target.checked);
+            document.getElementById('privacy-total-score').onchange = (e) => updateGroupPrivacySettings('showTotalScore', e.target.checked);
+            document.getElementById('privacy-last-played').onchange = (e) => updateGroupPrivacySettings('showLastPlayedAt', e.target.checked);
+            document.getElementById('privacy-last-score').onchange = (e) => updateGroupPrivacySettings('showLastScore', e.target.checked);
+
+            // Group Sort Buttons
+            document.querySelectorAll('#group-sort-buttons .group-sort-btn').forEach(btn => {
+                btn.onclick = () => {
+                    sound.playTick();
+                    document.querySelectorAll('#group-sort-buttons .group-sort-btn').forEach(b => {
+                        b.className = 'group-sort-btn px-2.5 py-1 rounded-lg bg-white text-slate-600 border border-slate-300';
+                    });
+                    btn.className = 'group-sort-btn px-2.5 py-1 rounded-lg bg-purple-600 text-white font-black';
+                    groupSortMode = btn.dataset.sort;
+                    updateGroupModalContent();
+                };
+            });
+
+            // Stats Modal
             document.getElementById('open-stats-btn').onclick = () => {
                 sound.playTick();
                 renderStatsModal('score');
@@ -2561,6 +2884,7 @@
                 };
             });
 
+            // Navigation
             document.getElementById('exit-game-btn').onclick = () => exitToTop();
             document.getElementById('res-retry-btn').onclick = () => {
                 document.getElementById('result-modal').classList.add('hidden');
@@ -2568,6 +2892,7 @@
             };
             document.getElementById('res-return-btn').onclick = () => exitToTop();
 
+            // VS Handlers
             document.getElementById('open-vs-btn').onclick = () => openVsLobby();
             document.getElementById('exit-vs-btn').onclick = () => exitToTop();
             document.getElementById('vs-random-name-btn').onclick = () => {
@@ -2578,15 +2903,6 @@
             document.getElementById('vs-join-room-btn').onclick = () => joinVsRoom();
             document.getElementById('vs-leave-room-btn').onclick = () => exitToTop();
             document.getElementById('vs-start-game-btn').onclick = () => startVsGameHost();
-
-            document.getElementById('open-group-btn').onclick = () => openGroupPage();
-            document.getElementById('exit-group-btn').onclick = () => exitToTop();
-            document.getElementById('group-random-name-btn').onclick = () => {
-                sound.playTick();
-                document.getElementById('group-nickname-input').value = getRandomNickname();
-            };
-            document.getElementById('group-create-btn').onclick = () => createNewGroup();
-            document.getElementById('group-join-btn').onclick = () => joinGroupWithCode();
 
             document.getElementById('vs-random-course-btn').onclick = () => {
                 sound.playDrumroll(1500);
@@ -2612,23 +2928,45 @@
                 }
             };
 
-            document.getElementById('vs-rematch-btn').onclick = () => {
-                document.getElementById('vs-result-modal').classList.add('hidden');
-                if (vsRoomId) {
-                    const rooms = getStoredVsRooms();
-                    if (rooms[vsRoomId]) {
-                        rooms[vsRoomId].status = 'waiting';
-                        saveVsRooms(rooms);
-                        syncEngine.broadcast('VS_ROOM_UPDATE', { roomId: vsRoomId, roomData: rooms[vsRoomId], rooms: rooms });
-                    }
-                }
-            };
-
-            document.getElementById('vs-return-lobby-btn').onclick = () => {
+            document.getElementById('vs-rematch-btn').onclick = async () => {
                 document.getElementById('vs-result-modal').classList.add('hidden');
                 document.getElementById('vs-room-view').classList.remove('hidden');
                 document.getElementById('play-screen').classList.add('hidden');
+
+                if (vsRoomId) {
+                    try {
+                        const roomRef = getVsRoomDocRef(vsRoomId);
+                        await updateDoc(roomRef, {
+                            status: 'waiting',
+                            firstFinishTime: null,
+                            firstFinishName: null
+                        });
+                    } catch (e) {}
+                }
             };
+
+            document.getElementById('vs-return-lobby-btn').onclick = async () => {
+                document.getElementById('vs-result-modal').classList.add('hidden');
+                document.getElementById('vs-room-view').classList.remove('hidden');
+                document.getElementById('play-screen').classList.add('hidden');
+
+                if (vsIsHost && vsRoomId) {
+                    try {
+                        const roomRef = getVsRoomDocRef(vsRoomId);
+                        await updateDoc(roomRef, {
+                            status: 'waiting',
+                            firstFinishTime: null,
+                            firstFinishName: null
+                        });
+                    } catch (e) {}
+                }
+            };
+
+            window.addEventListener('beforeunload', () => {
+                if (game.isVsMode || vsRoomId) {
+                    leaveVsRoom();
+                }
+            });
 
             window.addEventListener('keydown', (e) => {
                 if (game.active) {
@@ -2636,6 +2974,7 @@
                 } else if (!document.getElementById('top-screen').classList.contains('hidden') && 
                            document.getElementById('settings-modal').classList.contains('hidden') && 
                            document.getElementById('stats-modal').classList.contains('hidden') && 
+                           document.getElementById('group-modal').classList.contains('hidden') && 
                            document.getElementById('unlock-ceremony-modal').classList.contains('hidden') && 
                            e.key === ' ') {
                     e.preventDefault();
