@@ -22,6 +22,7 @@
             -webkit-user-select: none;
         }
         
+        /* Ruby positioning over kanji */
         ruby {
             display: inline-flex;
             flex-direction: column-reverse;
@@ -81,12 +82,10 @@
 </head>
 <body class="bg-gradient-to-br from-sky-100 via-indigo-50 to-pink-100 min-h-screen text-slate-800 flex flex-col">
 
-    <!-- Toast Notifications -->
     <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none flex flex-col gap-2 w-full max-w-sm px-4"></div>
 
     <div id="app" class="flex-1 flex flex-col max-w-6xl mx-auto w-full p-2 sm:p-4">
         
-        <!-- TOP SCREEN -->
         <div id="top-screen" class="flex-1 flex flex-col">
             <!-- Title Header Bar -->
             <header class="text-center py-3 bg-white/80 backdrop-blur rounded-2xl shadow-sm border border-white mb-3 px-4">
@@ -118,7 +117,6 @@
                 </div>
             </header>
 
-            <!-- Game Start & Control Bar -->
             <div class="bg-white/90 backdrop-blur p-2.5 rounded-2xl shadow-sm border border-white mb-3 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
                 <button id="start-game-btn" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold text-base sm:text-lg px-8 py-2 rounded-2xl shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-play"></i>スタート！
@@ -145,14 +143,13 @@
                 <button id="open-vs-btn" class="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-rose-500 hover:from-purple-700 hover:to-rose-600 text-white font-extrabold text-sm sm:text-base py-3 rounded-2xl shadow-md transition transform active:scale-98 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-users text-amber-300 text-lg"></i> 友だちと対戦（マルチプレイ）
                 </button>
-                <!-- REQUIRED: Group Button placed at the VERY BOTTOM of the top page -->
+                <!-- Group Button placed at the VERY BOTTOM of the top page -->
                 <button id="open-group-btn" class="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-extrabold text-sm sm:text-base py-3 rounded-2xl shadow-md transition transform active:scale-98 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-users-rectangle text-amber-300 text-lg"></i> <ruby>グ<rt>ぐ</rt></ruby><ruby>ルー<rt>るー</rt></ruby><ruby>プ<rt>ぷ</rt></ruby><ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>・<ruby>管<rt>かん</rt></ruby><ruby>理<rt>り</rt></ruby>
                 </button>
             </div>
         </div>
 
-        <!-- VS MULTIPLAYER SCREEN -->
         <div id="vs-screen" class="hidden flex-1 flex flex-col">
             <!-- VS Header -->
             <div class="bg-white/90 backdrop-blur px-4 py-2.5 rounded-2xl shadow-sm border border-white mb-3 flex items-center justify-between">
@@ -208,7 +205,6 @@
                 </div>
             </div>
 
-            <!-- VS Room View (Waiting / Host Controls) -->
             <div id="vs-room-view" class="hidden flex-1 bg-white/80 backdrop-blur p-4 sm:p-6 rounded-3xl shadow-sm border border-white flex flex-col max-w-2xl mx-auto w-full overflow-y-auto">
                 <!-- Room Info Bar -->
                 <div class="bg-purple-50 border border-purple-200 rounded-2xl p-3.5 mb-4 text-center relative">
@@ -264,7 +260,6 @@
             </div>
         </div>
 
-        <!-- PLAY GAME SCREEN -->
         <div id="play-screen" class="hidden flex-1 flex flex-col justify-between max-h-[calc(100vh-20px)] overflow-hidden">
             <!-- Header Bar -->
             <div class="bg-white/90 backdrop-blur px-4 py-2 rounded-2xl shadow-sm border border-white flex items-center justify-between">
@@ -315,7 +310,6 @@
         </div>
     </div>
 
-    <!-- ENHANCED GROUP MODAL WITH FULL FIRESTORE / OWNER / PRIVACY CONTROLS -->
     <div id="group-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-2xl w-full p-4 sm:p-6 relative my-auto flex flex-col max-h-[90vh]">
             <h2 class="text-xl font-black text-slate-800 text-center mb-2 flex items-center justify-center gap-2">
@@ -343,12 +337,10 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-purple-200">
-                    <!-- Create Group -->
                     <button id="group-create-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-extrabold py-2 px-3 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1">
                         <i class="fa-solid fa-plus-circle"></i> 新しくグループを作る
                     </button>
 
-                    <!-- Join Group by 8-char Code -->
                     <div class="flex gap-1.5">
                         <input type="text" id="group-join-code-input" class="flex-1 px-2.5 py-1.5 border border-purple-300 rounded-xl font-mono text-center font-bold text-xs uppercase focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="8桁コード" maxlength="8">
                         <button id="group-join-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs transition shadow-sm">
@@ -433,7 +425,6 @@
         </div>
     </div>
 
-    <!-- UNLOCK CEREMONY MODAL -->
     <div id="unlock-ceremony-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-md w-full p-6 text-center relative overflow-hidden">
             <div class="text-xl sm:text-2xl font-black text-slate-800 mb-4 leading-relaxed">
@@ -507,7 +498,6 @@
         </div>
     </div>
 
-    <!-- STATS MODAL -->
     <div id="stats-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-2xl w-full p-4 sm:p-6 relative my-auto flex flex-col max-h-[90vh]">
             <h2 class="text-xl font-black text-slate-800 text-center mb-3 flex items-center justify-center gap-2">
@@ -555,7 +545,6 @@
         </div>
     </div>
 
-    <!-- RESULT MODAL (Single Player) -->
     <div id="result-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-md w-full p-6 text-center relative overflow-hidden transform transition-all">
             <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-rose-500 mb-2">
@@ -621,7 +610,6 @@
         </div>
     </div>
 
-    <!-- Firebase Imports for Realtime Multiplayer & Groups -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -660,6 +648,39 @@
             }
             authInitialized = true;
             return currentUser;
+        }
+
+        // Hybrid Fallback Store using BroadcastChannel / LocalStorage
+        const localVsRooms = {};
+        const vsChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('typing_vs_hybrid_channel') : null;
+
+        function broadcastLocalVsRoom(roomCode, roomData) {
+            localVsRooms[roomCode] = roomData;
+            try {
+                localStorage.setItem(`typing_vs_room_${roomCode}`, JSON.stringify(roomData));
+            } catch(e) {}
+            if (vsChannel) {
+                vsChannel.postMessage({ type: 'VS_ROOM_SYNC', roomCode, data: roomData });
+            }
+        }
+
+        if (vsChannel) {
+            vsChannel.onmessage = (event) => {
+                const { type, roomCode, data } = event.data || {};
+                if (type === 'VS_ROOM_SYNC') {
+                    localVsRooms[roomCode] = data;
+                    if (vsRoomId === roomCode && typeof window.onLocalVsRoomUpdate === 'function') {
+                        window.onLocalVsRoomUpdate(data);
+                    }
+                } else if (type === 'VS_ROOM_DELETE') {
+                    delete localVsRooms[roomCode];
+                    if (vsRoomId === roomCode && typeof window.onLocalVsRoomUpdate === 'function') {
+                        window.onLocalVsRoomUpdate(null);
+                    }
+                } else if (type === 'REQ_VS_ROOM' && localVsRooms[roomCode]) {
+                    broadcastLocalVsRoom(roomCode, localVsRooms[roomCode]);
+                }
+            };
         }
 
         function getVsRoomDocRef(roomId) {
@@ -1156,7 +1177,7 @@
 
         let activeGroupData = null;
         let groupUnsubscribe = null;
-        let groupSortMode = 'score'; // score | memo | custom
+        let groupSortMode = 'score';
 
         function loadState() {
             const saved = localStorage.getItem('typing_rush_state');
@@ -1681,7 +1702,6 @@
             updateHeaderStats();
             renderCategories();
 
-            // Sync score to all joined Firestore groups
             syncGameStatsToGroups(game.score);
 
             if (game.isVsMode) {
@@ -1774,7 +1794,7 @@
                         score: 0,
                         wpm: 0,
                         finished: false,
-                        unlocked: state.unlockedCourses
+                        unlocked: state.unlockedCourses || ['aiueo', 'dakuon_handakuon', 'sokuon_youon']
                     }
                 },
                 firstFinishTime: null,
@@ -1782,15 +1802,18 @@
                 createdAt: Date.now()
             };
 
+            vsRoomData = initialData;
+            broadcastLocalVsRoom(vsRoomId, initialData);
+
             try {
                 const roomRef = getVsRoomDocRef(vsRoomId);
                 await setDoc(roomRef, initialData);
-                vsRoomData = initialData;
-                subscribeVsRoom(vsRoomId);
-                enterVsRoomUI();
             } catch (e) {
-                showMessage("部屋の作成に失敗しました。再試行してください。");
+                console.warn("Firestore setDoc failed, operating in local hybrid mode:", e);
             }
+
+            subscribeVsRoom(vsRoomId);
+            enterVsRoomUI();
         }
 
         async function joinVsRoom() {
@@ -1808,57 +1831,76 @@
                 return;
             }
 
+            vsUserNickname = nickname;
+            state.userNickname = nickname;
+            saveState();
+
+            vsUserId = auth.currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
+            vsIsHost = false;
+            vsRoomId = code;
+
+            let room = null;
+
             try {
                 const roomRef = getVsRoomDocRef(code);
                 const snapshot = await getDoc(roomRef);
-
-                if (!snapshot.exists()) {
-                    showMessage("指定された対戦部屋が見つかりません。");
-                    return;
+                if (snapshot.exists()) {
+                    room = snapshot.data();
                 }
+            } catch (e) {
+                console.warn("Firestore getDoc failed, attempting local store check:", e);
+            }
 
-                const room = snapshot.data();
-                if (room.status === 'closed') {
-                    showMessage("この対戦部屋はすでに閉じられています。");
-                    return;
+            if (!room) {
+                room = localVsRooms[code];
+                if (!room && vsChannel) {
+                    vsChannel.postMessage({ type: 'REQ_VS_ROOM', roomCode: code });
+                    await new Promise(r => setTimeout(r, 200));
+                    room = localVsRooms[code];
                 }
+            }
 
-                vsUserNickname = nickname;
-                state.userNickname = nickname;
-                saveState();
+            if (!room) {
+                showMessage("指定された対戦部屋が見つかりません。");
+                return;
+            }
 
-                vsUserId = auth.currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
-                vsIsHost = false;
-                vsRoomId = code;
+            if (room.status === 'closed') {
+                showMessage("この対戦部屋はすでに閉じられています。");
+                return;
+            }
 
-                room.members[vsUserId] = {
-                    id: vsUserId,
-                    name: vsUserNickname,
-                    isHost: false,
-                    score: 0,
-                    wpm: 0,
-                    finished: false,
-                    unlocked: state.unlockedCourses
-                };
+            room.members[vsUserId] = {
+                id: vsUserId,
+                name: vsUserNickname,
+                isHost: false,
+                score: 0,
+                wpm: 0,
+                finished: false,
+                unlocked: state.unlockedCourses || ['aiueo', 'dakuon_handakuon', 'sokuon_youon']
+            };
 
+            vsRoomData = room;
+            broadcastLocalVsRoom(code, room);
+
+            try {
+                const roomRef = getVsRoomDocRef(code);
                 await updateDoc(roomRef, {
                     [`members.${vsUserId}`]: room.members[vsUserId]
                 });
-
-                vsRoomData = room;
-                subscribeVsRoom(vsRoomId);
-                enterVsRoomUI();
             } catch (e) {
-                showMessage("対戦部屋への参加に失敗しました。");
+                console.warn("Firestore updateDoc failed during join:", e);
             }
+
+            subscribeVsRoom(vsRoomId);
+            enterVsRoomUI();
         }
 
         function subscribeVsRoom(roomId) {
             if (vsUnsubscribe) vsUnsubscribe();
 
-            const roomRef = getVsRoomDocRef(roomId);
-            vsUnsubscribe = onSnapshot(roomRef, (snapshot) => {
-                if (!snapshot.exists()) {
+            window.onLocalVsRoomUpdate = (updatedData) => {
+                if (!updatedData) {
                     if (vsRoomData && vsRoomData.status !== 'closed') {
                         showMessage("対戦部屋が解散されました。");
                         exitToTop();
@@ -1866,14 +1908,13 @@
                     return;
                 }
 
-                const updated = snapshot.data();
-                if (updated.status === 'closed') {
+                if (updatedData.status === 'closed') {
                     showMessage("対戦部屋が閉じられました。");
                     exitToTop();
                     return;
                 }
 
-                vsRoomData = updated;
+                vsRoomData = updatedData;
                 updateVsRoomUI();
 
                 if (vsRoomData.status === 'waiting') {
@@ -1895,9 +1936,36 @@
                 if (game.active && vsRoomData.firstFinishTime) {
                     handleVsCountdownTrigger(vsRoomData.firstFinishTime, vsRoomData.firstFinishName);
                 }
-            }, (error) => {
-                console.warn("Firestore snapshot error:", error);
-            });
+            };
+
+            try {
+                const roomRef = getVsRoomDocRef(roomId);
+                vsUnsubscribe = onSnapshot(roomRef, (snapshot) => {
+                    if (!snapshot.exists()) {
+                        if (localVsRooms[roomId]) {
+                            window.onLocalVsRoomUpdate(localVsRooms[roomId]);
+                        } else {
+                            window.onLocalVsRoomUpdate(null);
+                        }
+                        return;
+                    }
+
+                    const updated = snapshot.data();
+                    localVsRooms[roomId] = updated;
+                    broadcastLocalVsRoom(roomId, updated);
+                    window.onLocalVsRoomUpdate(updated);
+                }, (error) => {
+                    console.warn("Firestore snapshot error, using local channel fallback:", error);
+                    if (localVsRooms[roomId]) {
+                        window.onLocalVsRoomUpdate(localVsRooms[roomId]);
+                    }
+                });
+            } catch (e) {
+                console.warn("Subscribe Firestore failed, operating in local mode:", e);
+                if (localVsRooms[roomId]) {
+                    window.onLocalVsRoomUpdate(localVsRooms[roomId]);
+                }
+            }
         }
 
         function enterVsRoomUI() {
@@ -1981,6 +2049,21 @@
             if (!vsIsHost || !vsRoomId) return;
             const courseId = document.getElementById('vs-course-select').value;
 
+            if (vsRoomData) {
+                vsRoomData.status = 'playing';
+                vsRoomData.courseId = courseId;
+                vsRoomData.firstFinishTime = null;
+                vsRoomData.firstFinishName = null;
+
+                Object.keys(vsRoomData.members).forEach(id => {
+                    vsRoomData.members[id].score = 0;
+                    vsRoomData.members[id].wpm = 0;
+                    vsRoomData.members[id].finished = false;
+                });
+
+                broadcastLocalVsRoom(vsRoomId, vsRoomData);
+            }
+
             try {
                 const roomRef = getVsRoomDocRef(vsRoomId);
                 const snapshot = await getDoc(roomRef);
@@ -1999,13 +2082,15 @@
 
                     await setDoc(roomRef, room);
                 }
-            } catch (e) {
-                showMessage("対戦スタートの更新に失敗しました。");
-            }
+            } catch (e) {}
         }
 
         async function updateVsLiveScore() {
             if (!vsRoomId || !vsUserId) return;
+            if (vsRoomData && vsRoomData.members[vsUserId]) {
+                vsRoomData.members[vsUserId].score = game.score;
+                broadcastLocalVsRoom(vsRoomId, vsRoomData);
+            }
             try {
                 const roomRef = getVsRoomDocRef(vsRoomId);
                 await updateDoc(roomRef, {
@@ -2043,6 +2128,17 @@
 
         async function submitVsFinalResult(finalScore, wpm) {
             if (vsRoomId && vsUserId) {
+                if (vsRoomData && vsRoomData.members[vsUserId]) {
+                    vsRoomData.members[vsUserId].score = finalScore;
+                    vsRoomData.members[vsUserId].wpm = wpm;
+                    vsRoomData.members[vsUserId].finished = true;
+                    if (!vsRoomData.firstFinishTime) {
+                        vsRoomData.firstFinishTime = Date.now();
+                        vsRoomData.firstFinishName = vsUserNickname;
+                    }
+                    broadcastLocalVsRoom(vsRoomId, vsRoomData);
+                }
+
                 try {
                     const roomRef = getVsRoomDocRef(vsRoomId);
                     const snapshot = await getDoc(roomRef);
@@ -2133,6 +2229,11 @@
             }
 
             if (vsRoomId && vsUserId) {
+                delete localVsRooms[vsRoomId];
+                if (vsChannel) {
+                    vsChannel.postMessage({ type: 'VS_ROOM_DELETE', roomCode: vsRoomId });
+                }
+
                 try {
                     const roomRef = getVsRoomDocRef(vsRoomId);
                     const snapshot = await getDoc(roomRef);
@@ -2181,7 +2282,6 @@
                 name: `${nickname}のグループ`,
                 ownerId: uId,
                 createdAt: Date.now(),
-                // REQUIREMENT: Privacy settings initialized ALL TO FALSE
                 settings: {
                     showRanking: false,
                     showTotalScore: false,
@@ -2339,7 +2439,6 @@
 
             document.getElementById('group-user-nickname').value = state.userNickname || getRandomNickname();
 
-            // Populate Dropdown
             const select = document.getElementById('group-select-dropdown');
             select.innerHTML = '<option value="">グループ未選択</option>';
 
@@ -2380,7 +2479,6 @@
                 roleBadge.className = 'ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-700';
             }
 
-            // Owner Privacy Settings Panel
             const ownerSettingsBox = document.getElementById('group-owner-settings-box');
             if (isOwner) {
                 ownerSettingsBox.classList.remove('hidden');
@@ -2393,11 +2491,9 @@
                 ownerSettingsBox.classList.add('hidden');
             }
 
-            // Members List & Privacy Filtering
             const membersMap = activeGroupData.members || {};
             let membersList = Object.values(membersMap);
 
-            // Sorting logic
             if (groupSortMode === 'score') {
                 membersList.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
             } else if (groupSortMode === 'memo') {
@@ -2418,7 +2514,6 @@
                     isMe ? 'bg-purple-50 border-purple-200' : 'bg-white border-slate-200'
                 }`;
 
-                // Values filtered by privacy settings for non-owner
                 const displayRank = (isOwner || settings.showRanking) ? `${idx + 1}位` : '🔒 非公開';
                 const displayTotalScore = (isOwner || settings.showTotalScore) ? `${m.totalScore || 0} pt` : '🔒 非公開';
                 const displayLastPlayed = (isOwner || settings.showLastPlayedAt) ? (m.lastPlayedAt || '-') : '🔒 非公開';
@@ -2462,7 +2557,6 @@
                 listContainer.appendChild(card);
             });
 
-            // Bind Owner Memo inputs
             if (isOwner) {
                 document.querySelectorAll('.member-memo-input').forEach(input => {
                     input.onchange = async (e) => {
@@ -2934,6 +3028,12 @@
                 document.getElementById('play-screen').classList.add('hidden');
 
                 if (vsRoomId) {
+                    if (vsRoomData) {
+                        vsRoomData.status = 'waiting';
+                        vsRoomData.firstFinishTime = null;
+                        vsRoomData.firstFinishName = null;
+                        broadcastLocalVsRoom(vsRoomId, vsRoomData);
+                    }
                     try {
                         const roomRef = getVsRoomDocRef(vsRoomId);
                         await updateDoc(roomRef, {
@@ -2951,6 +3051,12 @@
                 document.getElementById('play-screen').classList.add('hidden');
 
                 if (vsIsHost && vsRoomId) {
+                    if (vsRoomData) {
+                        vsRoomData.status = 'waiting';
+                        vsRoomData.firstFinishTime = null;
+                        vsRoomData.firstFinishName = null;
+                        broadcastLocalVsRoom(vsRoomId, vsRoomData);
+                    }
                     try {
                         const roomRef = getVsRoomDocRef(vsRoomId);
                         await updateDoc(roomRef, {
