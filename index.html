@@ -22,7 +22,7 @@
             -webkit-user-select: none;
         }
         
-        /* Ruby positioning over kanji */
+        /* Ruby positioning over kanji (ALWAYS ABOVE) */
         ruby {
             display: inline-flex;
             flex-direction: column-reverse;
@@ -117,6 +117,7 @@
                 </div>
             </header>
 
+            <!-- Control Buttons Bar -->
             <div class="bg-white/90 backdrop-blur p-2.5 rounded-2xl shadow-sm border border-white mb-3 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
                 <button id="start-game-btn" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold text-base sm:text-lg px-8 py-2 rounded-2xl shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-play"></i>スタート！
@@ -310,6 +311,7 @@
         </div>
     </div>
 
+    <!-- GROUP MODAL -->
     <div id="group-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-2xl w-full p-4 sm:p-6 relative my-auto flex flex-col max-h-[90vh]">
             <h2 class="text-xl font-black text-slate-800 text-center mb-2 flex items-center justify-center gap-2">
@@ -1039,7 +1041,9 @@
                 courses: [
                     { id: 'aiueo', name: '<ruby>あいうえお<rt></rt></ruby>' },
                     { id: 'dakuon_handakuon', name: '<ruby>がざだばぱ<rt></rt></ruby>' },
-                    { id: 'sokuon_youon', name: '<ruby>っゃゅょ<rt></rt></ruby>' }
+                    { id: 'sokuon_youon', name: '<ruby>っゃゅょ<rt></rt></ruby>' },
+                    { id: 'alphabet_symbols', name: 'アルファベット' },
+                    { id: 'romaji_train', name: '<ruby>ロー<rt>ろー</rt></ruby><ruby>マ<rt>ま</rt></ruby><ruby>字<rt>じ</rt></ruby>' }
                 ]
             },
             {
@@ -1056,8 +1060,18 @@
                     { id: 'music', name: '<ruby>音<rt>おん</rt></ruby><ruby>楽<rt>がく</rt></ruby>' },
                     { id: 'art', name: '<ruby>図<rt>ず</rt></ruby><ruby>工<rt>こう</rt></ruby>' },
                     { id: 'pe', name: '<ruby>体<rt>たい</rt></ruby><ruby>育<rt>いく</rt></ruby>' },
-                    { id: 'school_items', name: '<ruby>学<rt>がっ</rt></ruby><ruby>校<rt>こう</rt></ruby>にある<ruby>物<rt>もの</rt></ruby>' },
-                    { id: 'school_lunch', name: '<ruby>学<rt>がっ</rt></ruby><ruby>校<rt>こう</rt></ruby><ruby>給<rt>きゅう</rt></ruby><ruby>食<rt>しょく</rt></ruby>' }
+                    { id: 'school_items', name: '<ruby>学<rt>がっ</rt></ruby><ruby>校<rt>こう</rt></ruby>の<ruby>文<rt>ぶん</rt></ruby><ruby>具<rt>ぐ</rt></ruby>' },
+                    { id: 'school_lunch', name: '<ruby>学<rt>がっ</rt></ruby><ruby>校<rt>こう</rt></ruby><ruby>給<rt>きゅう</rt></ruby><ruby>食<rt>しょく</rt></ruby>' },
+                    { id: 'english_words', name: '<ruby>英<rt>えい</rt></ruby><ruby>単<rt>たん</rt></ruby><ruby>語<rt>ご</rt></ruby>' },
+                    { id: 'yojijukugo', name: '<ruby>四<rt>よん</rt></ruby><ruby>字<rt>じ</rt></ruby><ruby>熟<rt>じゅく</rt></ruby><ruby>語<rt>ご</rt></ruby>' },
+                    { id: 'kotowaza', name: 'ことわざ' },
+                    { id: 'kanyoku', name: '<ruby>慣<rt>かん</rt></ruby><ruby>用<rt>よう</rt></ruby><ruby>句<rt>く</rt></ruby>' },
+                    { id: 'space_astronomy', name: '<ruby>宇<rt>う</rt></ruby><ruby>宙<rt>ちゅう</rt></ruby>と<ruby>天<rt>てん</rt></ruby><ruby>体<rt>たい</rt></ruby>' },
+                    { id: 'human_body', name: '<ruby>人<rt>じん</rt></ruby><ruby>体<rt>たい</rt></ruby>のふしぎ' },
+                    { id: 'elements_science', name: '<ruby>元<rt>げん</rt></ruby><ruby>素<rt>そ</rt></ruby>と<ruby>科<rt>か</rt></ruby><ruby>学<rt>がく</rt></ruby>' },
+                    { id: 'world_history', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby><ruby>史<rt>し</rt></ruby>' },
+                    { id: 'classical_quotes', name: '<ruby>古<rt>こ</rt></ruby><ruby>文<rt>ぶん</rt></ruby>・<ruby>名<rt>めい</rt></ruby><ruby>言<rt>げん</rt></ruby>' },
+                    { id: 'math_theorems', name: '<ruby>数<rt>すう</rt></ruby><ruby>学<rt>がく</rt></ruby>の<ruby>定<rt>てい</rt></ruby><ruby>理<rt>り</rt></ruby>' }
                 ]
             },
             {
@@ -1074,7 +1088,13 @@
                     { id: 'asia_countries', name: 'アジアの<ruby>国<rt>くに</rt></ruby>' },
                     { id: 'europe_countries', name: 'ヨーロッパの<ruby>国<rt>くに</rt></ruby>' },
                     { id: 'americas_oceania', name: '<ruby>北<rt>ほく</rt></ruby><ruby>米<rt>べい</rt></ruby>・<ruby>南<rt>なん</rt></ruby><ruby>米<rt>べい</rt></ruby>・オセアニア' },
-                    { id: 'africa_countries', name: 'アフリカの<ruby>国<rt>くに</rt></ruby>' }
+                    { id: 'africa_countries', name: 'アフリカの<ruby>国<rt>くに</rt></ruby>' },
+                    { id: 'world_capitals', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby>の<ruby>首<rt>しゅ</rt></ruby><ruby>都<rt>と</rt></ruby>' },
+                    { id: 'world_heritage', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby><ruby>遺<rt>い</rt></ruby><ruby>産<rt>さん</rt></ruby>' },
+                    { id: 'japanese_castles', name: '<ruby>日<rt>に</rt></ruby><ruby>本<rt>ほん</rt></ruby>の<ruby>城<rt>しろ</rt></ruby>' },
+                    { id: 'shinkansen', name: '<ruby>新<rt>しん</rt></ruby><ruby>幹<rt>かん</rt></ruby><ruby>線<rt>せん</rt></ruby>・<ruby>特<rt>とっ</rt></ruby><ruby>急<rt>きゅう</rt></ruby>' },
+                    { id: 'traditional_crafts', name: '<ruby>伝<rt>でん</rt></ruby><ruby>統<rt>とう</rt></ruby><ruby>工<rt>こう</rt></ruby><ruby>芸<rt>げい</rt></ruby>' },
+                    { id: 'holidays_events', name: '<ruby>祝<rt>しゅく</rt></ruby><ruby>日<rt>じつ</rt></ruby>・<ruby>行<rt>ぎょう</rt></ruby><ruby>事<rt>じ</rt></ruby>' }
                 ]
             },
             {
@@ -1087,15 +1107,99 @@
                     { id: 'japanese_food', name: '<ruby>日<rt>に</rt></ruby><ruby>本<rt>ほん</rt></ruby><ruby>料<rt>りょう</rt></ruby><ruby>理<rt>り</rt></ruby>' },
                     { id: 'sweets', name: 'スイーツ' },
                     { id: 'vegetables', name: 'やさい' },
-                    { id: 'fruits', name: 'くだもの' }
+                    { id: 'fruits', name: 'くだもの' },
+                    { id: 'chinese_food', name: '<ruby>中<rt>ちゅう</rt></ruby><ruby>華<rt>か</rt></ruby><ruby>料<rt>りょう</rt></ruby><ruby>理<rt>り</rt></ruby>' },
+                    { id: 'western_food', name: '<ruby>洋<rt>よう</rt></ruby><ruby>食<rt>しょく</rt></ruby>・パスタ' },
+                    { id: 'fast_food', name: 'ファストフード' },
+                    { id: 'bread_bakery', name: 'パン・ベーカリー' },
+                    { id: 'drinks', name: '<ruby>飲<rt>の</rt></ruby>み<ruby>物<rt>もの</rt></ruby>' },
+                    { id: 'yakiniku', name: '<ruby>焼<rt>やき</rt></ruby><ruby>肉<rt>にく</rt></ruby>の<ruby>部<rt>ぶ</rt></ruby><ruby>位<rt>い</rt></ruby>' },
+                    { id: 'local_dishes', name: '<ruby>郷<rt>きょう</rt></ruby><ruby>土<rt>ど</rt></ruby><ruby>料<rt>りょう</rt></ruby><ruby>理<rt>り</rt></ruby>' },
+                    { id: 'world_dishes', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby>の<ruby>名<rt>めい</rt></ruby><ruby>物<rt>ぶつ</rt></ruby><ruby>料<rt>りょう</rt></ruby><ruby>理<rt>り</rt></ruby>' },
+                    { id: 'snacks_candies', name: 'お<ruby>菓<rt>か</rt></ruby><ruby>子<rt>し</rt></ruby>・<ruby>駄<rt>だ</rt></ruby><ruby>菓<rt>か</rt></ruby><ruby>子<rt>し</rt></ruby>' },
+                    { id: 'spices_condiments', name: '<ruby>調<rt>ちょう</rt></ruby><ruby>味<rt>み</rt></ruby><ruby>料<rt>りょう</rt></ruby>・スパイス' }
+                ]
+            },
+            {
+                id: 'creatures',
+                name: '<ruby>生<rt>い</rt></ruby>き<ruby>物<rt>もの</rt></ruby>・<ruby>自<rt>じ</rt></ruby><ruby>然<rt>ぜん</rt></ruby>',
+                icon: 'fa-paw',
+                color: 'amber',
+                courses: [
+                    { id: 'land_animals', name: '<ruby>陸<rt>りく</rt></ruby>の<ruby>生<rt>い</rt></ruby>き<ruby>物<rt>もの</rt></ruby>' },
+                    { id: 'sea_creatures', name: '<ruby>海<rt>うみ</rt></ruby>の<ruby>生<rt>い</rt></ruby>き<ruby>物<rt>もの</rt></ruby>' },
+                    { id: 'birds', name: '<ruby>鳥<rt>とり</rt></ruby>のなかま' },
+                    { id: 'insects', name: '<ruby>昆<rt>こん</rt></ruby><ruby>虫<rt>ちゅう</rt></ruby>とむし' },
+                    { id: 'dinosaurs', name: '<ruby>恐<rt>きょう</rt></ruby><ruby>竜<rt>りゅう</rt></ruby>・<ruby>古<rt>こ</rt></ruby><ruby>生<rt>せい</rt></ruby><ruby>物<rt>ぶつ</rt></ruby>' },
+                    { id: 'dogs_cats', name: 'イヌ・ネコの<ruby>種<rt>しゅ</rt></ruby><ruby>類<rt>るい</rt></ruby>' },
+                    { id: 'deep_sea', name: '<ruby>深<rt>しん</rt></ruby><ruby>海<rt>かい</rt></ruby><ruby>生<rt>せい</rt></ruby><ruby>物<rt>ぶつ</rt></ruby>' },
+                    { id: 'plants_flowers', name: '<ruby>植<rt>しょく</rt></ruby><ruby>物<rt>ぶつ</rt></ruby>・お<ruby>花<rt>はな</rt></ruby>' },
+                    { id: 'trees_nuts', name: '<ruby>樹<rt>じゅ</rt></ruby><ruby>木<rt>もく</rt></ruby>・<ruby>木<rt>き</rt></ruby>の<ruby>実<rt>み</rt></ruby>' },
+                    { id: 'weather_climate', name: '<ruby>天<rt>てん</rt></ruby><ruby>気<rt>き</rt></ruby>・<ruby>気<rt>き</rt></ruby><ruby>象<rt>しょう</rt></ruby>' },
+                    { id: 'seasons_nature', name: '<ruby>季<rt>き</rt></ruby><ruby>節<rt>せつ</rt></ruby>・<ruby>四<rt>し</rt></ruby><ruby>季<rt>き</rt></ruby>' },
+                    { id: 'endangered_species', name: '<ruby>絶<rt>ぜつ</rt></ruby><ruby>滅<rt>めつ</rt></ruby><ruby>危<rt>き</rt></ruby><ruby>具<rt>ぐ</rt></ruby><ruby>種<rt>しゅ</rt></ruby>' },
+                    { id: 'dangerous_animals', name: '<ruby>危<rt>き</rt></ruby><ruby>険<rt>けん</rt></ruby>な<ruby>生<rt>せい</rt></ruby><ruby>物<rt>ぶつ</rt></ruby>' },
+                    { id: 'microorganisms', name: '<ruby>微<rt>び</rt></ruby><ruby>生<rt>せい</rt></ruby><ruby>物<rt>ぶつ</rt></ruby>・<ruby>細<rt>さい</rt></ruby><ruby>胞<rt>ほう</rt></ruby>' },
+                    { id: 'disasters_prevention', name: '<ruby>自<rt>じ</rt></ruby><ruby>然<rt>ぜん</rt></ruby><ruby>災<rt>さい</rt></ruby><ruby>害<rt>がい</rt></ruby>と<ruby>防<rt>ぼう</rt></ruby><ruby>災<rt>さい</rt></ruby>' }
+                ]
+            },
+            {
+                id: 'lifestyle',
+                name: '<ruby>暮<rt>く</rt></ruby>らし・お<ruby>事<rt>ごと</rt></ruby><ruby>事<rt></rt></ruby>・スポーツ',
+                icon: 'fa-briefcase',
+                color: 'teal',
+                courses: [
+                    { id: 'jobs_professions', name: 'いろいろなお<ruby>事<rt>ごと</rt></ruby><ruby>事<rt></rt></ruby>' },
+                    { id: 'baseball', name: '<ruby>野<rt>や</rt></ruby><ruby>球<rt>きゅう</rt></ruby>' },
+                    { id: 'soccer', name: 'サッカー' },
+                    { id: 'olympic_sports', name: 'オリンピック<ruby>競<rt>きょう</rt></ruby><ruby>技<rt>ぎ</rt></ruby>' },
+                    { id: 'home_items', name: '<ruby>家<rt>いえ</rt></ruby>の中にある<ruby>物<rt>もの</rt></ruby>' },
+                    { id: 'fashion_clothes', name: '<ruby>服<rt>ふく</rt></ruby>・ファッション' },
+                    { id: 'vehicles_transport', name: '<ruby>乗<rt>の</rt></ruby>り<ruby>物<rt>もの</rt></ruby>・<ruby>交<rt>こう</rt></ruby><ruby>通<rt>つう</rt></ruby>' },
+                    { id: 'city_buildings', name: '<ruby>街<rt>まち</rt></ruby>にある<ruby>建<rt>たて</rt></ruby><ruby>物<rt>もの</rt></ruby>' },
+                    { id: 'tools_stationery', name: '<ruby>道<rt>どう</rt></ruby><ruby>具<rt>ぐ</rt></ruby>・<ruby>文<rt>ぶん</rt></ruby><ruby>房<rt>ぼう</rt></ruby><ruby>具<rt>ぐ</rt></ruby>' },
+                    { id: 'medical_health', name: '<ruby>医<rt>い</rt></ruby><ruby>療<rt>りょう</rt></ruby>・<ruby>健<rt>けん</rt></ruby><ruby>康<rt>こう</rt></ruby>' },
+                    { id: 'musical_instruments', name: '<ruby>楽<rt>がく</rt></ruby><ruby>器<rt>き</rt></ruby>' },
+                    { id: 'hobbies_leisure', name: '<ruby>趣<rt>しゅ</rt></ruby><ruby>味<rt>み</rt></ruby>・レジャー' },
+                    { id: 'laws_rules', name: '<ruby>法<rt>ほう</rt></ruby><ruby>律<rt>りつ</rt></ruby>・ルール' },
+                    { id: 'safety_traffic', name: '<ruby>防<rt>ぼう</rt></ruby><ruby>犯<rt>はん</rt></ruby>・<ruby>交<rt>こう</rt></ruby><ruby>通<rt>つう</rt></ruby><ruby>安<rt>あん</rt></ruby><ruby>全<rt>ぜん</rt></ruby>' },
+                    { id: 'famous_athletes', name: 'アスリート・<ruby>名<rt>めい</rt></ruby><ruby>選<rt>せん</rt></ruby><ruby>手<rt>しゅ</rt></ruby>' }
+                ]
+            },
+            {
+                id: 'entertainment',
+                name: 'エンタメ・<ruby>物<rt>もの</rt></ruby><ruby>語<rt>がたり</rt></ruby>・<ruby>雑<rt>ざつ</rt></ruby><ruby>学<rt>がく</rt></ruby>',
+                icon: 'fa-icons',
+                color: 'purple',
+                courses: [
+                    { id: 'fairy_tales', name: '<ruby>昔<rt>むかし</rt></ruby><ruby>話<rt>ばなし</rt></ruby>・<ruby>童<rt>どう</rt></ruby><ruby>話<rt>わ</rt></ruby>' },
+                    { id: 'hard_kanji', name: '<ruby>難<rt>なん</rt></ruby><ruby>読<rt>どく</rt></ruby><ruby>漢<rt>かん</rt></ruby><ruby>字<rt>じ</rt></ruby>' },
+                    { id: 'palindromes', name: '<ruby>回<rt>かい</rt></ruby><ruby>文<rt>ぶん</rt></ruby>・<ruby>言<rt>こと</rt></ruby><ruby>葉<rt>ば</rt></ruby><ruby>遊<rt>あそ</rt></ruby>び' },
+                    { id: 'world_literature', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby>の<ruby>名<rt>めい</rt></ruby><ruby>作<rt>さく</rt></ruby><ruby>文<rt>ぶん</rt></ruby><ruby>学<rt>がく</rt></ruby>' },
+                    { id: 'myths_legends', name: '<ruby>神<rt>しん</rt></ruby><ruby>話<rt>わ</rt></ruby>と<ruby>伝<rt>でん</rt></ruby><ruby>説<rt>せつ</rt></ruby>' },
+                    { id: 'uma_aliens', name: '未確認生物・<ruby>宇<rt>う</rt></ruby><ruby>宙<rt>ちゅう</rt></ruby><ruby>人<rt>じん</rt></ruby>' },
+                    { id: 'orchestra', name: 'オーケストラ' },
+                    { id: 'anime_manga_terms', name: 'アニメ・コミック<ruby>用<rt>よう</rt></ruby><ruby>語<rt>ご</rt></ruby>' },
+                    { id: 'game_terms', name: 'ゲーム<ruby>用<rt>よう</rt></ruby><ruby>語<rt>ご</rt></ruby>' },
+                    { id: 'movies_theater', name: '<ruby>映<rt>えい</rt></ruby><ruby>画<rt>が</rt></ruby>・<ruby>演<rt>えん</rt></ruby><ruby>劇<rt>げき</rt></ruby>' },
+                    { id: 'board_games', name: 'ボードゲーム' },
+                    { id: 'zodiac_birthstones', name: '<ruby>誕<rt>たん</rt></ruby><ruby>生<rt>じょう</rt></ruby><ruby>石<rt>せき</rt></ruby>と<ruby>星<rt>せい</rt></ruby><ruby>座<rt>ざ</rt></ruby>' },
+                    { id: 'color_names', name: '<ruby>色<rt>いろ</rt></ruby>の<ruby>名<rt>な</rt></ruby><ruby>前<rt>まえ</rt></ruby>' },
+                    { id: 'famous_sweets_prefecture', name: '<ruby>銘<rt>めい</rt></ruby><ruby>菓<rt>か</rt></ruby>・名物菓子' },
+                    { id: 'trivia_quiz', name: 'おもしろ<ruby>雑<rt>ざつ</rt></ruby><ruby>学<rt>がく</rt></ruby>' }
                 ]
             }
         ];
 
         const WORD_DATA = {
+            // Category 1: れんしゅう (5)
             aiueo: [["あいうえお","あいうえお"],["かきくけこ","かきくけこ"],["さしすせそ","さしすせそ"],["たちつてと","たちつてと"],["なにぬねの","なにぬねの"],["はひふへほ","はひふへほ"],["まみむめも","まみむめも"],["やゆよ","やゆよ"],["らりるれろ","らりるれろ"],["わをん","わをん"]],
             dakuon_handakuon: [["がぎぐげご","がぎぐげご"],["ざじずぜぞ","ざじずぜぞ"],["だぢづでど","だぢづでど"],["ばびぶべぼ","ばびぶべぼ"],["ぱぴぷぺぽ","ぱぴぷぺぽ"]],
             sokuon_youon: [["きゃきゅきょ","きゃきゅきょ"],["しゃしゅしょ","しゃしゅしょ"],["ちゃちゅちょ","ちゃちゅちょ"],["学校","がっこう"],["切手","きって"],["雑誌","ざっし"]],
+            alphabet_symbols: [["abcdefg","abcdefg"],["hijklmn","hijklmn"],["opqrstu","opqrstu"],["vwxyz","vwxyz"]],
+            romaji_train: [["かさ","かさ"],["つくえ","つくえ"],["はな","はな"],["そら","そら"],["うみ","うみ"]],
+
+            // Category 2: 教科・学習 (20)
             kokugo: [["国語","こくご"],["漢字","かんじ"],["文章","ぶんしょう"],["音読","おんどく"],["段落","だんらく"]],
             sansu: [["算数","さんすう"],["足し算","たしざん"],["引き算","ひきざん"],["掛け算","かけざん"],["割り算","わりざん"]],
             rika: [["理科","りか"],["実験","じっけん"],["観察","かんさつ"],["昆虫","こんちゅう"],["水溶液","すいようえき"]],
@@ -1106,6 +1210,18 @@
             pe: [["体育","たいいく"],["かけっこ","かけっこ"],["跳び箱","とびばこ"],["鉄棒","てつぼう"],["水泳","すいえい"]],
             school_items: [["ランドセル","らんどせる"],["筆箱","ふでばこ"],["黒板","こくばん"],["教科書","きょうかしょ"],["ノート","のーと"]],
             school_lunch: [["揚げパン","あげぱん"],["カレーライス","かれーらいす"],["ソフトめん","そふとめん"],["牛乳","ぎゅうにゅう"]],
+            english_words: [["apple","apple"],["banana","banana"],["school","school"],["pencil","pencil"],["friend","friend"]],
+            yojijukugo: [["一石二鳥","いっせきにちょう"],["十人十色","じゅうにんといろ"],["温故知新","おんこちしん"],["試行錯誤","しこうさくご"]],
+            kotowaza: [["犬も歩けば棒に当たる","いぬもあるけばぼうにあたる"],["塵も積もれば山となる","ちりもつもればやまとなる"]],
+            kanyoku: [["腹が立つ","はらがたつ"],["耳を傾ける","みみをかたむける"],["手を打つ","てをうつ"]],
+            space_astronomy: [["太陽","たいよう"],["月","つき"],["土星","どせい"],["銀河系","ぎんがけい"],["ブラックホール","ぶらっくほーる"]],
+            human_body: [["心臓","しんぞう"],["血液","けつえき"],["神経","しんけい"],["筋肉","きんにく"],["細胞","さいぼう"]],
+            elements_science: [["水素","すいそ"],["酸素","さんそ"],["二酸化炭素","にさんかたんそ"],["窒素","ちっそ"]],
+            world_history: [["ピラミッド","ぴらみっど"],["産業革命","さんぎょうかくめい"],["ルネサンス","るねさんす"]],
+            classical_quotes: [["春はあけぼの","はるはあけぼの"],["祇園精舎の鐘の声","ぎおんしょうじゃのかねのこえ"]],
+            math_theorems: [["三平方の定理","さんへいほうのていり"],["因数分解","いんすうぶんかい"],["方程式","ほうていしき"]],
+
+            // Category 3: 地理・社会 (15)
             prefectures: [["北海道","ほっかいどう"],["青森県","あおもりけん"],["岩手県","いわてけん"],["宮城県","みやぎけん"],["東京都","とうきょうと"]],
             capitals: [["札幌市","さっぽろし"],["青森市","あおもりし"],["盛岡市","もりおかし"],["仙台市","せんだいし"],["新宿区","しんじゅくく"]],
             mountains: [["富士山","ふじさん"],["北岳","きただけ"],["奥穂高岳","おくほたかだけ"],["阿蘇山","あそさん"]],
@@ -1115,11 +1231,80 @@
             europe_countries: [["イギリス","いぎりす"],["フランス","ふらんす"],["ドイツ","どいつ"],["イタリア","いたりあ"]],
             americas_oceania: [["アメリカ","あめりか"],["カナダ","かなだ"],["オーストラリア","おーすとらりあ"]],
             africa_countries: [["エジプト","えじぷと"],["ケニア","けにあ"],["南アフリカ","みなみあふりか"]],
+            world_capitals: [["ワシントン","わしんとん"],["ロンドン","ろんどん"],["パリ","ぱり"],["北京","ぺきん"]],
+            world_heritage: [["万 critical里の長城","ばんりのちょうじょう"],["マチュピチュ","まちゅぴちゅ"],["サグラダファミリア","さぐらだふぁみりあ"]],
+            japanese_castles: [["姫路城","ひめじじょう"],["松本城","まつもとじょう"],["名古屋城","なごやじょう"]],
+            shinkansen: [["のぞみ","のぞみ"],["はやぶさ","はやぶさ"],["こまち","こまち"],["かがやき","かがやき"]],
+            traditional_crafts: [["西陣織","にしじんおり"],["九谷焼","くたにやき"],["南部鉄器","なんぶてっき"]],
+            holidays_events: [["元日","がんじつ"],["こどもの日","こどものひ"],["敬老の日","けいろうのひ"]],
+
+            // Category 4: たべもの・スイーツ (15)
             sushi: [["マグロ","まぐろ"],["サーモン","さーもん"],["エビ","えび"],["イカ","いか"],["タコ","たこ"]],
             japanese_food: [["天ぷら","てんぷら"],["すき焼き","すきやき"],["刺身","さしみ"],["うどん","うどん"]],
             sweets: [["ショートケーキ","しょーとけーき"],["プリン","ぷりん"],["シュークリーム","しゅーくりーむ"]],
             vegetables: [["キャベツ","きゃべつ"],["トマト","とまと"],["キュウリ","きゅうり"],["ニンジン","にんじん"]],
-            fruits: [["リンゴ","りんご"],["バナナ","ばなな"],["イチゴ","いちご"],["ブドウ","ぶどう"]]
+            fruits: [["リンゴ","りんご"],["バナナ","ばなな"],["イチゴ","いちご"],["ブドウ","ぶどう"]],
+            chinese_food: [["餃子","ぎょうざ"],["麻婆豆腐","まーぼーどうふ"],["チャーハン","ちゃーはん"],["小籠包","しょうろんぽう"]],
+            western_food: [["ハンバーグ","はんばーぐ"],["カルボナーラ","かるぼなーら"],["オムライス","おむらいす"]],
+            fast_food: [["ハンバーガー","はんばーがー"],["フライドポテト","ふらいどぽてと"],["チキン","ちきん"]],
+            bread_bakery: [["食パン","しょくぱん"],["クロワッサン","くろわっさん"],["メロンパン","めろんぱん"]],
+            drinks: [["オレンジジュース","おれんじじゅーす"],["緑茶","りょくちゃ"],["紅茶","こうちゃ"]],
+            yakiniku: [["カルビ","かるび"],["ロース","ろーす"],["タン","たん"],["ハラミ","はらみ"]],
+            local_dishes: [["たこ焼き","たこやき"],["お好み焼き","おこのみやき"],["きりたんぽ","きりたんぽ"]],
+            world_dishes: [["パエリア","ぱえりあ"],["トムヤムクン","とむやむくん"],["フォー","ふぉー"]],
+            snacks_candies: [["ポテトチップス","ぽてとちっぷす"],["せんべい","せんべい"],["ラムネ","らむね"]],
+            spices_condiments: [["醤油","しょうゆ"],["味噌","みそ"],["わさび","わさび"],["ラー油","らーゆ"]],
+
+            // Category 5: 生き物・自然 (15)
+            land_animals: [["ライオン","らいおん"],["キリン","きりん"],["ゾウ","ぞう"],["シマウマ","しまうま"]],
+            sea_creatures: [["イルカ","いるか"],["クジラ","くじら"],["マンボウ","まんぼう"],["タコ","たこ"]],
+            birds: [["スズメ","すずめ"],["ツバメ","つばめ"],["フクロウ","ふくろう"],["ペンギン","ぺんぎん"]],
+            insects: [["カブトムシ","かぶとむし"],["クワガタ","くわがた"],["テントウムシ","てんとうむし"]],
+            dinosaurs: [["ティラノサウルス","てぃらのさうるす"],["トリケラトプス","とりけらとぷす"]],
+            dogs_cats: [["柴犬","しばいぬ"],["トイプードル","といぷーどる"],["三毛猫","みけねこ"]],
+            deep_sea: [["ダイオウグソクムシ","だいおうぐそくむし"],["リュウグウノツカイ","りゅうぐうのつかい"]],
+            plants_flowers: [["ヒマワリ","ひまわり"],["チューリップ","ちゅーりっぷ"],["タンポポ","たんぽぽ"]],
+            trees_nuts: [["ドングリ","どんぐり"],["サクラ","さくら"],["イチョウ","いちょう"]],
+            weather_climate: [["快晴","かいせい"],["夕立","ゆうだち"],["台風","たいふう"],["積乱雲","せきらんうん"]],
+            seasons_nature: [["新緑","しんりょく"],["紅葉","こうよう"],["初雪","はつゆき"],["桜前線","さくらぜんせん"]],
+            endangered_species: [["トキ","とき"],["ヤンバルクイナ","やんばるくいな"],["イリオモテヤマネコ","いりおもてやまねこ"]],
+            dangerous_animals: [["ヒグマ","ひぐま"],["スズメバチ","すずめばち"],["ハブ","はぶ"]],
+            microorganisms: [["ミドリムシ","みどりむし"],["ゾウリムシ","ぞうりむし"],["アメーバ","あめーば"]],
+            disasters_prevention: [["避難訓練","ひなんくんれん"],["防災グッズ","ぼうさいぐっず"],["地震","じしん"]],
+
+            // Category 6: 暮らし・お仕事・スポーツ (15)
+            jobs_professions: [["パイロット","ぱいろっと"],["消防士","しょうぼうし"],["医師","いし"],["警察官","けいさつかん"]],
+            baseball: [["ホームラン","ほーむらん"],["ストライク","すとらいく"],["ピッチャー","ぴっちゃー"]],
+            soccer: [["フリーキック","ふりーきっく"],["ゴールキーパー","ごーるきーぱー"],["ハットトリック","はっととりっく"]],
+            olympic_sports: [["陸上競技","りくじょうきょうぎ"],["体操","たいそう"],["フィギュアスケート","ふぃぎゅあすけーと"]],
+            home_items: [["冷蔵庫","れいぞうこ"],["洗濯機","せんたくき"],["電子レンジ","でんしれんじ"]],
+            fashion_clothes: [["Tシャツ","てぃーしゃつ"],["ジーンズ","じーんず"],["スニーカー","すにーかー"]],
+            vehicles_transport: [["パトカー","ぱとかー"],["救急車","きゅうきゅうしゃ"],["新幹線","しんかんせん"]],
+            city_buildings: [["図書館","としょかん"],["郵便局","ゆうびんきょく"],["水族館","すいぞくかん"]],
+            tools_stationery: [["ハサミ","はさみ"],["ホッチキス","ほっちきす"],["消しゴム","けしごむ"]],
+            medical_health: [["体温計","たいおんけい"],["マスク","ますく"],["うがい","うがい"]],
+            musical_instruments: [["バイオリン","ばいおりん"],["トランペット","とらんぺっと"],["ドラム","どらむ"]],
+            hobbies_leisure: [["キャンプ","きゃんぷ"],["釣り","つり"],["読書","どくしょ"],["カメラ","かめら"]],
+            laws_rules: [["信号機","しんごうき"],["横断歩道","おうだんほどう"],["ルール","るーる"]],
+            safety_traffic: [["防犯ブザー","ぼうはんぶざー"],["ヘルメット","へるめっと"],["反射板","はんしゃばん"]],
+            famous_athletes: [["金メダリスト","きんめだりすと"],["MVP","えむぶいぴー"],["プロ選手","ぷろせんしゅ"]],
+
+            // Category 7: エンタメ・物語・雑学 (15)
+            fairy_tales: [["桃太郎","ももたろう"],["浦島太郎","うらしまたろう"],["かぐや姫","かぐやひめ"]],
+            hard_kanji: [["薔薇","ばら"],["大人気","おとなげ"],["海老","えび"],["紫陽花","あじさい"]],
+            palindromes: [["竹藪焼けた","たけやぶやけた"],["しんぶんし","しんぶんし"],["たけやぶやけた","たけやぶやけた"]],
+            world_literature: [["走れメロス","はしれめろす"],["銀河鉄道の夜","ぎんがてつどうのよる"]],
+            myths_legends: [["ゼウス","ぜうす"],["ヤマタノオロチ","やまたのおろち"],["ポセイドン","ぽせいどん"]],
+            uma_aliens: [["カッパ","かっぱ"],["ツチノコ","つちのこ"],["ビッグフット","びっぐふっと"]],
+            orchestra: [["指揮者","しきしゃ"],["交響曲","こうきょうきょく"],["フルート","ふるーと"]],
+            anime_manga_terms: [["必殺技","ひっさつわざ"],["主人公","しゅじんこう"],["ライバル","らいばる"]],
+            game_terms: [["レベルアップ","れべるあっぷ"],["セーブデータ","せーぶでーた"],["裏技","うらわざ"]],
+            movies_theater: [["映画館","えいがかん"],["ポップコーン","ぽっぷこーん"],["スクリーン","すくりーん"]],
+            board_games: [["将棋","しょうぎ"],["囲碁","いご"],["オセロ","おせろ"],["チェス","ちぇす"]],
+            zodiac_birthstones: [["ダイヤモンド","だいやもんど"],["ルビー","るびー"],["サファイア","さふぁいあ"]],
+            color_names: [["茜色","あかねいろ"],["群青色","ぐんじょういろ"],["山吹色","やまぶきいろ"]],
+            famous_sweets_prefecture: [["八ツ橋","やつはし"],["もみじ饅頭","もみじまんじゅう"],["ちんすこう","ちんすこう"]],
+            trivia_quiz: [["豆知識","まめちしき"],["なるほど","なるほど"],["雑学王","ざつがくおう"]]
         };
 
         const DEFAULT_UNLOCKED = ['aiueo', 'dakuon_handakuon', 'sokuon_youon'];
