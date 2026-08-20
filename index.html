@@ -619,40 +619,44 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <script>
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'typing-rush-100';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "",
-            authDomain: "typing-rush-100.firebaseapp.com",
-            projectId: "typing-rush-100",
-            storageBucket: "typing-rush-100.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef123456"
-        };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
+        let firebaseApp = null;
+        let firebaseAuth = null;
+        let firebaseDb = null;
         let currentUser = null;
         let authInitialized = false;
 
         async function initAuth() {
             if (authInitialized) return currentUser;
             try {
+                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+                const { getAuth, signInAnonymously, signInWithCustomToken } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+                const { getFirestore } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+                    apiKey: "",
+                    authDomain: "typing-rush-100.firebaseapp.com",
+                    projectId: "typing-rush-100",
+                    storageBucket: "typing-rush-100.appspot.com",
+                    messagingSenderId: "1234567890",
+                    appId: "1:1234567890:web:abcdef123456"
+                };
+
+                firebaseApp = initializeApp(firebaseConfig);
+                firebaseAuth = getAuth(firebaseApp);
+                firebaseDb = getFirestore(firebaseApp);
+
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    const userCredential = await signInWithCustomToken(auth, __initial_auth_token);
+                    const userCredential = await signInWithCustomToken(firebaseAuth, __initial_auth_token);
                     currentUser = userCredential.user;
                 } else {
-                    const userCredential = await signInAnonymously(auth);
+                    const userCredential = await signInAnonymously(firebaseAuth);
                     currentUser = userCredential.user;
                 }
             } catch (err) {
-                console.warn("Auth initialization fallback:", err);
+                console.warn("Firebase initialization fallback (running in local multi-tab sync mode):", err);
                 currentUser = { uid: 'anon_' + Math.random().toString(36).substr(2, 9) };
             }
             authInitialized = true;
@@ -689,14 +693,6 @@
                     broadcastLocalVsRoom(roomCode, localVsRooms[roomCode]);
                 }
             };
-        }
-
-        function getVsRoomDocRef(roomId) {
-            return doc(db, 'artifacts', appId, 'public', 'data', 'vs_rooms', roomId);
-        }
-
-        function getGroupDocRef(groupId) {
-            return doc(db, 'artifacts', appId, 'public', 'data', 'groups', groupId);
         }
 
         function safeJsonParse(str, fallback) {
@@ -1298,7 +1294,7 @@
             // Category 7: エンタメ・物語・雑学 (15)
             fairy_tales: [["桃太郎","ももたろう"],["浦島太郎","うらしまたろう"],["かぐや姫","かぐやひめ"]],
             hard_kanji: [["薔薇","ばら"],["大人気","おとなげ"],["海老","えび"],["紫陽花","あじさい"]],
-            palindromes: [["竹藪焼けた","たけやぶやけた"],["しんぶんし","しんぶんし"],["たけやぶやけた","たけやぶやけた"]],
+            palindromes: [["竹藪焼けた","たけやぶやけた"],["しんぶんし","しんぶんし"]],
             world_literature: [["走れメロス","はしれめろす"],["銀河鉄道の夜","ぎんがてつどうのよる"]],
             myths_legends: [["ゼウス","ぜうす"],["ヤマタノオロチ","やまたのおろち"],["ポセイドン","ぽせいどん"]],
             uma_aliens: [["カッパ","かっぱ"],["ツチノコ","つちのこ"],["ビッグフット","びっぐふっと"]],
@@ -1371,34 +1367,43 @@
         let groupSortMode = 'score';
 
         function loadState() {
-            const saved = localStorage.getItem('typing_rush_state');
-            if (saved) {
-                const parsed = safeJsonParse(saved, null);
-                if (parsed) state = { ...state, ...parsed };
+            try {
+                const saved = localStorage.getItem('typing_rush_state');
+                if (saved) {
+                    const parsed = safeJsonParse(saved, null);
+                    if (parsed && typeof parsed === 'object') {
+                        state = { ...state, ...parsed };
+                    }
+                }
+            } catch (e) {
+                console.warn("LocalStorage load error:", e);
             }
-            if (!state.unlockedCourses || state.unlockedCourses.length === 0) {
+
+            if (!Array.isArray(state.unlockedCourses) || state.unlockedCourses.length === 0) {
                 state.unlockedCourses = [...DEFAULT_UNLOCKED];
             }
-            state.highScores = state.highScores || {};
-            state.coursePlayCounts = state.coursePlayCounts || {};
-            state.courseTotalScores = state.courseTotalScores || {};
-            state.courseMaxWpm = state.courseMaxWpm || {};
-            state.missedKeyCounts = state.missedKeyCounts || {};
-            state.joinedGroupIds = state.joinedGroupIds || [];
+            if (!state.highScores || typeof state.highScores !== 'object') state.highScores = {};
+            if (!state.coursePlayCounts || typeof state.coursePlayCounts !== 'object') state.coursePlayCounts = {};
+            if (!state.courseTotalScores || typeof state.courseTotalScores !== 'object') state.courseTotalScores = {};
+            if (!state.courseMaxWpm || typeof state.courseMaxWpm !== 'object') state.courseMaxWpm = {};
+            if (!state.missedKeyCounts || typeof state.missedKeyCounts !== 'object') state.missedKeyCounts = {};
+            if (!Array.isArray(state.joinedGroupIds)) state.joinedGroupIds = [];
             if (!state.userNickname) state.userNickname = getRandomNickname();
 
-            const lastLogin = localStorage.getItem('typing_rush_last_login_date');
-            const today = new Date().toDateString();
-            if (lastLogin !== today) {
-                const yesterday = new Date(Date.now() - 86400000).toDateString();
-                if (lastLogin === yesterday) {
-                    state.loginStreak = (state.loginStreak || 1) + 1;
-                } else if (lastLogin) {
-                    state.loginStreak = 1;
+            try {
+                const lastLogin = localStorage.getItem('typing_rush_last_login_date');
+                const today = new Date().toDateString();
+                if (lastLogin !== today) {
+                    const yesterday = new Date(Date.now() - 86400000).toDateString();
+                    if (lastLogin === yesterday) {
+                        state.loginStreak = (state.loginStreak || 1) + 1;
+                    } else if (lastLogin) {
+                        state.loginStreak = 1;
+                    }
+                    localStorage.setItem('typing_rush_last_login_date', today);
+                    saveState();
                 }
-                localStorage.setItem('typing_rush_last_login_date', today);
-                saveState();
-            }
+            } catch (e) {}
         }
 
         function saveState() {
@@ -1444,6 +1449,10 @@
             const container = document.getElementById('categories-container');
             if (!container) return;
             container.innerHTML = '';
+
+            if (!Array.isArray(state.unlockedCourses)) {
+                state.unlockedCourses = [...DEFAULT_UNLOCKED];
+            }
 
             if (state.viewMode === 'categories') {
                 COURSE_CATEGORIES.forEach(cat => {
@@ -1836,29 +1845,32 @@
 
         async function syncGameStatsToGroups(finalScore) {
             await initAuth();
-            const uId = auth.currentUser?.uid;
+            const uId = currentUser?.uid;
             if (!uId || !state.joinedGroupIds || state.joinedGroupIds.length === 0) return;
 
             const dateStr = new Date().toLocaleDateString('ja-JP', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
 
             state.joinedGroupIds.forEach(async (gId) => {
                 try {
-                    const gRef = getGroupDocRef(gId);
-                    const snap = await getDoc(gRef);
-                    if (snap.exists()) {
-                        const gData = snap.data();
-                        if (gData.members && gData.members[uId]) {
-                            const curTotal = gData.members[uId].totalScore || 0;
-                            await updateDoc(gRef, {
-                                [`members.${uId}.totalScore`]: curTotal + finalScore,
-                                [`members.${uId}.lastScore`]: finalScore,
-                                [`members.${uId}.lastPlayedAt`]: dateStr,
-                                [`members.${uId}.nickname`]: state.userNickname
-                            });
+                    if (firebaseDb) {
+                        const { doc, getDoc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                        const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', gId);
+                        const snap = await getDoc(gRef);
+                        if (snap.exists()) {
+                            const gData = snap.data();
+                            if (gData.members && gData.members[uId]) {
+                                const curTotal = gData.members[uId].totalScore || 0;
+                                await updateDoc(gRef, {
+                                    [`members.${uId}.totalScore`]: curTotal + finalScore,
+                                    [`members.${uId}.lastScore`]: finalScore,
+                                    [`members.${uId}.lastPlayedAt`]: dateStr,
+                                    [`members.${uId}.nickname`]: state.userNickname
+                                });
+                            }
                         }
                     }
                 } catch (e) {
-                    console.warn("Group sync update error:", e);
+                    console.warn("Group sync update warning:", e);
                 }
             });
         }
@@ -1912,7 +1924,9 @@
                 }
 
                 sound.playFanfare();
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                try {
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                } catch(e) {}
 
                 document.getElementById('result-modal').classList.remove('hidden');
                 checkAndTriggerUnlockCeremony();
@@ -1961,7 +1975,7 @@
             state.userNickname = nickname;
             saveState();
 
-            vsUserId = auth.currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
+            vsUserId = currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
             vsIsHost = true;
 
             const codeChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -1997,10 +2011,13 @@
             broadcastLocalVsRoom(vsRoomId, initialData);
 
             try {
-                const roomRef = getVsRoomDocRef(vsRoomId);
-                await setDoc(roomRef, initialData);
+                if (firebaseDb) {
+                    const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
+                    await setDoc(roomRef, initialData);
+                }
             } catch (e) {
-                console.warn("Firestore setDoc failed, operating in local hybrid mode:", e);
+                console.warn("Firestore setDoc failed, operating in local mode:", e);
             }
 
             subscribeVsRoom(vsRoomId);
@@ -2026,21 +2043,22 @@
             state.userNickname = nickname;
             saveState();
 
-            vsUserId = auth.currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
+            vsUserId = currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
             vsIsHost = false;
             vsRoomId = code;
 
             let room = null;
 
             try {
-                const roomRef = getVsRoomDocRef(code);
-                const snapshot = await getDoc(roomRef);
-                if (snapshot.exists()) {
-                    room = snapshot.data();
+                if (firebaseDb) {
+                    const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', code);
+                    const snapshot = await getDoc(roomRef);
+                    if (snapshot.exists()) {
+                        room = snapshot.data();
+                    }
                 }
-            } catch (e) {
-                console.warn("Firestore getDoc failed, attempting local store check:", e);
-            }
+            } catch (e) {}
 
             if (!room) {
                 room = localVsRooms[code];
@@ -2075,20 +2093,24 @@
             broadcastLocalVsRoom(code, room);
 
             try {
-                const roomRef = getVsRoomDocRef(code);
-                await updateDoc(roomRef, {
-                    [`members.${vsUserId}`]: room.members[vsUserId]
-                });
-            } catch (e) {
-                console.warn("Firestore updateDoc failed during join:", e);
-            }
+                if (firebaseDb) {
+                    const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', code);
+                    await updateDoc(roomRef, {
+                        [`members.${vsUserId}`]: room.members[vsUserId]
+                    });
+                }
+            } catch (e) {}
 
             subscribeVsRoom(vsRoomId);
             enterVsRoomUI();
         }
 
         function subscribeVsRoom(roomId) {
-            if (vsUnsubscribe) vsUnsubscribe();
+            if (vsUnsubscribe) {
+                vsUnsubscribe();
+                vsUnsubscribe = null;
+            }
 
             window.onLocalVsRoomUpdate = (updatedData) => {
                 if (!updatedData) {
@@ -2130,32 +2152,32 @@
             };
 
             try {
-                const roomRef = getVsRoomDocRef(roomId);
-                vsUnsubscribe = onSnapshot(roomRef, (snapshot) => {
-                    if (!snapshot.exists()) {
-                        if (localVsRooms[roomId]) {
-                            window.onLocalVsRoomUpdate(localVsRooms[roomId]);
-                        } else {
-                            window.onLocalVsRoomUpdate(null);
-                        }
-                        return;
-                    }
+                if (firebaseDb) {
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, onSnapshot }) => {
+                        const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', roomId);
+                        vsUnsubscribe = onSnapshot(roomRef, (snapshot) => {
+                            if (!snapshot.exists()) {
+                                if (localVsRooms[roomId]) {
+                                    window.onLocalVsRoomUpdate(localVsRooms[roomId]);
+                                } else {
+                                    window.onLocalVsRoomUpdate(null);
+                                }
+                                return;
+                            }
 
-                    const updated = snapshot.data();
-                    localVsRooms[roomId] = updated;
-                    broadcastLocalVsRoom(roomId, updated);
-                    window.onLocalVsRoomUpdate(updated);
-                }, (error) => {
-                    console.warn("Firestore snapshot error, using local channel fallback:", error);
-                    if (localVsRooms[roomId]) {
-                        window.onLocalVsRoomUpdate(localVsRooms[roomId]);
-                    }
-                });
-            } catch (e) {
-                console.warn("Subscribe Firestore failed, operating in local mode:", e);
-                if (localVsRooms[roomId]) {
+                            const updated = snapshot.data();
+                            localVsRooms[roomId] = updated;
+                            broadcastLocalVsRoom(roomId, updated);
+                            window.onLocalVsRoomUpdate(updated);
+                        }, () => {
+                            if (localVsRooms[roomId]) window.onLocalVsRoomUpdate(localVsRooms[roomId]);
+                        });
+                    });
+                } else if (localVsRooms[roomId]) {
                     window.onLocalVsRoomUpdate(localVsRooms[roomId]);
                 }
+            } catch (e) {
+                if (localVsRooms[roomId]) window.onLocalVsRoomUpdate(localVsRooms[roomId]);
             }
         }
 
@@ -2256,22 +2278,25 @@
             }
 
             try {
-                const roomRef = getVsRoomDocRef(vsRoomId);
-                const snapshot = await getDoc(roomRef);
-                if (snapshot.exists()) {
-                    const room = snapshot.data();
-                    room.status = 'playing';
-                    room.courseId = courseId;
-                    room.firstFinishTime = null;
-                    room.firstFinishName = null;
+                if (firebaseDb) {
+                    const { doc, getDoc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
+                    const snapshot = await getDoc(roomRef);
+                    if (snapshot.exists()) {
+                        const room = snapshot.data();
+                        room.status = 'playing';
+                        room.courseId = courseId;
+                        room.firstFinishTime = null;
+                        room.firstFinishName = null;
 
-                    Object.keys(room.members).forEach(id => {
-                        room.members[id].score = 0;
-                        room.members[id].wpm = 0;
-                        room.members[id].finished = false;
-                    });
+                        Object.keys(room.members).forEach(id => {
+                            room.members[id].score = 0;
+                            room.members[id].wpm = 0;
+                            room.members[id].finished = false;
+                        });
 
-                    await setDoc(roomRef, room);
+                        await setDoc(roomRef, room);
+                    }
                 }
             } catch (e) {}
         }
@@ -2283,10 +2308,13 @@
                 broadcastLocalVsRoom(vsRoomId, vsRoomData);
             }
             try {
-                const roomRef = getVsRoomDocRef(vsRoomId);
-                await updateDoc(roomRef, {
-                    [`members.${vsUserId}.score`]: game.score
-                });
+                if (firebaseDb) {
+                    const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
+                    await updateDoc(roomRef, {
+                        [`members.${vsUserId}.score`]: game.score
+                    });
+                }
             } catch (e) {}
         }
 
@@ -2331,24 +2359,27 @@
                 }
 
                 try {
-                    const roomRef = getVsRoomDocRef(vsRoomId);
-                    const snapshot = await getDoc(roomRef);
-                    if (snapshot.exists()) {
-                        const room = snapshot.data();
-                        room.members[vsUserId].score = finalScore;
-                        room.members[vsUserId].wpm = wpm;
-                        room.members[vsUserId].finished = true;
+                    if (firebaseDb) {
+                        const { doc, getDoc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                        const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
+                        const snapshot = await getDoc(roomRef);
+                        if (snapshot.exists()) {
+                            const room = snapshot.data();
+                            room.members[vsUserId].score = finalScore;
+                            room.members[vsUserId].wpm = wpm;
+                            room.members[vsUserId].finished = true;
 
-                        let updatePayload = {
-                            [`members.${vsUserId}`]: room.members[vsUserId]
-                        };
+                            let updatePayload = {
+                                [`members.${vsUserId}`]: room.members[vsUserId]
+                            };
 
-                        if (!room.firstFinishTime) {
-                            updatePayload.firstFinishTime = Date.now();
-                            updatePayload.firstFinishName = vsUserNickname;
+                            if (!room.firstFinishTime) {
+                                updatePayload.firstFinishTime = Date.now();
+                                updatePayload.firstFinishName = vsUserNickname;
+                            }
+
+                            await updateDoc(roomRef, updatePayload);
                         }
-
-                        await updateDoc(roomRef, updatePayload);
                     }
                 } catch (e) {}
             }
@@ -2374,7 +2405,7 @@
                 } else if (myRank === 1) {
                     headline.textContent = '🎉 勝ち！';
                     headline.className = 'text-3xl sm:text-4xl font-black mb-2 text-amber-500';
-                    confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+                    try { confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } }); } catch(e){}
                 } else {
                     headline.textContent = '😭 負け...';
                     headline.className = 'text-3xl sm:text-4xl font-black mb-2 text-slate-500';
@@ -2426,22 +2457,25 @@
                 }
 
                 try {
-                    const roomRef = getVsRoomDocRef(vsRoomId);
-                    const snapshot = await getDoc(roomRef);
+                    if (firebaseDb) {
+                        const { doc, getDoc, updateDoc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                        const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
+                        const snapshot = await getDoc(roomRef);
 
-                    if (snapshot.exists()) {
-                        const room = snapshot.data();
-                        
-                        if (vsIsHost) {
-                            await deleteDoc(roomRef);
-                        } else {
-                            delete room.members[vsUserId];
-                            const remainingGuests = Object.values(room.members).filter(m => !m.isHost).length;
+                        if (snapshot.exists()) {
+                            const room = snapshot.data();
                             
-                            if (remainingGuests === 0) {
+                            if (vsIsHost) {
                                 await deleteDoc(roomRef);
                             } else {
-                                await updateDoc(roomRef, { members: room.members });
+                                delete room.members[vsUserId];
+                                const remainingGuests = Object.values(room.members).filter(m => !m.isHost).length;
+                                
+                                if (remainingGuests === 0) {
+                                    await deleteDoc(roomRef);
+                                } else {
+                                    await updateDoc(roomRef, { members: room.members });
+                                }
                             }
                         }
                     }
@@ -2456,7 +2490,7 @@
 
         async function createGroup() {
             await initAuth();
-            const uId = auth.currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
+            const uId = currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
             const nickname = document.getElementById('group-user-nickname').value.trim() || getRandomNickname();
 
             state.userNickname = nickname;
@@ -2494,8 +2528,11 @@
             };
 
             try {
-                const gRef = getGroupDocRef(gCode);
-                await setDoc(gRef, initialGroup);
+                if (firebaseDb) {
+                    const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', gCode);
+                    await setDoc(gRef, initialGroup);
+                }
 
                 if (!state.joinedGroupIds.includes(gCode)) {
                     state.joinedGroupIds.push(gCode);
@@ -2520,37 +2557,40 @@
                 return;
             }
 
-            const uId = auth.currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
+            const uId = currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
             const nickname = document.getElementById('group-user-nickname').value.trim() || getRandomNickname();
 
             state.userNickname = nickname;
             saveState();
 
             try {
-                const gRef = getGroupDocRef(gCode);
-                const snap = await getDoc(gRef);
+                if (firebaseDb) {
+                    const { doc, getDoc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', gCode);
+                    const snap = await getDoc(gRef);
 
-                if (!snap.exists()) {
-                    showMessage("指定されたグループが見つかりません。");
-                    return;
+                    if (!snap.exists()) {
+                        showMessage("指定されたグループが見つかりません。");
+                        return;
+                    }
+
+                    const gData = snap.data();
+                    const members = gData.members || {};
+                    const currentMemberCount = Object.keys(members).length;
+
+                    members[uId] = members[uId] || {
+                        id: uId,
+                        nickname: nickname,
+                        isOwner: (gData.ownerId === uId),
+                        totalScore: state.totalScore || 0,
+                        lastScore: 0,
+                        lastPlayedAt: '-',
+                        memo: '',
+                        order: currentMemberCount + 1
+                    };
+
+                    await updateDoc(gRef, { [`members.${uId}`]: members[uId] });
                 }
-
-                const gData = snap.data();
-                const members = gData.members || {};
-                const currentMemberCount = Object.keys(members).length;
-
-                members[uId] = members[uId] || {
-                    id: uId,
-                    nickname: nickname,
-                    isOwner: (gData.ownerId === uId),
-                    totalScore: state.totalScore || 0,
-                    lastScore: 0,
-                    lastPlayedAt: '-',
-                    memo: '',
-                    order: currentMemberCount + 1
-                };
-
-                await updateDoc(gRef, { [`members.${uId}`]: members[uId] });
 
                 if (!state.joinedGroupIds.includes(gCode)) {
                     state.joinedGroupIds.push(gCode);
@@ -2569,22 +2609,25 @@
         async function leaveCurrentGroup() {
             if (!state.selectedGroupId) return;
             await initAuth();
-            const uId = auth.currentUser?.uid;
+            const uId = currentUser?.uid;
             const gCode = state.selectedGroupId;
 
             try {
-                const gRef = getGroupDocRef(gCode);
-                const snap = await getDoc(gRef);
+                if (firebaseDb) {
+                    const { doc, getDoc, updateDoc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', gCode);
+                    const snap = await getDoc(gRef);
 
-                if (snap.exists()) {
-                    const gData = snap.data();
-                    if (gData.members && gData.members[uId]) {
-                        delete gData.members[uId];
-                        const remaining = Object.keys(gData.members).length;
-                        if (remaining === 0) {
-                            await deleteDoc(gRef);
-                        } else {
-                            await updateDoc(gRef, { members: gData.members });
+                    if (snap.exists()) {
+                        const gData = snap.data();
+                        if (gData.members && gData.members[uId]) {
+                            delete gData.members[uId];
+                            const remaining = Object.keys(gData.members).length;
+                            if (remaining === 0) {
+                                await deleteDoc(gRef);
+                            } else {
+                                await updateDoc(gRef, { members: gData.members });
+                            }
                         }
                     }
                 }
@@ -2606,27 +2649,30 @@
 
             if (!gCode) return;
 
-            const gRef = getGroupDocRef(gCode);
-            groupUnsubscribe = onSnapshot(gRef, (snap) => {
-                if (!snap.exists()) {
-                    activeGroupData = null;
-                    state.joinedGroupIds = state.joinedGroupIds.filter(id => id !== gCode);
-                    state.selectedGroupId = state.joinedGroupIds[0] || '';
-                    saveState();
-                    renderGroupModal();
-                    return;
-                }
+            try {
+                if (firebaseDb) {
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, onSnapshot }) => {
+                        const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', gCode);
+                        groupUnsubscribe = onSnapshot(gRef, (snap) => {
+                            if (!snap.exists()) {
+                                activeGroupData = null;
+                                state.joinedGroupIds = state.joinedGroupIds.filter(id => id !== gCode);
+                                state.selectedGroupId = state.joinedGroupIds[0] || '';
+                                saveState();
+                                renderGroupModal();
+                                return;
+                            }
 
-                activeGroupData = snap.data();
-                updateGroupModalContent();
-            }, (err) => {
-                console.warn("Group snapshot error:", err);
-            });
+                            activeGroupData = snap.data();
+                            updateGroupModalContent();
+                        });
+                    });
+                }
+            } catch(e) {}
         }
 
         async function renderGroupModal() {
             await initAuth();
-            const uId = auth.currentUser?.uid;
 
             document.getElementById('group-user-nickname').value = state.userNickname || getRandomNickname();
 
@@ -2655,7 +2701,7 @@
 
         function updateGroupModalContent() {
             if (!activeGroupData) return;
-            const uId = auth.currentUser?.uid;
+            const uId = currentUser?.uid;
             const isOwner = (activeGroupData.ownerId === uId);
 
             document.getElementById('group-display-name').textContent = activeGroupData.name || 'グループ';
@@ -2754,8 +2800,11 @@
                         const targetId = e.target.dataset.memberId;
                         const val = e.target.value.trim();
                         try {
-                            const gRef = getGroupDocRef(activeGroupData.code);
-                            await updateDoc(gRef, { [`members.${targetId}.memo`]: val });
+                            if (firebaseDb) {
+                                const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                                const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', activeGroupData.code);
+                                await updateDoc(gRef, { [`members.${targetId}.memo`]: val });
+                            }
                         } catch (err) {}
                     };
                 });
@@ -2779,8 +2828,11 @@
                             });
 
                             try {
-                                const gRef = getGroupDocRef(activeGroupData.code);
-                                await updateDoc(gRef, updates);
+                                if (firebaseDb) {
+                                    const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                                    const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', activeGroupData.code);
+                                    await updateDoc(gRef, updates);
+                                }
                             } catch (err) {}
                         }
                     };
@@ -2789,10 +2841,13 @@
         }
 
         async function updateGroupPrivacySettings(key, value) {
-            if (!activeGroupData || activeGroupData.ownerId !== auth.currentUser?.uid) return;
+            if (!activeGroupData || activeGroupData.ownerId !== currentUser?.uid) return;
             try {
-                const gRef = getGroupDocRef(activeGroupData.code);
-                await updateDoc(gRef, { [`settings.${key}`]: value });
+                if (firebaseDb) {
+                    const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', activeGroupData.code);
+                    await updateDoc(gRef, { [`settings.${key}`]: value });
+                }
             } catch (e) {}
         }
 
@@ -2898,7 +2953,7 @@
 
                             titleEl.innerHTML = `<span class="text-emerald-600 font-black">✨ 解放！ ${renderRubyTitle(selected.name)} ✨</span>`;
                             sound.playFanfare();
-                            confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+                            try { confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } }); } catch(e){}
 
                             setTimeout(() => {
                                 modal.classList.add('hidden');
@@ -3226,12 +3281,15 @@
                         broadcastLocalVsRoom(vsRoomId, vsRoomData);
                     }
                     try {
-                        const roomRef = getVsRoomDocRef(vsRoomId);
-                        await updateDoc(roomRef, {
-                            status: 'waiting',
-                            firstFinishTime: null,
-                            firstFinishName: null
-                        });
+                        if (firebaseDb) {
+                            const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                            const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
+                            await updateDoc(roomRef, {
+                                status: 'waiting',
+                                firstFinishTime: null,
+                                firstFinishName: null
+                            });
+                        }
                     } catch (e) {}
                 }
             };
@@ -3249,12 +3307,15 @@
                         broadcastLocalVsRoom(vsRoomId, vsRoomData);
                     }
                     try {
-                        const roomRef = getVsRoomDocRef(vsRoomId);
-                        await updateDoc(roomRef, {
-                            status: 'waiting',
-                            firstFinishTime: null,
-                            firstFinishName: null
-                        });
+                        if (firebaseDb) {
+                            const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                            const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
+                            await updateDoc(roomRef, {
+                                status: 'waiting',
+                                firstFinishTime: null,
+                                firstFinishName: null
+                            });
+                        }
                     } catch (e) {}
                 }
             };
@@ -3282,9 +3343,9 @@
             checkAndTriggerUnlockCeremony();
         }
 
-        // Universal Document Load Handling for GitHub Pages and Module Execution
+        // Guaranteed execution logic for GitHub Pages and all web server environments
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            mainInit();
+            setTimeout(mainInit, 0);
         } else {
             window.addEventListener('DOMContentLoaded', mainInit);
         }
