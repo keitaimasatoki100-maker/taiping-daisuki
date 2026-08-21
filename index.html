@@ -169,7 +169,7 @@
             <div id="vs-lobby-view" class="flex-1 bg-white/80 backdrop-blur p-4 sm:p-6 rounded-3xl shadow-sm border border-white flex flex-col justify-center max-w-xl mx-auto w-full">
                 <div class="text-center mb-6">
                     <h2 class="text-xl sm:text-2xl font-black text-slate-800 mb-1">対戦部屋に入る・作る</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 font-bold">スマホやパソコン同士でオンライン対戦！</p>
+                    <p class="text-xs sm:text-sm text-slate-500 font-bold">スマホやパソコン同士でオンライン対戦！（最大40人以上）</p>
                 </div>
 
                 <div class="space-y-4">
@@ -186,7 +186,7 @@
 
                     <!-- Create Room Button -->
                     <button id="vs-create-room-btn" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-extrabold py-3.5 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus-circle text-lg"></i> 新しく部屋を作る
+                        <i class="fa-solid fa-plus-circle text-lg"></i> 新しく部屋を作る（対戦オーナー）
                     </button>
 
                     <div class="relative flex py-1 items-center">
@@ -221,11 +221,11 @@
                     </button>
                 </div>
 
-                <!-- Course Selection (Host only) -->
+                <!-- Course Selection (Host only / Guest view) -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 mb-4 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
                         <label class="text-xs font-bold text-slate-700 flex items-center gap-1">
-                            <i class="fa-solid fa-book-open text-indigo-500"></i> 対戦コースを選んでね
+                            <i class="fa-solid fa-book-open text-indigo-500"></i> 対戦コース（参加者の誰かが解放していれば選択可）
                         </label>
                         <div id="vs-course-picker-controls" class="flex gap-2">
                             <button id="vs-random-course-btn" class="hidden text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 font-extrabold px-3 py-1 rounded-xl border border-amber-300 transition">
@@ -255,10 +255,10 @@
                         <i class="fa-solid fa-flag-checkered mr-2"></i> 全員で対戦スタート！
                     </button>
                     <div id="vs-guest-waiting-msg" class="hidden text-center py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-bold">
-                        <i class="fa-solid fa-spinner fa-spin mr-1.5"></i>オーナーが対戦をスタートするのを待っています...
+                        <i class="fa-solid fa-spinner fa-spin mr-1.5"></i>対戦オーナーがコースを選んでスタートするのを待っています...
                     </div>
                     <button id="vs-leave-room-btn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-2xl border border-slate-300 transition text-sm">
-                        対戦をやめる
+                        対戦をやめる（部屋から退出）
                     </button>
                 </div>
             </div>
@@ -593,7 +593,7 @@
         </div>
     </div>
 
-    <!-- VS RESULT MODAL (Multiplayer) -->
+    <!-- VS RESULT MODAL (Multiplayer Specification ⑥ & ⑦) -->
     <div id="vs-result-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-lg w-full p-6 text-center relative overflow-hidden">
             <div id="vs-outcome-headline" class="text-3xl sm:text-4xl font-black mb-2 text-purple-600">
@@ -610,7 +610,7 @@
 
             <div class="space-y-2">
                 <button id="vs-rematch-btn" class="hidden w-full bg-gradient-to-r from-amber-400 to-rose-500 hover:from-amber-500 hover:to-rose-600 text-white font-extrabold py-3 rounded-xl shadow-md transition transform active:scale-95 text-base">
-                    <i class="fa-solid fa-rotate-right mr-1"></i> コースを選んでもう1回スタート！
+                    <i class="fa-solid fa-rotate-right mr-1"></i> もう1回（コースを選び直す）
                 </button>
                 <button id="vs-return-lobby-btn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl border border-slate-300 transition text-sm">
                     対戦部屋にもどる
@@ -1194,14 +1194,11 @@
         ];
 
         const WORD_DATA = {
-            // Category 1: れんしゅう (5)
             aiueo: [["あいうえお","あいうえお"],["かきくけこ","かきくけこ"],["さしすせそ","さしすせそ"],["たちつてと","たちつてと"],["なにぬねの","なにぬねの"],["はひふへほ","はひふへほ"],["まみむめも","まみむめも"],["やゆよ","やゆよ"],["らりるれろ","らりるれろ"],["わをん","わをん"]],
             dakuon_handakuon: [["がぎぐげご","がぎぐげご"],["ざじずぜぞ","ざじずぜぞ"],["だぢづでど","だぢづでど"],["ばびぶべぼ","ばびぶべぼ"],["ぱぴぷぺぽ","ぱぴぷぺぽ"]],
             sokuon_youon: [["きゃきゅきょ","きゃきゅきょ"],["しゃしゅしょ","しゃしゅしょ"],["ちゃちゅちょ","ちゃちゅちょ"],["学校","がっこう"],["切手","きって"],["雑誌","ざっし"]],
             alphabet_symbols: [["abcdefg","abcdefg"],["hijklmn","hijklmn"],["opqrstu","opqrstu"],["vwxyz","vwxyz"]],
             romaji_train: [["かさ","かさ"],["つくえ","つくえ"],["はな","はな"],["そら","そら"],["うみ","うみ"]],
-
-            // Category 2: 教科・学習 (20)
             kokugo: [["国語","こくご"],["漢字","かんじ"],["文章","ぶんしょう"],["音読","おんどく"],["段落","だんらく"]],
             sansu: [["算数","さんすう"],["足し算","たしざん"],["引き算","ひきざん"],["掛け算","かけざん"],["割り算","わりざん"]],
             rika: [["理科","りか"],["実験","じっけん"],["観察","かんさつ"],["昆虫","こんちゅう"],["水溶液","すいようえき"]],
@@ -1222,8 +1219,6 @@
             world_history: [["ピラミッド","ぴらみっど"],["産業革命","さんぎょうかくめい"],["ルネサンス","るねさんす"]],
             classical_quotes: [["春はあけぼの","はるはあけぼの"],["祇園精舎の鐘の声","ぎおんしょうじゃのかねのこえ"]],
             math_theorems: [["三平方の定理","さんへいほうのていり"],["因数分解","いんすうぶんかい"],["方程式","ほうていしき"]],
-
-            // Category 3: 地理・社会 (15)
             prefectures: [["北海道","ほっかいどう"],["青森県","あおもりけん"],["岩手県","いわてけん"],["宮城県","みやぎけん"],["東京都","とうきょうと"]],
             capitals: [["札幌市","さっぽろし"],["青森市","あおもりし"],["盛岡市","もりおかし"],["仙台市","せんだいし"],["新宿区","しんじゅくく"]],
             mountains: [["富士山","ふじさん"],["北岳","きただけ"],["奥穂高岳","おくほたかだけ"],["阿蘇山","あそさん"]],
@@ -1239,8 +1234,6 @@
             shinkansen: [["のぞみ","のぞみ"],["はやぶさ","はやぶさ"],["こまち","こまち"],["かがやき","かがやき"]],
             traditional_crafts: [["西陣織","にしじんおり"],["九谷焼","くたにやき"],["南部鉄器","なんぶてっき"]],
             holidays_events: [["元日","がんじつ"],["こどもの日","こどものひ"],["敬老の日","けいろうのひ"]],
-
-            // Category 4: たべもの・スイーツ (15)
             sushi: [["マグロ","まぐろ"],["サーモン","さーもん"],["エビ","えび"],["イカ","いか"],["タコ","たこ"]],
             japanese_food: [["天ぷら","てんぷら"],["すき焼き","すきやき"],["刺身","さしみ"],["うどん","うどん"]],
             sweets: [["ショートケーキ","しょーとけーき"],["プリン","ぷりん"],["シュークリーム","しゅーくりーむ"]],
@@ -1256,8 +1249,6 @@
             world_dishes: [["パエリア","ぱえりあ"],["トムヤムクン","とむやむくん"],["フォー","ふぉー"]],
             snacks_candies: [["ポテトチップス","ぽてとちっぷす"],["せんべい","せんべい"],["ラムネ","らむね"]],
             spices_condiments: [["醤油","しょうゆ"],["味噌","みそ"],["わさび","わさび"],["ラー油","らーゆ"]],
-
-            // Category 5: 生き物・自然 (15)
             land_animals: [["ライオン","らいおん"],["キリン","きりん"],["ゾウ","ぞう"],["シマウマ","しまうま"]],
             sea_creatures: [["イルカ","いるか"],["クジラ","くじら"],["マンボウ","まんぼう"],["タコ","たこ"]],
             birds: [["スズメ","すずめ"],["ツバメ","つばめ"],["フクロウ","ふくろう"],["ペンギン","ぺんぎん"]],
@@ -1273,8 +1264,6 @@
             dangerous_animals: [["ヒグマ","ひぐま"],["スズメバチ","すずめばち"],["ハブ","はぶ"]],
             microorganisms: [["ミドリムシ","みどりむし"],["ゾウリムシ","ぞうりむし"],["アメーバ","あめーば"]],
             disasters_prevention: [["避難訓練","ひなんくんれん"],["防災グッズ","ぼうさいぐっず"],["地震","じしん"]],
-
-            // Category 6: 暮らし・お仕事・スポーツ (15)
             jobs_professions: [["パイロット","ぱいろっと"],["消防士","しょうぼうし"],["医師","いし"],["警察官","けいさつかん"]],
             baseball: [["ホームラン","ほーむらん"],["ストライク","すとらいく"],["ピッチャー","ぴっちゃー"]],
             soccer: [["フリーキック","ふりーきっく"],["ゴールキーパー","ごーるきーぱー"],["ハットトリック","はっととりっく"]],
@@ -1290,8 +1279,6 @@
             laws_rules: [["信号機","しんごうき"],["横断歩道","おうだんほどう"],["ルール","るーる"]],
             safety_traffic: [["防犯ブザー","ぼうはんぶざー"],["ヘルメット","へるめっと"],["反射板","はんしゃばん"]],
             famous_athletes: [["金メダリスト","きんめだりすと"],["MVP","えむぶいぴー"],["プロ選手","ぷろせんしゅ"]],
-
-            // Category 7: エンタメ・物語・雑学 (15)
             fairy_tales: [["桃太郎","ももたろう"],["浦島太郎","うらしまたろう"],["かぐや姫","かぐやひめ"]],
             hard_kanji: [["薔薇","ばら"],["大人気","おとなげ"],["海老","えび"],["紫陽花","あじさい"]],
             palindromes: [["竹藪焼けた","たけやぶやけた"],["しんぶんし","しんぶんし"]],
@@ -1963,6 +1950,7 @@
             }
         }
 
+        // Specification ②: Create Room with 8-character random code
         async function createVsRoom() {
             await initAuth();
             const nickname = document.getElementById('vs-nickname-input').value.trim();
@@ -2024,6 +2012,7 @@
             enterVsRoomUI();
         }
 
+        // Specification ②: Join Room using code & nickname
         async function joinVsRoom() {
             await initAuth();
             const nickname = document.getElementById('vs-nickname-input').value.trim();
@@ -2064,7 +2053,7 @@
                 room = localVsRooms[code];
                 if (!room && vsChannel) {
                     vsChannel.postMessage({ type: 'REQ_VS_ROOM', roomCode: code });
-                    await new Promise(r => setTimeout(r, 200));
+                    await new Promise(r => setTimeout(r, 250));
                     room = localVsRooms[code];
                 }
             }
@@ -2079,6 +2068,7 @@
                 return;
             }
 
+            // Specification ③: Support up to 40+ members
             room.members[vsUserId] = {
                 id: vsUserId,
                 name: vsUserNickname,
@@ -2106,6 +2096,7 @@
             enterVsRoomUI();
         }
 
+        // Specification ③ & ⑧: Realtime sync listener across devices
         function subscribeVsRoom(roomId) {
             if (vsUnsubscribe) {
                 vsUnsubscribe();
@@ -2113,17 +2104,11 @@
             }
 
             window.onLocalVsRoomUpdate = (updatedData) => {
-                if (!updatedData) {
+                if (!updatedData || updatedData.status === 'closed') {
                     if (vsRoomData && vsRoomData.status !== 'closed') {
                         showMessage("対戦部屋が解散されました。");
                         exitToTop();
                     }
-                    return;
-                }
-
-                if (updatedData.status === 'closed') {
-                    showMessage("対戦部屋が閉じられました。");
-                    exitToTop();
                     return;
                 }
 
@@ -2201,6 +2186,7 @@
             updateVsRoomUI();
         }
 
+        // Specification ⑤: Course Selection Logic (Unlocked by ANY member in the room)
         function updateVsRoomUI() {
             if (!vsRoomData) return;
 
@@ -2223,6 +2209,7 @@
             const allCourses = [];
             COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
 
+            // UNION of all unlocked courses by ANY member in the room
             let unionUnlocked = new Set();
             members.forEach(m => {
                 if (m.unlocked && Array.isArray(m.unlocked)) {
@@ -2235,29 +2222,34 @@
             courseSelect.innerHTML = '';
 
             allCourses.forEach(c => {
-                if (unionUnlocked.has(c.id)) {
-                    const opt = document.createElement('option');
-                    opt.value = c.id;
-                    opt.textContent = getPlainTitle(c.name);
-                    courseSelect.appendChild(opt);
-                }
+                const isAvailable = unionUnlocked.has(c.id);
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.disabled = !isAvailable;
+                opt.textContent = (isAvailable ? '' : '🔒 ') + getPlainTitle(c.name);
+                courseSelect.appendChild(opt);
             });
 
             if (currentSelectedVal && unionUnlocked.has(currentSelectedVal)) {
                 courseSelect.value = currentSelectedVal;
-            } else if (vsRoomData.courseId) {
+            } else if (vsRoomData.courseId && unionUnlocked.has(vsRoomData.courseId)) {
                 courseSelect.value = vsRoomData.courseId;
+            } else {
+                // Default to first available unlocked course
+                const firstAvailable = allCourses.find(c => unionUnlocked.has(c.id));
+                if (firstAvailable) courseSelect.value = firstAvailable.id;
             }
 
             if (!vsIsHost) {
                 const hostExists = members.some(m => m.isHost);
                 if (!hostExists) {
-                    showMessage("オーナーが退出したため、対戦部屋は解散されました。");
+                    showMessage("対戦オーナーが退出したため、対戦部屋は解散されました。");
                     exitToTop();
                 }
             }
         }
 
+        // Specification ⑤: Host starts the game
         async function startVsGameHost() {
             if (!vsIsHost || !vsRoomId) return;
             const courseId = document.getElementById('vs-course-select').value;
@@ -2386,6 +2378,7 @@
             setTimeout(showVsResultModal, 800);
         }
 
+        // Specification ⑥: Results Modal for 2 players vs 3+ players
         function showVsResultModal() {
             const modal = document.getElementById('vs-result-modal');
             const members = Object.values(vsRoomData ? vsRoomData.members : {});
@@ -2410,11 +2403,12 @@
                     headline.textContent = '😭 負け...';
                     headline.className = 'text-3xl sm:text-4xl font-black mb-2 text-slate-500';
                 }
-                rankBadge.textContent = `あなたのスコア: ${game.score} pt`;
+                const opponent = members.find(m => m.id !== vsUserId);
+                rankBadge.textContent = `あなた: ${game.score} pt / 相手 (${opponent ? opponent.name : '相手'}): ${opponent ? opponent.score : 0} pt`;
             } else {
                 headline.textContent = '対戦結果';
                 headline.className = 'text-3xl sm:text-4xl font-black mb-2 text-purple-600';
-                rankBadge.textContent = `あなたの順位: ${myRank}位 / ${totalCount}人中`;
+                rankBadge.textContent = `あなたの順位: ${myRank}位 (${totalCount}人中)`;
             }
 
             const leaderboard = document.getElementById('vs-final-leaderboard');
@@ -2434,6 +2428,7 @@
                 leaderboard.appendChild(item);
             });
 
+            // Specification ⑦: Rematch button visible for host
             const rematchBtn = document.getElementById('vs-rematch-btn');
             if (vsIsHost) {
                 rematchBtn.classList.remove('hidden');
@@ -2444,6 +2439,7 @@
             modal.classList.remove('hidden');
         }
 
+        // Specification ④: Room Auto-destruction when Host leaves or room is emptied
         async function leaveVsRoom() {
             if (vsUnsubscribe) {
                 vsUnsubscribe();
@@ -2466,12 +2462,14 @@
                             const room = snapshot.data();
                             
                             if (vsIsHost) {
+                                // Owner leaves -> Delete entire room immediately
                                 await deleteDoc(roomRef);
                             } else {
                                 delete room.members[vsUserId];
                                 const remainingGuests = Object.values(room.members).filter(m => !m.isHost).length;
                                 
                                 if (remainingGuests === 0) {
+                                    // All guests left -> Delete room
                                     await deleteDoc(roomRef);
                                 } else {
                                     await updateDoc(roomRef, { members: room.members });
@@ -2873,7 +2871,15 @@
             const allCourses = [];
             COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
 
-            allCourses.sort((a, b) => {
+            // 解放済みのコースのみフィルタリング
+            const unlockedCoursesList = allCourses.filter(course => state.unlockedCourses && state.unlockedCourses.includes(course.id));
+
+            if (unlockedCoursesList.length === 0) {
+                listContainer.innerHTML = '<div class="text-center py-6 text-xs text-slate-400 font-bold">解放済みのコースがありません</div>';
+                return;
+            }
+
+            unlockedCoursesList.sort((a, b) => {
                 if (sortBy === 'score') {
                     return (state.highScores[b.id] || 0) - (state.highScores[a.id] || 0);
                 } else if (sortBy === 'totalScore') {
@@ -2884,17 +2890,16 @@
                 return 0;
             });
 
-            allCourses.forEach(course => {
+            unlockedCoursesList.forEach(course => {
                 const highScore = state.highScores[course.id] || 0;
                 const playCount = state.coursePlayCounts[course.id] || 0;
                 const maxWpm = state.courseMaxWpm[course.id] || 0;
-                const isUnlocked = state.unlockedCourses.includes(course.id);
 
                 const card = document.createElement('div');
                 card.className = 'bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between text-xs sm:text-sm font-bold text-slate-700 h-12';
                 card.innerHTML = `
                     <div class="flex items-center gap-2 truncate max-w-[180px] sm:max-w-xs">
-                        ${isUnlocked ? '<i class="fa-solid fa-circle-check text-emerald-500"></i>' : '<i class="fa-solid fa-lock text-slate-300"></i>'}
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i>
                         <span class="truncate">${renderRubyTitle(course.name)}</span>
                     </div>
                     <div class="flex items-center gap-3 text-right">
@@ -3244,15 +3249,16 @@
             document.getElementById('vs-leave-room-btn').onclick = () => exitToTop();
             document.getElementById('vs-start-game-btn').onclick = () => startVsGameHost();
 
+            // Specification ⑤: "おまかせ" Random course button (Host) for available unlocked courses
             document.getElementById('vs-random-course-btn').onclick = () => {
                 sound.playDrumroll(1500);
                 const select = document.getElementById('vs-course-select');
-                const options = [...select.options];
-                if (options.length === 0) return;
+                const availableOptions = [...select.options].filter(opt => !opt.disabled);
+                if (availableOptions.length === 0) return;
 
                 let count = 0;
                 const spin = setInterval(() => {
-                    const randomOpt = options[Math.floor(Math.random() * options.length)];
+                    const randomOpt = availableOptions[Math.floor(Math.random() * availableOptions.length)];
                     select.value = randomOpt.value;
                     count += 1;
                     if (count > 15) {
@@ -3268,6 +3274,7 @@
                 }
             };
 
+            // Specification ⑦: Rematch button
             document.getElementById('vs-rematch-btn').onclick = async () => {
                 document.getElementById('vs-result-modal').classList.add('hidden');
                 document.getElementById('vs-room-view').classList.remove('hidden');
