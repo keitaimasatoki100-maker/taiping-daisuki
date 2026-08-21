@@ -199,7 +199,7 @@
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
                         <label class="block text-xs font-bold text-slate-600">対戦コード（8桁）を入力して参加</label>
                         <div class="flex gap-2">
-                            <input type="text" id="vs-room-code-input" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-mono uppercase font-black text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="例: r8m9k2a4" maxlength="8">
+                            <input type="text" id="vs-room-code-input" oninput="this.value = this.value.replace(/[^a-z0-9]/g, '')" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-mono font-black text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="例: r8m9k2a4" maxlength="8">
                             <button id="vs-join-room-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-5 py-2 rounded-xl text-sm transition shadow-sm active:scale-95">
                                 参加する
                             </button>
@@ -3244,6 +3244,14 @@
                 sound.playTick();
                 document.getElementById('vs-nickname-input').value = getRandomNickname();
             };
+
+            const vsCodeInput = document.getElementById('vs-room-code-input');
+            if (vsCodeInput) {
+                vsCodeInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^a-z0-9]/g, '');
+                });
+            }
+
             document.getElementById('vs-create-room-btn').onclick = () => createVsRoom();
             document.getElementById('vs-join-room-btn').onclick = () => joinVsRoom();
             document.getElementById('vs-leave-room-btn').onclick = () => exitToTop();
