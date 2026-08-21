@@ -199,7 +199,7 @@
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
                         <label class="block text-xs font-bold text-slate-600">対戦コード（8桁）を入力して参加</label>
                         <div class="flex gap-2">
-                            <input type="text" id="vs-room-code-input" oninput="this.value = this.value.replace(/[^a-z0-9]/g, '')" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-mono font-black text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="例: r8m9k2a4" maxlength="8">
+                            <input type="text" id="vs-room-code-input" oninput="this.value = this.value.toLowerCase().replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0)).replace(/[^a-z0-9]/g, '')" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-mono font-black text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="例: r8m9k2a4" maxlength="8">
                             <button id="vs-join-room-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-5 py-2 rounded-xl text-sm transition shadow-sm active:scale-95">
                                 参加する
                             </button>
@@ -667,6 +667,7 @@
         const vsChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('typing_vs_hybrid_channel') : null;
 
         function broadcastLocalVsRoom(roomCode, roomData) {
+            if (!roomCode || !roomData) return;
             localVsRooms[roomCode] = roomData;
             try {
                 localStorage.setItem(`typing_vs_room_${roomCode}`, JSON.stringify(roomData));
@@ -679,18 +680,33 @@
         if (vsChannel) {
             vsChannel.onmessage = (event) => {
                 const { type, roomCode, data } = event.data || {};
-                if (type === 'VS_ROOM_SYNC') {
+                if (type === 'VS_ROOM_SYNC' && roomCode && data) {
                     localVsRooms[roomCode] = data;
+                    try {
+                        localStorage.setItem(`typing_vs_room_${roomCode}`, JSON.stringify(data));
+                    } catch(e) {}
                     if (vsRoomId === roomCode && typeof window.onLocalVsRoomUpdate === 'function') {
                         window.onLocalVsRoomUpdate(data);
                     }
-                } else if (type === 'VS_ROOM_DELETE') {
+                } else if (type === 'VS_ROOM_DELETE' && roomCode) {
                     delete localVsRooms[roomCode];
+                    try {
+                        localStorage.removeItem(`typing_vs_room_${roomCode}`);
+                    } catch(e) {}
                     if (vsRoomId === roomCode && typeof window.onLocalVsRoomUpdate === 'function') {
                         window.onLocalVsRoomUpdate(null);
                     }
-                } else if (type === 'REQ_VS_ROOM' && localVsRooms[roomCode]) {
-                    broadcastLocalVsRoom(roomCode, localVsRooms[roomCode]);
+                } else if (type === 'REQ_VS_ROOM' && roomCode) {
+                    let r = localVsRooms[roomCode];
+                    if (!r) {
+                        try {
+                            const stored = localStorage.getItem(`typing_vs_room_${roomCode}`);
+                            if (stored) r = safeJsonParse(stored, null);
+                        } catch(e) {}
+                    }
+                    if (r) {
+                        broadcastLocalVsRoom(roomCode, r);
+                    }
                 }
             };
         }
@@ -2039,7 +2055,7 @@
             let room = null;
 
             try {
-                if (firebaseDb) {
+                if (firebaseDb && firebaseAuth?.currentUser) {
                     const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
                     const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', code);
                     const snapshot = await getDoc(roomRef);
@@ -2047,14 +2063,35 @@
                         room = snapshot.data();
                     }
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.warn("Firestore lookup failed, falling back to local lookup:", e);
+            }
 
             if (!room) {
                 room = localVsRooms[code];
-                if (!room && vsChannel) {
-                    vsChannel.postMessage({ type: 'REQ_VS_ROOM', roomCode: code });
-                    await new Promise(r => setTimeout(r, 250));
+            }
+
+            if (!room) {
+                try {
+                    const stored = localStorage.getItem(`typing_vs_room_${code}`);
+                    if (stored) {
+                        room = safeJsonParse(stored, null);
+                    }
+                } catch(e) {}
+            }
+
+            if (!room && vsChannel) {
+                vsChannel.postMessage({ type: 'REQ_VS_ROOM', roomCode: code });
+                for (let i = 0; i < 5; i++) {
+                    await new Promise(r => setTimeout(r, 100));
                     room = localVsRooms[code];
+                    if (!room) {
+                        try {
+                            const stored = localStorage.getItem(`typing_vs_room_${code}`);
+                            if (stored) room = safeJsonParse(stored, null);
+                        } catch(e) {}
+                    }
+                    if (room) break;
                 }
             }
 
@@ -2069,6 +2106,7 @@
             }
 
             // Specification ③: Support up to 40+ members
+            room.members = room.members || {};
             room.members[vsUserId] = {
                 id: vsUserId,
                 name: vsUserNickname,
@@ -2083,7 +2121,7 @@
             broadcastLocalVsRoom(code, room);
 
             try {
-                if (firebaseDb) {
+                if (firebaseDb && firebaseAuth?.currentUser) {
                     const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
                     const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', code);
                     await updateDoc(roomRef, {
@@ -3248,7 +3286,9 @@
             const vsCodeInput = document.getElementById('vs-room-code-input');
             if (vsCodeInput) {
                 vsCodeInput.addEventListener('input', (e) => {
-                    e.target.value = e.target.value.replace(/[^a-z0-9]/g, '');
+                    e.target.value = e.target.value.toLowerCase()
+                        .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
+                        .replace(/[^a-z0-9]/g, '');
                 });
             }
 
