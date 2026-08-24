@@ -685,20 +685,22 @@
 
         let mqttClient = null;
         let mqttSubscribedTopic = null;
+        let vsHeartbeatTimer = null;
 
         function initMqtt() {
             if (mqttClient && mqttClient.connected) return mqttClient;
             try {
                 if (typeof mqtt !== 'undefined') {
-                    // Public WebSocket MQTT Broker (EMQX Public Broker)
+                    // Public WebSocket MQTT Broker with resilient random client ID
+                    const randomId = 'tr100_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now().toString(36);
                     mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
-                        clientId: 'typing_rush_' + Math.random().toString(36).substring(2, 11),
+                        clientId: randomId,
                         keepalive: 30,
                         reconnectPeriod: 2000
                     });
 
                     mqttClient.on('connect', () => {
-                        console.log('Connected to MQTT Relay for Cross-Device Online Play');
+                        console.log('Online MQTT Relay Connected for GitHub Pages Cross-Device Play');
                         if (mqttSubscribedTopic) {
                             mqttClient.subscribe(mqttSubscribedTopic);
                         }
@@ -793,6 +795,22 @@
             if (client && client.connected) {
                 client.subscribe(topic);
             }
+        }
+
+        function startVsHeartbeat(code) {
+            if (vsHeartbeatTimer) clearInterval(vsHeartbeatTimer);
+            vsHeartbeatTimer = setInterval(() => {
+                if (vsIsHost && vsRoomData && vsRoomId === code) {
+                    broadcastMqttVsRoomState(code, vsRoomData);
+                } else if (!vsIsHost && vsRoomId === code) {
+                    const client = initMqtt();
+                    if (client && client.connected) {
+                        client.publish(`typing_rush_100/vs/${code}`, JSON.stringify({ type: 'PING' }));
+                    }
+                } else {
+                    clearInterval(vsHeartbeatTimer);
+                }
+            }, 2000);
         }
 
         const localVsRooms = {};
@@ -2177,6 +2195,7 @@
             vsRoomData = initialData;
             broadcastLocalVsRoom(vsRoomId, initialData);
             subscribeMqttVsTopic(vsRoomId);
+            startVsHeartbeat(vsRoomId);
 
             if (hasValidFirebaseConfig()) {
                 try {
@@ -2218,85 +2237,9 @@
             vsRoomId = code;
 
             subscribeMqttVsTopic(code);
+            startVsHeartbeat(code);
 
-            let room = null;
-            if (localVsRooms[code]) {
-                room = localVsRooms[code];
-            }
-
-            if (!room) {
-                try {
-                    const stored = localStorage.getItem(`typing_vs_room_${code}`);
-                    if (stored) room = safeJsonParse(stored, null);
-                } catch(e) {}
-            }
-
-            if (!room && hasValidFirebaseConfig() && firebaseDb && firebaseAuth?.currentUser) {
-                try {
-                    const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                    const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', code);
-                    const fetchPromise = getDoc(roomRef);
-                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 1500));
-                    const snapshot = await Promise.race([fetchPromise, timeoutPromise]);
-                    if (snapshot && snapshot.exists()) {
-                        room = snapshot.data();
-                    }
-                } catch (e) {}
-            }
-
-            // MQTT PING to request room state across devices
-            const client = initMqtt();
-            if (client && client.connected) {
-                client.publish(`typing_rush_100/vs/${code}`, JSON.stringify({
-                    type: 'JOIN_REQ',
-                    user: {
-                        id: vsUserId,
-                        name: vsUserNickname,
-                        isHost: false,
-                        score: 0,
-                        wpm: 0,
-                        finished: false,
-                        unlocked: state.unlockedCourses || ['aiueo', 'dakuon_handakuon', 'sokuon_youon']
-                    }
-                }));
-            }
-
-            if (!room && vsChannel) {
-                vsChannel.postMessage({ type: 'REQ_VS_ROOM', roomCode: code });
-            }
-
-            // Short wait to receive room state via MQTT / BroadcastChannel
-            for (let i = 0; i < 10; i++) {
-                if (localVsRooms[code] || vsRoomData) {
-                    room = localVsRooms[code] || vsRoomData;
-                    break;
-                }
-                await new Promise(r => setTimeout(r, 100));
-            }
-
-            if (!room) {
-                // Construct temporary guest view room if waiting for host broadcast
-                room = {
-                    code: code,
-                    hostId: 'unknown',
-                    status: 'waiting',
-                    courseId: 'aiueo',
-                    members: {
-                        [vsUserId]: {
-                            id: vsUserId,
-                            name: vsUserNickname,
-                            isHost: false,
-                            score: 0,
-                            wpm: 0,
-                            finished: false,
-                            unlocked: state.unlockedCourses || ['aiueo', 'dakuon_handakuon', 'sokuon_youon']
-                        }
-                    }
-                };
-            }
-
-            room.members = room.members || {};
-            room.members[vsUserId] = {
+            const myMemberData = {
                 id: vsUserId,
                 name: vsUserNickname,
                 isHost: false,
@@ -2306,6 +2249,50 @@
                 unlocked: state.unlockedCourses || ['aiueo', 'dakuon_handakuon', 'sokuon_youon']
             };
 
+            // Request Host to acknowledge and sync room state via MQTT
+            const client = initMqtt();
+            if (client && client.connected) {
+                client.publish(`typing_rush_100/vs/${code}`, JSON.stringify({
+                    type: 'JOIN_REQ',
+                    user: myMemberData
+                }));
+                client.publish(`typing_rush_100/vs/${code}`, JSON.stringify({ type: 'PING' }));
+            }
+
+            let room = localVsRooms[code] || null;
+
+            if (!room) {
+                try {
+                    const stored = localStorage.getItem(`typing_vs_room_${code}`);
+                    if (stored) room = safeJsonParse(stored, null);
+                } catch(e) {}
+            }
+
+            // Short wait loop to receive room state via MQTT / BroadcastChannel / Firestore
+            for (let i = 0; i < 12; i++) {
+                if (localVsRooms[code] || vsRoomData) {
+                    room = localVsRooms[code] || vsRoomData;
+                    break;
+                }
+                await new Promise(r => setTimeout(r, 100));
+            }
+
+            if (!room) {
+                // Construct temporary guest view room while waiting for host broadcast
+                room = {
+                    code: code,
+                    hostId: 'unknown',
+                    status: 'waiting',
+                    courseId: 'aiueo',
+                    members: {
+                        [vsUserId]: myMemberData
+                    }
+                };
+            }
+
+            room.members = room.members || {};
+            room.members[vsUserId] = myMemberData;
+
             vsRoomData = room;
             broadcastLocalVsRoom(code, room);
 
@@ -2314,7 +2301,7 @@
                     const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
                     const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', code);
                     await updateDoc(roomRef, {
-                        [`members.${vsUserId}`]: room.members[vsUserId]
+                        [`members.${vsUserId}`]: myMemberData
                     });
                 } catch (e) {}
             }
@@ -2663,6 +2650,11 @@
         }
 
         async function leaveVsRoom() {
+            if (vsHeartbeatTimer) {
+                clearInterval(vsHeartbeatTimer);
+                vsHeartbeatTimer = null;
+            }
+
             if (vsUnsubscribe) {
                 vsUnsubscribe();
                 vsUnsubscribe = null;
