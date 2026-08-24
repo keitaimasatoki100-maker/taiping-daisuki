@@ -145,7 +145,6 @@
                 <button id="open-vs-btn" class="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-rose-500 hover:from-purple-700 hover:to-rose-600 text-white font-extrabold text-sm sm:text-base py-3 rounded-2xl shadow-md transition transform active:scale-98 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-users text-amber-300 text-lg"></i> 友だちと対戦（マルチプレイ）
                 </button>
-                <!-- Group Button placed at the VERY BOTTOM of the top page -->
                 <button id="open-group-btn" class="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-extrabold text-sm sm:text-base py-3 rounded-2xl shadow-md transition transform active:scale-98 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-users-rectangle text-amber-300 text-lg"></i> <ruby>グ<rt>ぐ</rt></ruby><ruby>ルー<rt>るー</rt></ruby><ruby>プ<rt>ぷ</rt></ruby><ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>・<ruby>管<rt>かん</rt></ruby><ruby>理<rt>り</rt></ruby>
                 </button>
@@ -199,7 +198,7 @@
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
                         <label class="block text-xs font-bold text-slate-600">対戦コード（8桁）を入力して参加</label>
                         <div class="flex gap-2">
-                            <input type="text" id="vs-room-code-input" oninput="this.value = this.value.toLowerCase().replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0)).replace(/[^a-z0-9]/g, '')" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-mono font-black text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="例: r8m9k2a4" maxlength="8">
+                            <input type="text" id="vs-room-code-input" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-mono font-bold text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="例: r8m9k2a4" maxlength="8" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9]/g, '')">
                             <button id="vs-join-room-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-5 py-2 rounded-xl text-sm transition shadow-sm active:scale-95">
                                 参加する
                             </button>
@@ -210,7 +209,6 @@
 
             <!-- VS Room View -->
             <div id="vs-room-view" class="hidden flex-1 bg-white/80 backdrop-blur p-4 sm:p-6 rounded-3xl shadow-sm border border-white flex flex-col max-w-2xl mx-auto w-full overflow-y-auto">
-                <!-- Room Info Bar -->
                 <div class="bg-purple-50 border border-purple-200 rounded-2xl p-3.5 mb-4 text-center relative">
                     <div class="text-xs font-bold text-purple-700">部屋コード（友だちに教えてね）</div>
                     <div id="vs-room-code-display" class="font-mono text-2xl sm:text-3xl font-black text-purple-900 tracking-wider my-1">
@@ -221,7 +219,6 @@
                     </button>
                 </div>
 
-                <!-- Course Selection (Host only / Guest view) -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 mb-4 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
                         <label class="text-xs font-bold text-slate-700 flex items-center gap-1">
@@ -234,22 +231,18 @@
                         </div>
                     </div>
                     <select id="vs-course-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-purple-400">
-                        <!-- Options generated dynamically -->
                     </select>
                 </div>
 
-                <!-- Member List -->
                 <div class="flex-1 bg-white p-4 rounded-2xl border border-slate-200 mb-4 shadow-sm flex flex-col min-h-[160px]">
                     <div class="text-xs font-bold text-slate-600 mb-2 flex justify-between items-center">
                         <span>参加メンバー一覧 (<span id="vs-member-count">0</span>人)</span>
                         <span class="text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-wifi mr-1"></i>リアルタイム同期中</span>
                     </div>
                     <div id="vs-member-list" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-1.5 overflow-y-auto max-h-[220px] p-1">
-                        <!-- Dynamic Member Cards -->
                     </div>
                 </div>
 
-                <!-- Action Controls -->
                 <div class="space-y-2">
                     <button id="vs-start-game-btn" class="hidden w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold py-3.5 rounded-2xl shadow-md text-base sm:text-lg transition transform active:scale-95">
                         <i class="fa-solid fa-flag-checkered mr-2"></i> 全員で対戦スタート！
@@ -322,7 +315,6 @@
                 <i class="fa-solid fa-users-rectangle text-purple-600"></i> <ruby>グ<rt>ぐ</rt></ruby><ruby>ルー<rt>るー</rt></ruby><ruby>プ<rt>ぷ</rt></ruby><ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>・<ruby>管<rt>かん</rt></ruby><ruby>理<rt>り</rt></ruby>
             </h2>
 
-            <!-- Nickname Config Box -->
             <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl mb-3 space-y-1.5">
                 <label class="block text-xs font-bold text-slate-600">あなたのニックネーム（自動生成／変更可）</label>
                 <div class="flex gap-2">
@@ -333,7 +325,6 @@
                 </div>
             </div>
 
-            <!-- Active Group Selector & Creation Controls -->
             <div class="bg-purple-50 border border-purple-200 p-3.5 rounded-2xl mb-3 space-y-3">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <span class="text-xs font-extrabold text-purple-900">所属グループ切り替え</span>
@@ -356,9 +347,7 @@
                 </div>
             </div>
 
-            <!-- Selected Group Details -->
             <div id="group-active-view" class="hidden flex-1 flex flex-col space-y-3 overflow-hidden">
-                <!-- Group Info Header -->
                 <div class="bg-white p-3 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-2 shadow-sm text-xs font-bold">
                     <div>
                         <span class="text-slate-500">グループ名:</span>
@@ -374,7 +363,6 @@
                     </div>
                 </div>
 
-                <!-- OWNER PRIVACY SETTINGS PANEL (Host Only) -->
                 <div id="group-owner-settings-box" class="hidden bg-amber-50 border border-amber-200 p-3 rounded-2xl text-xs space-y-2">
                     <div class="font-extrabold text-amber-900 flex items-center justify-between">
                         <span><i class="fa-solid fa-user-shield text-amber-600 mr-1"></i> オーナー公開設定（初期値：全非公開）</span>
@@ -400,7 +388,6 @@
                     </div>
                 </div>
 
-                <!-- Sorting Controls -->
                 <div class="flex items-center justify-between bg-slate-100 p-2 rounded-xl text-xs font-bold text-slate-600">
                     <span>メンバー一覧並び替え:</span>
                     <div class="flex gap-1" id="group-sort-buttons">
@@ -410,12 +397,9 @@
                     </div>
                 </div>
 
-                <!-- Member Scores List -->
                 <div id="group-member-list-container" class="flex-1 overflow-y-auto space-y-2 pr-1 max-h-[220px]">
-                    <!-- Dynamically populated -->
                 </div>
 
-                <!-- Leave Group Button -->
                 <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
                     <button id="group-leave-btn" class="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold px-3 py-1.5 rounded-xl text-xs transition border border-rose-300">
                         <i class="fa-solid fa-right-from-bracket mr-1"></i> グループをやめる（脱退）
@@ -593,7 +577,7 @@
         </div>
     </div>
 
-    <!-- VS RESULT MODAL (Multiplayer Specification ⑥ & ⑦) -->
+    <!-- VS RESULT MODAL -->
     <div id="vs-result-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-lg w-full p-6 text-center relative overflow-hidden">
             <div id="vs-outcome-headline" class="text-3xl sm:text-4xl font-black mb-2 text-purple-600">
@@ -605,7 +589,6 @@
             </div>
 
             <div class="bg-slate-50 rounded-2xl p-3 my-4 border border-slate-200 max-h-[220px] overflow-y-auto space-y-1.5" id="vs-final-leaderboard">
-                <!-- Dynamically populated leaderboard -->
             </div>
 
             <div class="space-y-2">
@@ -620,47 +603,86 @@
     </div>
 
     <script>
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'typing-rush-100';
-
-        let firebaseApp = null;
-        let firebaseAuth = null;
         let firebaseDb = null;
+        let firebaseAuth = null;
         let currentUser = null;
-        let authInitialized = false;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'typing_rush_100';
+
+        function safeJsonParse(str, fallback) {
+            if (!str || typeof str !== 'string' || !str.trim()) return fallback;
+            try { return JSON.parse(str); } catch (e) { return fallback; }
+        }
+
+        function hasValidFirebaseConfig() {
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const parsed = JSON.parse(__firebase_config);
+                    return !!(parsed && parsed.apiKey && parsed.apiKey.length > 5);
+                }
+            } catch(e) {}
+            return false;
+        }
 
         async function initAuth() {
-            if (authInitialized) return currentUser;
-            try {
-                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
-                const { getAuth, signInAnonymously, signInWithCustomToken } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-                const { getFirestore } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+            if (currentUser) return currentUser;
 
-                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-                    apiKey: "",
-                    authDomain: "typing-rush-100.firebaseapp.com",
-                    projectId: "typing-rush-100",
-                    storageBucket: "typing-rush-100.appspot.com",
-                    messagingSenderId: "1234567890",
-                    appId: "1:1234567890:web:abcdef123456"
-                };
+            if (hasValidFirebaseConfig()) {
+                try {
+                    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+                    const { getFirestore } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    const { getAuth, signInAnonymously } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
 
-                firebaseApp = initializeApp(firebaseConfig);
-                firebaseAuth = getAuth(firebaseApp);
-                firebaseDb = getFirestore(firebaseApp);
+                    const config = JSON.parse(__firebase_config);
+                    const app = getApps().length === 0 ? initializeApp(config) : getApps()[0];
+                    firebaseDb = getFirestore(app);
+                    firebaseAuth = getAuth(app);
 
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    const userCredential = await signInWithCustomToken(firebaseAuth, __initial_auth_token);
-                    currentUser = userCredential.user;
-                } else {
-                    const userCredential = await signInAnonymously(firebaseAuth);
-                    currentUser = userCredential.user;
+                    if (!firebaseAuth.currentUser) {
+                        const cred = await signInAnonymously(firebaseAuth);
+                        currentUser = cred.user;
+                    } else {
+                        currentUser = firebaseAuth.currentUser;
+                    }
+                    return currentUser;
+                } catch (e) {
+                    console.warn("Firebase authentication fallback:", e);
                 }
-            } catch (err) {
-                console.warn("Firebase initialization fallback (running in local multi-tab sync mode):", err);
-                currentUser = { uid: 'anon_' + Math.random().toString(36).substr(2, 9) };
             }
-            authInitialized = true;
+
+            if (!currentUser) {
+                let localUid = localStorage.getItem('typing_rush_local_uid');
+                if (!localUid) {
+                    localUid = 'local_user_' + Math.random().toString(36).substring(2, 11);
+                    localStorage.setItem('typing_rush_local_uid', localUid);
+                }
+                currentUser = { uid: localUid };
+            }
             return currentUser;
+        }
+
+        function normalizeCode(str) {
+            if (!str) return '';
+            return str
+                .trim()
+                .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
+                .replace(/[^a-z0-9]/g, '')
+                .toLowerCase();
+        }
+
+        function copyToClipboard(text, successMsg) {
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                if (successMsg) showMessage(successMsg);
+            } catch (e) {
+                console.warn('Copy failed:', e);
+            }
         }
 
         const localVsRooms = {};
@@ -676,6 +698,26 @@
                 vsChannel.postMessage({ type: 'VS_ROOM_SYNC', roomCode, data: roomData });
             }
         }
+
+        window.addEventListener('storage', (e) => {
+            if (e.key && e.key.startsWith('typing_vs_room_')) {
+                const roomCode = e.key.replace('typing_vs_room_', '');
+                if (e.newValue) {
+                    const data = safeJsonParse(e.newValue, null);
+                    if (data) {
+                        localVsRooms[roomCode] = data;
+                        if (vsRoomId === roomCode && typeof window.onLocalVsRoomUpdate === 'function') {
+                            window.onLocalVsRoomUpdate(data);
+                        }
+                    }
+                } else {
+                    delete localVsRooms[roomCode];
+                    if (vsRoomId === roomCode && typeof window.onLocalVsRoomUpdate === 'function') {
+                        window.onLocalVsRoomUpdate(null);
+                    }
+                }
+            }
+        });
 
         if (vsChannel) {
             vsChannel.onmessage = (event) => {
@@ -709,33 +751,6 @@
                     }
                 }
             };
-        }
-
-        function safeJsonParse(str, fallback) {
-            if (!str || typeof str !== 'string' || !str.trim()) return fallback;
-            try { return JSON.parse(str); } catch (e) { return fallback; }
-        }
-
-        function normalizeCode(str) {
-            if (!str) return '';
-            return str
-                .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
-                .replace(/\s+/g, '')
-                .toLowerCase();
-        }
-
-        function copyToClipboard(text, successMsg) {
-            try {
-                const input = document.createElement('input');
-                input.value = text;
-                document.body.appendChild(input);
-                input.select();
-                document.execCommand('copy');
-                document.body.removeChild(input);
-                if (successMsg) showMessage(successMsg);
-            } catch(e) {
-                if (successMsg) showMessage(text);
-            }
         }
 
         function showMessage(msg) {
@@ -800,17 +815,50 @@
                         osc.start(now);
                         osc.stop(now + 0.1);
                     } else if (this.soundMode === '3') {
+                        // 派手で迫力のある「ズギューン！」という発砲音（高レゾナンススイープ ＋ 急降下ピッチ）
                         const osc = this.ctx.createOscillator();
                         const gain = this.ctx.createGain();
+                        const filter = this.ctx.createBiquadFilter();
+
+                        // 3200Hzから80Hzへ一気にピッチダウン（「ギューン」感）
                         osc.type = 'sawtooth';
-                        osc.frequency.setValueAtTime(1200, now);
-                        osc.frequency.exponentialRampToValueAtTime(80, now + 0.05);
-                        gain.gain.setValueAtTime(0.35, now);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-                        osc.connect(gain);
+                        osc.frequency.setValueAtTime(3200, now);
+                        osc.frequency.exponentialRampToValueAtTime(80, now + 0.18);
+
+                        // 高いレゾナンス(Q=6.0)のローパスフィルターでうねりと鋭さを強調
+                        filter.type = 'lowpass';
+                        filter.Q.setValueAtTime(6.0, now);
+                        filter.frequency.setValueAtTime(4800, now);
+                        filter.frequency.exponentialRampToValueAtTime(150, now + 0.18);
+
+                        gain.gain.setValueAtTime(0.5, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+                        osc.connect(filter);
+                        filter.connect(gain);
                         gain.connect(this.ctx.destination);
+
+                        // アタック用の超短時間ノイズ（最初の「ズ」の破裂アタック感）
+                        const bufferSize = Math.floor(this.ctx.sampleRate * 0.05);
+                        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                        const output = buffer.getChannelData(0);
+                        for (let i = 0; i < bufferSize; i++) {
+                            output[i] = Math.random() * 2 - 1;
+                        }
+                        const noise = this.ctx.createBufferSource();
+                        noise.buffer = buffer;
+
+                        const noiseGain = this.ctx.createGain();
+                        noiseGain.gain.setValueAtTime(0.4, now);
+                        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+
+                        noise.connect(noiseGain);
+                        noiseGain.connect(this.ctx.destination);
+
                         osc.start(now);
-                        osc.stop(now + 0.05);
+                        noise.start(now);
+                        osc.stop(now + 0.18);
+                        noise.stop(now + 0.05);
                     }
                 } catch (e) {}
             }
@@ -1255,7 +1303,7 @@
             sweets: [["ショートケーキ","しょーとけーき"],["プリン","ぷりん"],["シュークリーム","しゅーくりーむ"]],
             vegetables: [["キャベツ","きゃべつ"],["トマト","とまと"],["キュウリ","きゅうり"],["ニンジン","にんじん"]],
             fruits: [["リンゴ","りんご"],["バナナ","ばなな"],["イチゴ","いちご"],["ブドウ","ぶどう"]],
-            chinese_food: [["餃子","ぎょうざ"],["麻婆豆腐","まーぼーどうふ"],["チャーハン","ちゃーはん"],["小籠包","しょうろんぽう"]],
+            chinese_food: [["餃子","ぎょうざ"],["麻婆豆腐","まーぼーどうふ"],["チャーはん","ちゃーはん"],["小籠包","しょうろんぽう"]],
             western_food: [["ハンバーグ","はんばーぐ"],["カルボナーラ","かるぼなーら"],["オムライス","おむらいす"]],
             fast_food: [["ハンバーガー","はんばーがー"],["フライドポテト","ふらいどぽてと"],["チキン","ちきん"]],
             bread_bakery: [["食パン","しょくぱん"],["クロワッサン","くろわっさん"],["メロンパン","めろんぱん"]],
@@ -1276,7 +1324,7 @@
             trees_nuts: [["ドングリ","どんぐり"],["サクラ","さくら"],["イチョウ","いちょう"]],
             weather_climate: [["快晴","かいせい"],["夕立","ゆうだち"],["台風","たいふう"],["積乱雲","せきらんうん"]],
             seasons_nature: [["新緑","しんりょく"],["紅葉","こうよう"],["初雪","はつゆき"],["桜前線","さくらぜんせん"]],
-            endangered_species: [["トキ","とき"],["ヤンバルクイナ","やんばるくいな"],["イリオモテヤマネコ","いりおもてやまねこ"]],
+            endangered_species: [["トキ","とき"],["ヤンバルクイナ","やんばるくいな"],["イリオモテヤマネコ","いりおもてヤマネコ"]],
             dangerous_animals: [["ヒグマ","ひぐま"],["スズメバチ","すずめばち"],["ハブ","はぶ"]],
             microorganisms: [["ミドリムシ","みどりむし"],["ゾウリムシ","ぞうりむし"],["アメーバ","あめーば"]],
             disasters_prevention: [["避難訓練","ひなんくんれん"],["防災グッズ","ぼうさいぐっず"],["地震","じしん"]],
@@ -1392,6 +1440,9 @@
             if (!state.missedKeyCounts || typeof state.missedKeyCounts !== 'object') state.missedKeyCounts = {};
             if (!Array.isArray(state.joinedGroupIds)) state.joinedGroupIds = [];
             if (!state.userNickname) state.userNickname = getRandomNickname();
+            if (!state.soundMode) state.soundMode = '1';
+
+            sound.soundMode = state.soundMode;
 
             try {
                 const lastLogin = localStorage.getItem('typing_rush_last_login_date');
@@ -1805,7 +1856,6 @@
 
             if (validOpt) {
                 sound.playType();
-                // Rule: 基本打鍵点 +1点/1文字
                 game.score += 1;
                 game.correctCount++;
                 document.getElementById('game-score').textContent = game.score;
@@ -1817,7 +1867,6 @@
                     game.nodeIndex += 1;
                     if (game.nodeIndex >= game.nodes.length) {
                         sound.playPingPong();
-                        // Rule: 単語クリアボーナス +10点/1単語
                         game.score += 10;
                         document.getElementById('game-score').textContent = game.score;
 
@@ -1882,7 +1931,8 @@
             if (game.timerInterval) clearInterval(game.timerInterval);
             game.active = false;
 
-            const elapsedMin = state.selectedTime / 60;
+            const elapsedSec = Math.max((Date.now() - game.startTime) / 1000, 1);
+            const elapsedMin = elapsedSec / 60;
             const wpm = Math.round(game.correctCount / elapsedMin);
             const totalTyped = game.correctCount + game.missCount;
             const accuracy = totalTyped > 0 ? Math.round((game.correctCount / totalTyped) * 100) : 100;
@@ -1966,7 +2016,6 @@
             }
         }
 
-        // Specification ②: Create Room with 8-character random code
         async function createVsRoom() {
             await initAuth();
             const nickname = document.getElementById('vs-nickname-input').value.trim();
@@ -2014,21 +2063,22 @@
             vsRoomData = initialData;
             broadcastLocalVsRoom(vsRoomId, initialData);
 
-            try {
-                if (firebaseDb) {
-                    const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                    const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
-                    await setDoc(roomRef, initialData);
+            if (hasValidFirebaseConfig()) {
+                try {
+                    if (firebaseDb) {
+                        const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                        const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
+                        await setDoc(roomRef, initialData);
+                    }
+                } catch (e) {
+                    console.warn("Firestore setDoc failed, operating in local mode:", e);
                 }
-            } catch (e) {
-                console.warn("Firestore setDoc failed, operating in local mode:", e);
             }
 
             subscribeVsRoom(vsRoomId);
             enterVsRoomUI();
         }
 
-        // Specification ②: Join Room using code & nickname
         async function joinVsRoom() {
             await initAuth();
             const nickname = document.getElementById('vs-nickname-input').value.trim();
@@ -2054,20 +2104,7 @@
 
             let room = null;
 
-            try {
-                if (firebaseDb && firebaseAuth?.currentUser) {
-                    const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                    const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', code);
-                    const snapshot = await getDoc(roomRef);
-                    if (snapshot.exists()) {
-                        room = snapshot.data();
-                    }
-                }
-            } catch (e) {
-                console.warn("Firestore lookup failed, falling back to local lookup:", e);
-            }
-
-            if (!room) {
+            if (localVsRooms[code]) {
                 room = localVsRooms[code];
             }
 
@@ -2080,18 +2117,36 @@
                 } catch(e) {}
             }
 
+            if (!room && hasValidFirebaseConfig() && firebaseDb && firebaseAuth?.currentUser) {
+                try {
+                    const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                    const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', code);
+                    const fetchPromise = getDoc(roomRef);
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 1500));
+                    const snapshot = await Promise.race([fetchPromise, timeoutPromise]);
+                    if (snapshot && snapshot.exists()) {
+                        room = snapshot.data();
+                    }
+                } catch (e) {
+                    console.warn("Firestore lookup fallback to local:", e);
+                }
+            }
+
             if (!room && vsChannel) {
                 vsChannel.postMessage({ type: 'REQ_VS_ROOM', roomCode: code });
-                for (let i = 0; i < 5; i++) {
+                for (let i = 0; i < 8; i++) {
                     await new Promise(r => setTimeout(r, 100));
-                    room = localVsRooms[code];
-                    if (!room) {
-                        try {
-                            const stored = localStorage.getItem(`typing_vs_room_${code}`);
-                            if (stored) room = safeJsonParse(stored, null);
-                        } catch(e) {}
+                    if (localVsRooms[code]) {
+                        room = localVsRooms[code];
+                        break;
                     }
-                    if (room) break;
+                    try {
+                        const stored = localStorage.getItem(`typing_vs_room_${code}`);
+                        if (stored) {
+                            room = safeJsonParse(stored, null);
+                            if (room) break;
+                        }
+                    } catch(e) {}
                 }
             }
 
@@ -2105,7 +2160,6 @@
                 return;
             }
 
-            // Specification ③: Support up to 40+ members
             room.members = room.members || {};
             room.members[vsUserId] = {
                 id: vsUserId,
@@ -2120,21 +2174,20 @@
             vsRoomData = room;
             broadcastLocalVsRoom(code, room);
 
-            try {
-                if (firebaseDb && firebaseAuth?.currentUser) {
+            if (hasValidFirebaseConfig() && firebaseDb && firebaseAuth?.currentUser) {
+                try {
                     const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
                     const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', code);
                     await updateDoc(roomRef, {
                         [`members.${vsUserId}`]: room.members[vsUserId]
                     });
-                }
-            } catch (e) {}
+                } catch (e) {}
+            }
 
             subscribeVsRoom(vsRoomId);
             enterVsRoomUI();
         }
 
-        // Specification ③ & ⑧: Realtime sync listener across devices
         function subscribeVsRoom(roomId) {
             if (vsUnsubscribe) {
                 vsUnsubscribe();
@@ -2174,8 +2227,8 @@
                 }
             };
 
-            try {
-                if (firebaseDb) {
+            if (hasValidFirebaseConfig() && firebaseDb) {
+                try {
                     import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, onSnapshot }) => {
                         const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', roomId);
                         vsUnsubscribe = onSnapshot(roomRef, (snapshot) => {
@@ -2195,12 +2248,14 @@
                         }, () => {
                             if (localVsRooms[roomId]) window.onLocalVsRoomUpdate(localVsRooms[roomId]);
                         });
+                    }).catch(() => {
+                        if (localVsRooms[roomId]) window.onLocalVsRoomUpdate(localVsRooms[roomId]);
                     });
-                } else if (localVsRooms[roomId]) {
-                    window.onLocalVsRoomUpdate(localVsRooms[roomId]);
+                } catch (e) {
+                    if (localVsRooms[roomId]) window.onLocalVsRoomUpdate(localVsRooms[roomId]);
                 }
-            } catch (e) {
-                if (localVsRooms[roomId]) window.onLocalVsRoomUpdate(localVsRooms[roomId]);
+            } else if (localVsRooms[roomId]) {
+                window.onLocalVsRoomUpdate(localVsRooms[roomId]);
             }
         }
 
@@ -2224,7 +2279,6 @@
             updateVsRoomUI();
         }
 
-        // Specification ⑤: Course Selection Logic (Unlocked by ANY member in the room)
         function updateVsRoomUI() {
             if (!vsRoomData) return;
 
@@ -2247,7 +2301,6 @@
             const allCourses = [];
             COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
 
-            // UNION of all unlocked courses by ANY member in the room
             let unionUnlocked = new Set();
             members.forEach(m => {
                 if (m.unlocked && Array.isArray(m.unlocked)) {
@@ -2273,7 +2326,6 @@
             } else if (vsRoomData.courseId && unionUnlocked.has(vsRoomData.courseId)) {
                 courseSelect.value = vsRoomData.courseId;
             } else {
-                // Default to first available unlocked course
                 const firstAvailable = allCourses.find(c => unionUnlocked.has(c.id));
                 if (firstAvailable) courseSelect.value = firstAvailable.id;
             }
@@ -2287,7 +2339,6 @@
             }
         }
 
-        // Specification ⑤: Host starts the game
         async function startVsGameHost() {
             if (!vsIsHost || !vsRoomId) return;
             const courseId = document.getElementById('vs-course-select').value;
@@ -2416,7 +2467,6 @@
             setTimeout(showVsResultModal, 800);
         }
 
-        // Specification ⑥: Results Modal for 2 players vs 3+ players
         function showVsResultModal() {
             const modal = document.getElementById('vs-result-modal');
             const members = Object.values(vsRoomData ? vsRoomData.members : {});
@@ -2466,7 +2516,6 @@
                 leaderboard.appendChild(item);
             });
 
-            // Specification ⑦: Rematch button visible for host
             const rematchBtn = document.getElementById('vs-rematch-btn');
             if (vsIsHost) {
                 rematchBtn.classList.remove('hidden');
@@ -2477,7 +2526,6 @@
             modal.classList.remove('hidden');
         }
 
-        // Specification ④: Room Auto-destruction when Host leaves or room is emptied
         async function leaveVsRoom() {
             if (vsUnsubscribe) {
                 vsUnsubscribe();
@@ -2486,12 +2534,16 @@
 
             if (vsRoomId && vsUserId) {
                 delete localVsRooms[vsRoomId];
+                try {
+                    localStorage.removeItem(`typing_vs_room_${vsRoomId}`);
+                } catch(e) {}
+
                 if (vsChannel) {
                     vsChannel.postMessage({ type: 'VS_ROOM_DELETE', roomCode: vsRoomId });
                 }
 
-                try {
-                    if (firebaseDb) {
+                if (hasValidFirebaseConfig() && firebaseDb) {
+                    try {
                         const { doc, getDoc, updateDoc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
                         const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
                         const snapshot = await getDoc(roomRef);
@@ -2500,22 +2552,20 @@
                             const room = snapshot.data();
                             
                             if (vsIsHost) {
-                                // Owner leaves -> Delete entire room immediately
                                 await deleteDoc(roomRef);
                             } else {
                                 delete room.members[vsUserId];
                                 const remainingGuests = Object.values(room.members).filter(m => !m.isHost).length;
                                 
                                 if (remainingGuests === 0) {
-                                    // All guests left -> Delete room
                                     await deleteDoc(roomRef);
                                 } else {
                                     await updateDoc(roomRef, { members: room.members });
                                 }
                             }
                         }
-                    }
-                } catch (e) {}
+                    } catch (e) {}
+                }
             }
 
             vsRoomId = null;
@@ -2888,6 +2938,14 @@
         }
 
         function renderStatsModal(sortBy = 'score') {
+            document.querySelectorAll('#stats-sort-group .sort-btn').forEach(b => {
+                if (b.dataset.sort === sortBy) {
+                    b.className = 'sort-btn px-2.5 py-1 rounded-xl transition bg-amber-500 text-white font-black';
+                } else {
+                    b.className = 'sort-btn px-2.5 py-1 rounded-xl transition bg-white text-slate-600 border border-slate-300';
+                }
+            });
+
             const missedContainer = document.getElementById('missed-keys-container');
             missedContainer.innerHTML = '';
 
@@ -2909,7 +2967,6 @@
             const allCourses = [];
             COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
 
-            // 解放済みのコースのみフィルタリング
             const unlockedCoursesList = allCourses.filter(course => state.unlockedCourses && state.unlockedCourses.includes(course.id));
 
             if (unlockedCoursesList.length === 0) {
@@ -3033,6 +3090,11 @@
                     rubyBtn.className = 'px-4 py-1 rounded-lg text-slate-600 font-bold bg-slate-200 hover:bg-slate-300 transition text-xs';
                 }
 
+                const ingameRubyState = document.getElementById('ingame-ruby-state');
+                if (ingameRubyState) {
+                    ingameRubyState.textContent = state.rubyOn ? 'ON' : 'OFF';
+                }
+
                 document.querySelectorAll('#romaji-style-group .romaji-btn').forEach(btn => {
                     if (btn.dataset.style === (state.romajiStyle || 'kunrei')) {
                         btn.className = 'romaji-btn px-2 py-1.5 rounded-lg bg-emerald-500 text-white font-black shadow-sm border border-emerald-500';
@@ -3124,6 +3186,7 @@
                     state.rubyOn = !state.rubyOn;
                     sound.playTick();
                     saveState();
+                    updateModalStateUI();
 
                     let courseObj = null;
                     COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => {
@@ -3184,7 +3247,6 @@
                 renderCategories();
             };
 
-            // Group UI Binding
             document.getElementById('open-group-btn').onclick = () => {
                 sound.playTick();
                 renderGroupModal();
@@ -3225,13 +3287,11 @@
                 renderGroupModal();
             };
 
-            // Privacy Switches
             document.getElementById('privacy-ranking').onchange = (e) => updateGroupPrivacySettings('showRanking', e.target.checked);
             document.getElementById('privacy-total-score').onchange = (e) => updateGroupPrivacySettings('showTotalScore', e.target.checked);
             document.getElementById('privacy-last-played').onchange = (e) => updateGroupPrivacySettings('showLastPlayedAt', e.target.checked);
             document.getElementById('privacy-last-score').onchange = (e) => updateGroupPrivacySettings('showLastScore', e.target.checked);
 
-            // Group Sort Buttons
             document.querySelectorAll('#group-sort-buttons .group-sort-btn').forEach(btn => {
                 btn.onclick = () => {
                     sound.playTick();
@@ -3244,7 +3304,6 @@
                 };
             });
 
-            // Stats Modal
             document.getElementById('open-stats-btn').onclick = () => {
                 sound.playTick();
                 renderStatsModal('score');
@@ -3259,15 +3318,10 @@
             document.querySelectorAll('#stats-sort-group .sort-btn').forEach(btn => {
                 btn.onclick = () => {
                     sound.playTick();
-                    document.querySelectorAll('#stats-sort-group .sort-btn').forEach(b => {
-                        b.className = 'sort-btn px-2.5 py-1 rounded-xl transition bg-white text-slate-600 border border-slate-300';
-                    });
-                    btn.className = 'sort-btn px-2.5 py-1 rounded-xl transition bg-amber-500 text-white font-black';
                     renderStatsModal(btn.dataset.sort);
                 };
             });
 
-            // Navigation
             document.getElementById('exit-game-btn').onclick = () => exitToTop();
             document.getElementById('res-retry-btn').onclick = () => {
                 document.getElementById('result-modal').classList.add('hidden');
@@ -3275,7 +3329,6 @@
             };
             document.getElementById('res-return-btn').onclick = () => exitToTop();
 
-            // VS Handlers
             document.getElementById('open-vs-btn').onclick = () => openVsLobby();
             document.getElementById('exit-vs-btn').onclick = () => exitToTop();
             document.getElementById('vs-random-name-btn').onclick = () => {
@@ -3283,21 +3336,11 @@
                 document.getElementById('vs-nickname-input').value = getRandomNickname();
             };
 
-            const vsCodeInput = document.getElementById('vs-room-code-input');
-            if (vsCodeInput) {
-                vsCodeInput.addEventListener('input', (e) => {
-                    e.target.value = e.target.value.toLowerCase()
-                        .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
-                        .replace(/[^a-z0-9]/g, '');
-                });
-            }
-
             document.getElementById('vs-create-room-btn').onclick = () => createVsRoom();
             document.getElementById('vs-join-room-btn').onclick = () => joinVsRoom();
             document.getElementById('vs-leave-room-btn').onclick = () => exitToTop();
             document.getElementById('vs-start-game-btn').onclick = () => startVsGameHost();
 
-            // Specification ⑤: "おまかせ" Random course button (Host) for available unlocked courses
             document.getElementById('vs-random-course-btn').onclick = () => {
                 sound.playDrumroll(1500);
                 const select = document.getElementById('vs-course-select');
@@ -3322,7 +3365,6 @@
                 }
             };
 
-            // Specification ⑦: Rematch button
             document.getElementById('vs-rematch-btn').onclick = async () => {
                 document.getElementById('vs-result-modal').classList.add('hidden');
                 document.getElementById('vs-room-view').classList.remove('hidden');
@@ -3398,7 +3440,6 @@
             checkAndTriggerUnlockCeremony();
         }
 
-        // Guaranteed execution logic for GitHub Pages and all web server environments
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
             setTimeout(mainInit, 0);
         } else {
