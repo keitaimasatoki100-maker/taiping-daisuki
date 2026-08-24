@@ -4,18 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>タイピング★ラッシュ100</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- MQTT.js for Zero-Config Cross-Device Realtime Online Play -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
+    <!-- WebRTC PeerJS for Ultra-Low Latency P2P Typing Sync -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, push, onDisconnect, remove, update, get, child } 
+            from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+        // Expose RTDB globally for hybrid engine usage
+        window.initFirebaseRTDB = function(config) {
+            try {
+                if (!config || !config.projectId) return null;
+                const app = getApps().length === 0 ? initializeApp(config) : getApps()[0];
+                const dbUrl = config.databaseURL || `https://${config.projectId}-default-rtdb.firebaseio.com`;
+                const db = getDatabase(app, dbUrl);
+                window.rtdb = { db, ref, set, onValue, push, onDisconnect, remove, update, get, child };
+                return window.rtdb;
+            } catch(e) {
+                console.warn("Firebase RTDB Initialization Fallback:", e);
+                return null;
+            }
+        };
+    </script>
 
     <style>
         body {
@@ -24,7 +43,7 @@
             -webkit-user-select: none;
         }
         
-        /* Ruby positioning over kanji (ALWAYS ABOVE) */
+        /* Ruby positioning strictly over kanji */
         ruby {
             display: inline-flex;
             flex-direction: column-reverse;
@@ -90,19 +109,16 @@
         
         <!-- TOP SCREEN -->
         <div id="top-screen" class="flex-1 flex flex-col">
-            <!-- Title Header Bar -->
             <header class="text-center py-3 bg-white/80 backdrop-blur rounded-2xl shadow-sm border border-white mb-3 px-4">
                 <h1 class="text-2xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-500 via-indigo-600 to-pink-500 tracking-wider">
                     タイピング★ラッシュ100
                 </h1>
                 
-                <!-- Dynamic Message Area -->
                 <div id="daily-message-box" class="mt-2 py-1.5 px-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs sm:text-sm font-bold shadow-inner inline-block max-w-2xl">
                     <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1.5"></i>
                     <span id="daily-message-text">読み込み中...</span>
                 </div>
 
-                <!-- Stats Summary & Settings Button -->
                 <div class="mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm font-bold text-slate-600">
                     <div class="bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
                         <i class="fa-solid fa-unlock-keyhole text-sky-500 mr-1"></i><ruby>解<rt>かい</rt></ruby><ruby>放<rt>ほう</rt></ruby>コース: <span id="unlocked-count-text" class="text-sky-600">3</span>/100
@@ -113,7 +129,6 @@
                     <div class="bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
                         <i class="fa-solid fa-fire text-emerald-500 mr-1"></i><ruby>連<rt>れん</rt></ruby><ruby>続<rt>ぞく</rt></ruby>アクセス: <span id="streak-text" class="text-emerald-600">1</span> <ruby>日<rt>にち</rt></ruby>
                     </div>
-                    <!-- Settings Modal Trigger -->
                     <button id="open-settings-btn" class="bg-slate-100 hover:bg-slate-200 px-3.5 py-1 rounded-full transition text-slate-700 border border-slate-300 font-bold active:scale-95 flex items-center gap-1">
                         <i class="fa-solid fa-gear text-slate-600"></i> <ruby>設<rt>せっ</rt></ruby><ruby>定<rt>てい</rt></ruby>
                     </button>
@@ -137,9 +152,7 @@
 
             <!-- Course Categories Container -->
             <div class="flex-1 bg-white/70 backdrop-blur p-3 sm:p-5 rounded-3xl shadow-sm border border-white overflow-y-auto max-h-[calc(100vh-320px)]">
-                <div id="categories-container" class="space-y-6">
-                    <!-- Dynamic Categories Inserted by JS -->
-                </div>
+                <div id="categories-container" class="space-y-6"></div>
             </div>
 
             <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-center">
@@ -152,27 +165,25 @@
             </div>
         </div>
 
+        <!-- VS MULTIPLAYER SCREEN -->
         <div id="vs-screen" class="hidden flex-1 flex flex-col">
-            <!-- VS Header -->
             <div class="bg-white/90 backdrop-blur px-4 py-2.5 rounded-2xl shadow-sm border border-white mb-3 flex items-center justify-between">
                 <button id="exit-vs-btn" class="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition">
                     <i class="fa-solid fa-arrow-left mr-1"></i>トップへもどる
                 </button>
                 <div class="font-extrabold text-base sm:text-lg text-purple-700 flex items-center gap-2">
-                    <i class="fa-solid fa-gamepad text-purple-600"></i> 友だちと対戦（オンライン）
+                    <i class="fa-solid fa-gamepad text-purple-600"></i> 友だちと対戦（Firebase RTDB + PeerJS P2P）
                 </div>
                 <div class="w-16"></div>
             </div>
 
-            <!-- VS Lobby View -->
             <div id="vs-lobby-view" class="flex-1 bg-white/80 backdrop-blur p-4 sm:p-6 rounded-3xl shadow-sm border border-white flex flex-col justify-center max-w-xl mx-auto w-full">
                 <div class="text-center mb-6">
                     <h2 class="text-xl sm:text-2xl font-black text-slate-800 mb-1">対戦部屋に入る・作る</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 font-bold">スマホやパソコン同士でオンライン対戦！（最大40人以上）</p>
+                    <p class="text-xs sm:text-sm text-slate-500 font-bold">スマホやパソコン同士で超低遅延P2P対戦！（最大40人以上）</p>
                 </div>
 
                 <div class="space-y-4">
-                    <!-- Nickname Setup -->
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
                         <label class="block text-xs font-bold text-slate-600 mb-1">あなたのニックネーム</label>
                         <div class="flex gap-2">
@@ -183,7 +194,6 @@
                         </div>
                     </div>
 
-                    <!-- Create Room Button -->
                     <button id="vs-create-room-btn" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-extrabold py-3.5 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">
                         <i class="fa-solid fa-plus-circle text-lg"></i> 新しく部屋を作る（対戦オーナー）
                     </button>
@@ -194,7 +204,6 @@
                         <div class="flex-grow border-t border-slate-300"></div>
                     </div>
 
-                    <!-- Join Room Input -->
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
                         <label class="block text-xs font-bold text-slate-600">対戦コード（8桁）を入力して参加</label>
                         <div class="flex gap-2">
@@ -236,7 +245,7 @@
                 <div class="flex-1 bg-white p-4 rounded-2xl border border-slate-200 mb-4 shadow-sm flex flex-col min-h-[160px]">
                     <div class="text-xs font-bold text-slate-600 mb-2 flex justify-between items-center">
                         <span>参加メンバー一覧 (<span id="vs-member-count">0</span>人)</span>
-                        <span class="text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-wifi mr-1"></i>リアルタイム通信接続中</span>
+                        <span id="vs-net-badge" class="text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-wifi mr-1"></i>Firebase RTDB + PeerJS P2P 接続中</span>
                     </div>
                     <div id="vs-member-list" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-1.5 overflow-y-auto max-h-[220px] p-1">
                     </div>
@@ -256,8 +265,8 @@
             </div>
         </div>
 
+        <!-- PLAY SCREEN -->
         <div id="play-screen" class="hidden flex-1 flex flex-col justify-between max-h-[calc(100vh-20px)] overflow-hidden">
-            <!-- Header Bar -->
             <div class="bg-white/90 backdrop-blur px-4 py-2 rounded-2xl shadow-sm border border-white flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <button id="exit-game-btn" class="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition">
@@ -280,12 +289,10 @@
                 </div>
             </div>
 
-            <!-- VS Countdown Notice Banner -->
             <div id="vs-10s-notice" class="hidden bg-rose-500 text-white text-xs sm:text-sm font-black py-1.5 px-4 rounded-xl text-center shadow animate-pulse">
                 <i class="fa-solid fa-clock-rotate-left mr-1"></i><span id="vs-notice-text">クリア者が出ました！あと 10 秒で対戦が終了します！</span>
             </div>
 
-            <!-- Main Typing Card -->
             <div class="my-2 flex-1 flex flex-col items-center justify-center bg-white/95 backdrop-blur p-3 sm:p-5 rounded-3xl shadow-md border border-white relative text-center min-h-[140px] overflow-hidden">
                 <div id="target-display" class="font-extrabold text-slate-800 mb-2 pt-3 leading-relaxed whitespace-nowrap max-w-full overflow-x-auto text-2xl sm:text-4xl">
                     漢字
@@ -295,7 +302,6 @@
                 </div>
             </div>
 
-            <!-- Virtual Keyboard -->
             <div class="bg-white/90 backdrop-blur p-2 sm:p-2.5 rounded-2xl shadow-sm border border-white">
                 <div class="max-w-4xl mx-auto space-y-1 sm:space-y-1.5 text-xs sm:text-sm font-bold text-slate-600">
                     <div class="flex justify-center gap-1 sm:gap-1.5" id="kbd-row-1"></div>
@@ -494,7 +500,6 @@
                 <i class="fa-solid fa-trophy text-amber-500"></i> <ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>・ランキング
             </h2>
 
-            <!-- Frequently Missed Keys Section -->
             <div class="bg-rose-50 border border-rose-200 rounded-2xl p-3 mb-3">
                 <div class="text-xs font-bold text-rose-900 mb-1.5 flex items-center gap-1.5">
                     <i class="fa-solid fa-keyboard text-rose-500"></i> よく間違えるキー文字順（上位5位）
@@ -502,7 +507,6 @@
                 <div id="missed-keys-container" class="flex flex-wrap gap-1.5"></div>
             </div>
 
-            <!-- Sort Bar -->
             <div class="flex flex-wrap items-center justify-between gap-2 mb-3 bg-slate-100 p-2 rounded-2xl border border-slate-200">
                 <span class="text-xs font-bold text-slate-600 ml-1">並び替え:</span>
                 <div class="flex flex-wrap gap-1 text-xs font-bold" id="stats-sort-group">
@@ -512,7 +516,6 @@
                 </div>
             </div>
 
-            <!-- Course Records List -->
             <div id="stats-list-container" class="flex-1 overflow-y-auto space-y-1.5 pr-1 max-h-[360px]"></div>
 
             <div class="mt-4 pt-2 border-t border-slate-200">
@@ -635,6 +638,11 @@
                     firebaseDb = getFirestore(app);
                     firebaseAuth = getAuth(app);
 
+                    // Initialize RTDB global interface if available
+                    if (typeof window.initFirebaseRTDB === 'function') {
+                        window.initFirebaseRTDB(config);
+                    }
+
                     if (!firebaseAuth.currentUser) {
                         const cred = await signInAnonymously(firebaseAuth);
                         currentUser = cred.user;
@@ -683,6 +691,10 @@
             }
         }
 
+        let peerInstance = null;
+        let peerConnections = []; // Host's connections to guests
+        let hostPeerConnection = null; // Guest's connection to host
+
         let mqttClient = null;
         let mqttSubscribedTopic = null;
         let vsHeartbeatTimer = null;
@@ -691,7 +703,6 @@
             if (mqttClient && mqttClient.connected) return mqttClient;
             try {
                 if (typeof mqtt !== 'undefined') {
-                    // Public WebSocket MQTT Broker with resilient random client ID
                     const randomId = 'tr100_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now().toString(36);
                     mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
                         clientId: randomId,
@@ -700,7 +711,6 @@
                     });
 
                     mqttClient.on('connect', () => {
-                        console.log('Online MQTT Relay Connected for GitHub Pages Cross-Device Play');
                         if (mqttSubscribedTopic) {
                             mqttClient.subscribe(mqttSubscribedTopic);
                         }
@@ -712,14 +722,8 @@
                             handleMqttRealtimeMessage(topic, payload);
                         } catch(e) {}
                     });
-
-                    mqttClient.on('error', (err) => {
-                        console.warn('MQTT Connection Error:', err);
-                    });
                 }
-            } catch(e) {
-                console.warn('MQTT initialization failed:', e);
-            }
+            } catch(e) {}
             return mqttClient;
         }
 
@@ -731,7 +735,6 @@
                 if (vsRoomId !== code) return;
 
                 if (payload.type === 'PING') {
-                    // Host answers ping with current room state
                     if (vsIsHost && vsRoomData) {
                         broadcastMqttVsRoomState(code, vsRoomData);
                     }
@@ -813,6 +816,82 @@
             }, 2000);
         }
 
+        function initPeerJSForHost(roomCode) {
+            if (typeof Peer === 'undefined') return;
+            try {
+                const peerId = `tr100_host_${roomCode}`;
+                peerInstance = new Peer(peerId, { debug: 1 });
+
+                peerInstance.on('connection', (conn) => {
+                    peerConnections.push(conn);
+
+                    conn.on('data', (data) => {
+                        handleP2PDataReceived(data);
+                    });
+
+                    conn.on('close', () => {
+                        peerConnections = peerConnections.filter(c => c !== conn);
+                    });
+                });
+            } catch(e) {
+                console.warn("PeerJS Host init fallback:", e);
+            }
+        }
+
+        function initPeerJSForGuest(roomCode) {
+            if (typeof Peer === 'undefined') return;
+            try {
+                peerInstance = new Peer();
+                peerInstance.on('open', () => {
+                    hostPeerConnection = peerInstance.connect(`tr100_host_${roomCode}`);
+                    
+                    if (hostPeerConnection) {
+                        hostPeerConnection.on('open', () => {
+                            hostPeerConnection.send({
+                                type: 'P2P_JOIN',
+                                userId: vsUserId,
+                                name: vsUserNickname
+                            });
+                        });
+
+                        hostPeerConnection.on('data', (data) => {
+                            handleP2PDataReceived(data);
+                        });
+                    }
+                });
+            } catch(e) {
+                console.warn("PeerJS Guest init fallback:", e);
+            }
+        }
+
+        function broadcastP2PToAll(payload) {
+            if (vsIsHost) {
+                peerConnections.forEach(conn => {
+                    if (conn && conn.open) {
+                        conn.send(payload);
+                    }
+                });
+            } else if (hostPeerConnection && hostPeerConnection.open) {
+                hostPeerConnection.send(payload);
+            }
+        }
+
+        function handleP2PDataReceived(data) {
+            if (!data || !data.type) return;
+
+            if (data.type === 'P2P_SCORE') {
+                if (vsRoomData && vsRoomData.members && vsRoomData.members[data.userId]) {
+                    vsRoomData.members[data.userId].score = data.score;
+                    if (typeof window.onLocalVsRoomUpdate === 'function') {
+                        window.onLocalVsRoomUpdate(vsRoomData);
+                    }
+                    if (vsIsHost) {
+                        broadcastP2PToAll(data);
+                    }
+                }
+            }
+        }
+
         const localVsRooms = {};
         const vsChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('typing_vs_hybrid_channel') : null;
 
@@ -868,17 +947,6 @@
                     } catch(e) {}
                     if (vsRoomId === roomCode && typeof window.onLocalVsRoomUpdate === 'function') {
                         window.onLocalVsRoomUpdate(null);
-                    }
-                } else if (type === 'REQ_VS_ROOM' && roomCode) {
-                    let r = localVsRooms[roomCode];
-                    if (!r) {
-                        try {
-                            const stored = localStorage.getItem(`typing_vs_room_${roomCode}`);
-                            if (stored) r = safeJsonParse(stored, null);
-                        } catch(e) {}
-                    }
-                    if (r) {
-                        broadcastLocalVsRoom(roomCode, r);
                     }
                 }
             };
@@ -946,12 +1014,11 @@
                         osc.start(now);
                         osc.stop(now + 0.1);
                     } else if (this.soundMode === '3') {
-                        // 派手で迫力のある「ズギューン！」という発砲音（高レゾナンススイープ ＋ 急降下ピッチ）
+                        // 派手で伸びのある「ズギューン！」発砲音
                         const osc = this.ctx.createOscillator();
                         const gain = this.ctx.createGain();
                         const filter = this.ctx.createBiquadFilter();
 
-                        // 3200Hzから80Hzへ一気にピッチダウン
                         osc.type = 'sawtooth';
                         osc.frequency.setValueAtTime(3200, now);
                         osc.frequency.exponentialRampToValueAtTime(80, now + 0.18);
@@ -1310,7 +1377,7 @@
                     { id: 'drinks', name: '<ruby>飲<rt>の</rt></ruby>み<ruby>物<rt>もの</rt></ruby>' },
                     { id: 'yakiniku', name: '<ruby>焼<rt>やき</rt></ruby><ruby>肉<rt>にく</rt></ruby>の<ruby>部<rt>ぶ</rt></ruby><ruby>位<rt>い</rt></ruby>' },
                     { id: 'local_dishes', name: '<ruby>郷<rt>きょう</rt></ruby><ruby>土<rt>ど</rt></ruby><ruby>料<rt>りょう</rt></ruby><ruby>理<rt>り</rt></ruby>' },
-                    { id: 'world_dishes', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby>の<ruby>名<rt>めい</rt></ruby><ruby>物<rt>ぶつ</rt></ruby><ruby>料<rt>りょう</rt></ruby><ruby>理<rt>り</rt></ruby>' },
+                    { id: 'world_dishes', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby>の<ruby>名<rt>めい</rt></ruby><ruby>物<rt>ぶつ</rt></ruby><ruby>料<rt>りょう</rt></ruby>' },
                     { id: 'snacks_candies', name: 'お<ruby>菓<rt>か</rt></ruby><ruby>子<rt>し</rt></ruby>・<ruby>駄<rt>だ</rt></ruby><ruby>菓<rt>か</rt></ruby><ruby>子<rt>し</rt></ruby>' },
                     { id: 'spices_condiments', name: '<ruby>調<rt>ちょう</rt></ruby><ruby>味<rt>み</rt></ruby><ruby>料<rt>りょう</rt></ruby>・スパイス' }
                 ]
@@ -1555,9 +1622,7 @@
                         state = { ...state, ...parsed };
                     }
                 }
-            } catch (e) {
-                console.warn("LocalStorage load error:", e);
-            }
+            } catch (e) {}
 
             if (!Array.isArray(state.unlockedCourses) || state.unlockedCourses.length === 0) {
                 state.unlockedCourses = [...DEFAULT_UNLOCKED];
@@ -1621,7 +1686,7 @@
                 "落ち着いて、画面を見てリラックスして打とう！",
                 "好きなコースを何回もプレイしてスコアアップを目指そう！",
                 "間違えても大丈夫！何度もチャレンジして覚えよう！",
-                "友達や家族と対戦（マルチプレイ）やグループ機能で盛り上がろう！"
+                "Firebase RTDB + PeerJS P2Pの超低遅延マルチ対戦で友達と対戦しよう！"
             ];
             const msg = messages[Math.floor(Math.random() * messages.length)];
             const el = document.getElementById('daily-message-text');
@@ -1706,11 +1771,6 @@
                 COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
                 const unlockedCoursesList = allCourses.filter(course => state.unlockedCourses.includes(course.id));
 
-                if (unlockedCoursesList.length === 0) {
-                    container.innerHTML = '<div class="text-center py-8 text-xs sm:text-sm font-bold text-slate-400">解放されているコースはありません</div>';
-                    return;
-                }
-
                 const grid = document.createElement('div');
                 grid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3';
 
@@ -1734,12 +1794,9 @@
                         renderCategories();
                     };
 
-                    let badgeHtml = '';
-                    if (playCount < 3) {
-                        badgeHtml = `<span class="${isSelected ? 'text-sky-100' : 'text-indigo-500'} font-bold whitespace-nowrap"><i class="fa-solid fa-gamepad mr-0.5"></i>${playCount}/3回</span>`;
-                    } else {
-                        badgeHtml = `<span class="${isSelected ? 'text-sky-100' : 'text-amber-500'} font-bold whitespace-nowrap"><i class="fa-solid fa-crown mr-0.5"></i>${highScore}</span>`;
-                    }
+                    let badgeHtml = playCount < 3
+                        ? `<span class="${isSelected ? 'text-sky-100' : 'text-indigo-500'} font-bold whitespace-nowrap"><i class="fa-solid fa-gamepad mr-0.5"></i>${playCount}/3回</span>`
+                        : `<span class="${isSelected ? 'text-sky-100' : 'text-amber-500'} font-bold whitespace-nowrap"><i class="fa-solid fa-crown mr-0.5"></i>${highScore}</span>`;
 
                     card.innerHTML = `
                         <span class="text-xs sm:text-sm font-extrabold truncate mr-1.5 flex-1 text-left leading-tight">
@@ -1985,7 +2042,7 @@
 
             if (validOpt) {
                 sound.playType();
-                // 1 Key = +1 Point
+                // Exact Scoring: 1 Key = +1 Point
                 game.score += 1;
                 game.correctCount++;
                 document.getElementById('game-score').textContent = game.score;
@@ -1997,7 +2054,7 @@
                     game.nodeIndex += 1;
                     if (game.nodeIndex >= game.nodes.length) {
                         sound.playPingPong();
-                        // 1 Word Finished = +10 Points
+                        // Exact Scoring: 1 Word Complete = +10 Points
                         game.score += 10;
                         document.getElementById('game-score').textContent = game.score;
 
@@ -2052,9 +2109,7 @@
                             }
                         }
                     }
-                } catch (e) {
-                    console.warn("Group sync update warning:", e);
-                }
+                } catch (e) {}
             });
         }
 
@@ -2171,9 +2226,13 @@
 
             vsRoomId = roomCode;
 
+            // Initialize PeerJS for Host P2P Data Channels
+            initPeerJSForHost(roomCode);
+
             const initialData = {
                 code: vsRoomId,
                 hostId: vsUserId,
+                hostPeerId: `tr100_host_${vsRoomId}`,
                 status: 'waiting',
                 courseId: 'aiueo',
                 members: {
@@ -2197,15 +2256,15 @@
             subscribeMqttVsTopic(vsRoomId);
             startVsHeartbeat(vsRoomId);
 
-            if (hasValidFirebaseConfig()) {
+            // Firebase Realtime Database setup with onDisconnect().remove()
+            if (window.rtdb && window.rtdb.db) {
                 try {
-                    if (firebaseDb) {
-                        const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                        const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
-                        await setDoc(roomRef, initialData);
-                    }
-                } catch (e) {
-                    console.warn("Firestore setDoc failed, operating in MQTT hybrid mode:", e);
+                    const roomRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}`);
+                    await window.rtdb.set(roomRef, initialData);
+                    // Automatic room cleanup when Host disconnects
+                    window.rtdb.onDisconnect(roomRef).remove();
+                } catch(e) {
+                    console.warn("RTDB set error:", e);
                 }
             }
 
@@ -2236,6 +2295,9 @@
             vsIsHost = false;
             vsRoomId = code;
 
+            // Initialize PeerJS for Guest P2P Data Channel
+            initPeerJSForGuest(code);
+
             subscribeMqttVsTopic(code);
             startVsHeartbeat(code);
 
@@ -2249,7 +2311,6 @@
                 unlocked: state.unlockedCourses || ['aiueo', 'dakuon_handakuon', 'sokuon_youon']
             };
 
-            // Request Host to acknowledge and sync room state via MQTT
             const client = initMqtt();
             if (client && client.connected) {
                 client.publish(`typing_rush_100/vs/${code}`, JSON.stringify({
@@ -2268,7 +2329,6 @@
                 } catch(e) {}
             }
 
-            // Short wait loop to receive room state via MQTT / BroadcastChannel / Firestore
             for (let i = 0; i < 12; i++) {
                 if (localVsRooms[code] || vsRoomData) {
                     room = localVsRooms[code] || vsRoomData;
@@ -2278,7 +2338,6 @@
             }
 
             if (!room) {
-                // Construct temporary guest view room while waiting for host broadcast
                 room = {
                     code: code,
                     hostId: 'unknown',
@@ -2296,14 +2355,13 @@
             vsRoomData = room;
             broadcastLocalVsRoom(code, room);
 
-            if (hasValidFirebaseConfig() && firebaseDb && firebaseAuth?.currentUser) {
+            // RTDB member registration & onDisconnect handler
+            if (window.rtdb && window.rtdb.db) {
                 try {
-                    const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                    const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', code);
-                    await updateDoc(roomRef, {
-                        [`members.${vsUserId}`]: myMemberData
-                    });
-                } catch (e) {}
+                    const memberRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${code}/members/${vsUserId}`);
+                    await window.rtdb.set(memberRef, myMemberData);
+                    window.rtdb.onDisconnect(memberRef).remove();
+                } catch(e) {}
             }
 
             subscribeVsRoom(vsRoomId);
@@ -2349,33 +2407,21 @@
                 }
             };
 
-            if (hasValidFirebaseConfig() && firebaseDb) {
+            // Subscribe to Realtime Database onValue listener
+            if (window.rtdb && window.rtdb.db) {
                 try {
-                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, onSnapshot }) => {
-                        const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', roomId);
-                        vsUnsubscribe = onSnapshot(roomRef, (snapshot) => {
-                            if (!snapshot.exists()) {
-                                if (localVsRooms[roomId]) {
-                                    window.onLocalVsRoomUpdate(localVsRooms[roomId]);
-                                } else {
-                                    window.onLocalVsRoomUpdate(null);
-                                }
-                                return;
-                            }
-
-                            const updated = snapshot.data();
-                            localVsRooms[roomId] = updated;
-                            broadcastLocalVsRoom(roomId, updated);
-                            window.onLocalVsRoomUpdate(updated);
-                        }, () => {
-                            if (localVsRooms[roomId]) window.onLocalVsRoomUpdate(localVsRooms[roomId]);
-                        });
-                    }).catch(() => {
-                        if (localVsRooms[roomId]) window.onLocalVsRoomUpdate(localVsRooms[roomId]);
+                    const roomRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${roomId}`);
+                    window.rtdb.onValue(roomRef, (snapshot) => {
+                        const data = snapshot.val();
+                        if (!data) {
+                            window.onLocalVsRoomUpdate(null);
+                        } else {
+                            localVsRooms[roomId] = data;
+                            broadcastLocalVsRoom(roomId, data);
+                            window.onLocalVsRoomUpdate(data);
+                        }
                     });
-                } catch (e) {
-                    if (localVsRooms[roomId]) window.onLocalVsRoomUpdate(localVsRooms[roomId]);
-                }
+                } catch(e) {}
             } else if (localVsRooms[roomId]) {
                 window.onLocalVsRoomUpdate(localVsRooms[roomId]);
             }
@@ -2423,7 +2469,7 @@
             const allCourses = [];
             COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
 
-            // UNION of Unlocked Courses across ALL room members
+            // Union condition: Course unlocked if ANY joined member has unlocked it
             let unionUnlocked = new Set();
             members.forEach(m => {
                 if (m.unlocked && Array.isArray(m.unlocked)) {
@@ -2473,28 +2519,17 @@
                 broadcastLocalVsRoom(vsRoomId, vsRoomData);
             }
 
-            try {
-                if (firebaseDb) {
-                    const { doc, getDoc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                    const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
-                    const snapshot = await getDoc(roomRef);
-                    if (snapshot.exists()) {
-                        const room = snapshot.data();
-                        room.status = 'playing';
-                        room.courseId = courseId;
-                        room.firstFinishTime = null;
-                        room.firstFinishName = null;
-
-                        Object.keys(room.members).forEach(id => {
-                            room.members[id].score = 0;
-                            room.members[id].wpm = 0;
-                            room.members[id].finished = false;
-                        });
-
-                        await setDoc(roomRef, room);
-                    }
-                }
-            } catch (e) {}
+            if (window.rtdb && window.rtdb.db) {
+                try {
+                    const roomRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}`);
+                    await window.rtdb.update(roomRef, {
+                        status: 'playing',
+                        courseId: courseId,
+                        firstFinishTime: null,
+                        firstFinishName: null
+                    });
+                } catch (e) {}
+            }
         }
 
         async function updateVsLiveScore() {
@@ -2503,6 +2538,14 @@
                 vsRoomData.members[vsUserId].score = game.score;
                 broadcastLocalVsRoom(vsRoomId, vsRoomData);
             }
+
+            // High-speed P2P WebRTC data transmission
+            broadcastP2PToAll({
+                type: 'P2P_SCORE',
+                userId: vsUserId,
+                score: game.score
+            });
+
             const client = initMqtt();
             if (client && client.connected) {
                 client.publish(`typing_rush_100/vs/${vsRoomId}`, JSON.stringify({
@@ -2511,15 +2554,6 @@
                     score: game.score
                 }));
             }
-            try {
-                if (firebaseDb) {
-                    const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                    const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
-                    await updateDoc(roomRef, {
-                        [`members.${vsUserId}.score`]: game.score
-                    });
-                }
-            } catch (e) {}
         }
 
         function handleVsCountdownTrigger(firstFinishTime, winnerName) {
@@ -2562,30 +2596,12 @@
                     broadcastLocalVsRoom(vsRoomId, vsRoomData);
                 }
 
-                try {
-                    if (firebaseDb) {
-                        const { doc, getDoc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                        const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
-                        const snapshot = await getDoc(roomRef);
-                        if (snapshot.exists()) {
-                            const room = snapshot.data();
-                            room.members[vsUserId].score = finalScore;
-                            room.members[vsUserId].wpm = wpm;
-                            room.members[vsUserId].finished = true;
-
-                            let updatePayload = {
-                                [`members.${vsUserId}`]: room.members[vsUserId]
-                            };
-
-                            if (!room.firstFinishTime) {
-                                updatePayload.firstFinishTime = Date.now();
-                                updatePayload.firstFinishName = vsUserNickname;
-                            }
-
-                            await updateDoc(roomRef, updatePayload);
-                        }
-                    }
-                } catch (e) {}
+                if (window.rtdb && window.rtdb.db) {
+                    try {
+                        const memberRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}/members/${vsUserId}`);
+                        await window.rtdb.update(memberRef, { score: finalScore, wpm: wpm, finished: true });
+                    } catch(e) {}
+                }
             }
             setTimeout(showVsResultModal, 800);
         }
@@ -2661,47 +2677,22 @@
             }
 
             if (vsRoomId && vsUserId) {
-                const client = initMqtt();
-                if (client && client.connected) {
-                    client.publish(`typing_rush_100/vs/${vsRoomId}`, JSON.stringify({
-                        type: vsIsHost ? 'ROOM_CLOSED' : 'LEAVE_REQ',
-                        userId: vsUserId
-                    }));
+                if (window.rtdb && window.rtdb.db) {
+                    try {
+                        const roomRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}`);
+                        if (vsIsHost) {
+                            await window.rtdb.remove(roomRef);
+                        } else {
+                            const memberRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}/members/${vsUserId}`);
+                            await window.rtdb.remove(memberRef);
+                        }
+                    } catch(e) {}
                 }
 
                 delete localVsRooms[vsRoomId];
                 try {
                     localStorage.removeItem(`typing_vs_room_${vsRoomId}`);
                 } catch(e) {}
-
-                if (vsChannel) {
-                    vsChannel.postMessage({ type: 'VS_ROOM_DELETE', roomCode: vsRoomId });
-                }
-
-                if (hasValidFirebaseConfig() && firebaseDb) {
-                    try {
-                        const { doc, getDoc, updateDoc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                        const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
-                        const snapshot = await getDoc(roomRef);
-
-                        if (snapshot.exists()) {
-                            const room = snapshot.data();
-                            
-                            if (vsIsHost) {
-                                await deleteDoc(roomRef);
-                            } else {
-                                delete room.members[vsUserId];
-                                const remainingGuests = Object.values(room.members).filter(m => !m.isHost).length;
-                                
-                                if (remainingGuests === 0) {
-                                    await deleteDoc(roomRef);
-                                } else {
-                                    await updateDoc(roomRef, { members: room.members });
-                                }
-                            }
-                        }
-                    } catch (e) {}
-                }
             }
 
             vsRoomId = null;
@@ -2982,9 +2973,7 @@
                 let manualOrderHtml = '';
 
                 if (isOwner) {
-                    ownerMemoHtml = `
-                        <input type="text" data-member-id="${m.id}" value="${m.memo || ''}" class="member-memo-input px-2 py-0.5 border border-slate-300 rounded text-[11px] w-20 font-normal focus:outline-none focus:ring-1 focus:ring-purple-400" placeholder="メモ/番号">
-                    `;
+                    ownerMemoHtml = `<input type="text" data-member-id="${m.id}" value="${m.memo || ''}" class="member-memo-input px-2 py-0.5 border border-slate-300 rounded text-[11px] w-20 font-normal focus:outline-none focus:ring-1 focus:ring-purple-400" placeholder="メモ/番号">`;
                     manualOrderHtml = `
                         <div class="flex gap-0.5">
                             <button data-move="up" data-member-id="${m.id}" class="move-order-btn text-[10px] bg-slate-100 hover:bg-slate-200 px-1.5 py-0.5 rounded">▲</button>
@@ -3015,51 +3004,6 @@
                 `;
                 listContainer.appendChild(card);
             });
-
-            if (isOwner) {
-                document.querySelectorAll('.member-memo-input').forEach(input => {
-                    input.onchange = async (e) => {
-                        const targetId = e.target.dataset.memberId;
-                        const val = e.target.value.trim();
-                        try {
-                            if (firebaseDb) {
-                                const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                                const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', activeGroupData.code);
-                                await updateDoc(gRef, { [`members.${targetId}.memo`]: val });
-                            }
-                        } catch (err) {}
-                    };
-                });
-
-                document.querySelectorAll('.move-order-btn').forEach(btn => {
-                    btn.onclick = async (e) => {
-                        const targetId = e.target.dataset.memberId;
-                        const dir = e.target.dataset.move;
-                        const currIndex = membersList.findIndex(m => m.id === targetId);
-                        if (currIndex < 0) return;
-
-                        const targetIndex = dir === 'up' ? currIndex - 1 : currIndex + 1;
-                        if (targetIndex >= 0 && targetIndex < membersList.length) {
-                            const temp = membersList[currIndex];
-                            membersList[currIndex] = membersList[targetIndex];
-                            membersList[targetIndex] = temp;
-
-                            const updates = {};
-                            membersList.forEach((m, idx) => {
-                                updates[`members.${m.id}.order`] = idx + 1;
-                            });
-
-                            try {
-                                if (firebaseDb) {
-                                    const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                                    const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', activeGroupData.code);
-                                    await updateDoc(gRef, updates);
-                                }
-                            } catch (err) {}
-                        }
-                    };
-                });
-            }
         }
 
         async function updateGroupPrivacySettings(key, value) {
@@ -3514,17 +3458,16 @@
                         vsRoomData.firstFinishName = null;
                         broadcastLocalVsRoom(vsRoomId, vsRoomData);
                     }
-                    try {
-                        if (firebaseDb) {
-                            const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                            const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
-                            await updateDoc(roomRef, {
+                    if (window.rtdb && window.rtdb.db) {
+                        try {
+                            const roomRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}`);
+                            await window.rtdb.update(roomRef, {
                                 status: 'waiting',
                                 firstFinishTime: null,
                                 firstFinishName: null
                             });
-                        }
-                    } catch (e) {}
+                        } catch(e) {}
+                    }
                 }
             };
 
@@ -3540,17 +3483,16 @@
                         vsRoomData.firstFinishName = null;
                         broadcastLocalVsRoom(vsRoomId, vsRoomData);
                     }
-                    try {
-                        if (firebaseDb) {
-                            const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                            const roomRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'vs_rooms', vsRoomId);
-                            await updateDoc(roomRef, {
+                    if (window.rtdb && window.rtdb.db) {
+                        try {
+                            const roomRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}`);
+                            await window.rtdb.update(roomRef, {
                                 status: 'waiting',
                                 firstFinishTime: null,
                                 firstFinishName: null
                             });
-                        }
-                    } catch (e) {}
+                        } catch(e) {}
+                    }
                 }
             };
 
