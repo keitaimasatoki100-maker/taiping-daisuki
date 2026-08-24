@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- MQTT.js for Zero-Config Cross-Device Realtime Online Play -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -118,7 +120,6 @@
                 </div>
             </header>
 
-            <!-- Control Buttons Bar -->
             <div class="bg-white/90 backdrop-blur p-2.5 rounded-2xl shadow-sm border border-white mb-3 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
                 <button id="start-game-btn" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold text-base sm:text-lg px-8 py-2 rounded-2xl shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-play"></i>スタート！
@@ -151,7 +152,6 @@
             </div>
         </div>
 
-        <!-- VS SCREEN -->
         <div id="vs-screen" class="hidden flex-1 flex flex-col">
             <!-- VS Header -->
             <div class="bg-white/90 backdrop-blur px-4 py-2.5 rounded-2xl shadow-sm border border-white mb-3 flex items-center justify-between">
@@ -159,7 +159,7 @@
                     <i class="fa-solid fa-arrow-left mr-1"></i>トップへもどる
                 </button>
                 <div class="font-extrabold text-base sm:text-lg text-purple-700 flex items-center gap-2">
-                    <i class="fa-solid fa-gamepad text-purple-600"></i> 友だちと対戦
+                    <i class="fa-solid fa-gamepad text-purple-600"></i> 友だちと対戦（オンライン）
                 </div>
                 <div class="w-16"></div>
             </div>
@@ -207,7 +207,6 @@
                 </div>
             </div>
 
-            <!-- VS Room View -->
             <div id="vs-room-view" class="hidden flex-1 bg-white/80 backdrop-blur p-4 sm:p-6 rounded-3xl shadow-sm border border-white flex flex-col max-w-2xl mx-auto w-full overflow-y-auto">
                 <div class="bg-purple-50 border border-purple-200 rounded-2xl p-3.5 mb-4 text-center relative">
                     <div class="text-xs font-bold text-purple-700">部屋コード（友だちに教えてね）</div>
@@ -237,7 +236,7 @@
                 <div class="flex-1 bg-white p-4 rounded-2xl border border-slate-200 mb-4 shadow-sm flex flex-col min-h-[160px]">
                     <div class="text-xs font-bold text-slate-600 mb-2 flex justify-between items-center">
                         <span>参加メンバー一覧 (<span id="vs-member-count">0</span>人)</span>
-                        <span class="text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-wifi mr-1"></i>リアルタイム同期中</span>
+                        <span class="text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-wifi mr-1"></i>リアルタイム通信接続中</span>
                     </div>
                     <div id="vs-member-list" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-1.5 overflow-y-auto max-h-[220px] p-1">
                     </div>
@@ -257,7 +256,6 @@
             </div>
         </div>
 
-        <!-- PLAY SCREEN -->
         <div id="play-screen" class="hidden flex-1 flex flex-col justify-between max-h-[calc(100vh-20px)] overflow-hidden">
             <!-- Header Bar -->
             <div class="bg-white/90 backdrop-blur px-4 py-2 rounded-2xl shadow-sm border border-white flex items-center justify-between">
@@ -685,6 +683,118 @@
             }
         }
 
+        let mqttClient = null;
+        let mqttSubscribedTopic = null;
+
+        function initMqtt() {
+            if (mqttClient && mqttClient.connected) return mqttClient;
+            try {
+                if (typeof mqtt !== 'undefined') {
+                    // Public WebSocket MQTT Broker (EMQX Public Broker)
+                    mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
+                        clientId: 'typing_rush_' + Math.random().toString(36).substring(2, 11),
+                        keepalive: 30,
+                        reconnectPeriod: 2000
+                    });
+
+                    mqttClient.on('connect', () => {
+                        console.log('Connected to MQTT Relay for Cross-Device Online Play');
+                        if (mqttSubscribedTopic) {
+                            mqttClient.subscribe(mqttSubscribedTopic);
+                        }
+                    });
+
+                    mqttClient.on('message', (topic, message) => {
+                        try {
+                            const payload = JSON.parse(message.toString());
+                            handleMqttRealtimeMessage(topic, payload);
+                        } catch(e) {}
+                    });
+
+                    mqttClient.on('error', (err) => {
+                        console.warn('MQTT Connection Error:', err);
+                    });
+                }
+            } catch(e) {
+                console.warn('MQTT initialization failed:', e);
+            }
+            return mqttClient;
+        }
+
+        function handleMqttRealtimeMessage(topic, payload) {
+            if (!payload || !payload.type) return;
+
+            if (topic.startsWith('typing_rush_100/vs/')) {
+                const code = topic.replace('typing_rush_100/vs/', '');
+                if (vsRoomId !== code) return;
+
+                if (payload.type === 'PING') {
+                    // Host answers ping with current room state
+                    if (vsIsHost && vsRoomData) {
+                        broadcastMqttVsRoomState(code, vsRoomData);
+                    }
+                } else if (payload.type === 'JOIN_REQ') {
+                    if (vsIsHost && vsRoomData) {
+                        vsRoomData.members = vsRoomData.members || {};
+                        vsRoomData.members[payload.user.id] = payload.user;
+                        broadcastLocalVsRoom(code, vsRoomData);
+                        broadcastMqttVsRoomState(code, vsRoomData);
+                    }
+                } else if (payload.type === 'LEAVE_REQ') {
+                    if (vsRoomData && vsRoomData.members) {
+                        delete vsRoomData.members[payload.userId];
+                        if (vsIsHost) {
+                            broadcastLocalVsRoom(code, vsRoomData);
+                            broadcastMqttVsRoomState(code, vsRoomData);
+                        }
+                    }
+                } else if (payload.type === 'ROOM_STATE') {
+                    if (payload.data) {
+                        vsRoomData = payload.data;
+                        broadcastLocalVsRoom(code, vsRoomData);
+                        if (typeof window.onLocalVsRoomUpdate === 'function') {
+                            window.onLocalVsRoomUpdate(vsRoomData);
+                        }
+                    }
+                } else if (payload.type === 'SCORE_UPDATE') {
+                    if (vsRoomData && vsRoomData.members && vsRoomData.members[payload.userId]) {
+                        vsRoomData.members[payload.userId].score = payload.score;
+                        if (vsIsHost) {
+                            broadcastMqttVsRoomState(code, vsRoomData);
+                        }
+                        if (typeof window.onLocalVsRoomUpdate === 'function') {
+                            window.onLocalVsRoomUpdate(vsRoomData);
+                        }
+                    }
+                } else if (payload.type === 'ROOM_CLOSED') {
+                    delete localVsRooms[code];
+                    if (typeof window.onLocalVsRoomUpdate === 'function') {
+                        window.onLocalVsRoomUpdate(null);
+                    }
+                }
+            }
+        }
+
+        function broadcastMqttVsRoomState(code, roomData) {
+            const client = initMqtt();
+            if (client && client.connected) {
+                const topic = `typing_rush_100/vs/${code}`;
+                client.publish(topic, JSON.stringify({
+                    type: 'ROOM_STATE',
+                    data: roomData
+                }));
+            }
+        }
+
+        function subscribeMqttVsTopic(code) {
+            const client = initMqtt();
+            const topic = `typing_rush_100/vs/${code}`;
+            mqttSubscribedTopic = topic;
+            if (client && client.connected) {
+                client.subscribe(topic);
+            }
+        }
+
         const localVsRooms = {};
         const vsChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('typing_vs_hybrid_channel') : null;
 
@@ -696,6 +806,9 @@
             } catch(e) {}
             if (vsChannel) {
                 vsChannel.postMessage({ type: 'VS_ROOM_SYNC', roomCode, data: roomData });
+            }
+            if (vsIsHost) {
+                broadcastMqttVsRoomState(roomCode, roomData);
             }
         }
 
@@ -820,12 +933,11 @@
                         const gain = this.ctx.createGain();
                         const filter = this.ctx.createBiquadFilter();
 
-                        // 3200Hzから80Hzへ一気にピッチダウン（「ギューン」感）
+                        // 3200Hzから80Hzへ一気にピッチダウン
                         osc.type = 'sawtooth';
                         osc.frequency.setValueAtTime(3200, now);
                         osc.frequency.exponentialRampToValueAtTime(80, now + 0.18);
 
-                        // 高いレゾナンス(Q=6.0)のローパスフィルターでうねりと鋭さを強調
                         filter.type = 'lowpass';
                         filter.Q.setValueAtTime(6.0, now);
                         filter.frequency.setValueAtTime(4800, now);
@@ -838,7 +950,6 @@
                         filter.connect(gain);
                         gain.connect(this.ctx.destination);
 
-                        // アタック用の超短時間ノイズ（最初の「ズ」の破裂アタック感）
                         const bufferSize = Math.floor(this.ctx.sampleRate * 0.05);
                         const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
                         const output = buffer.getChannelData(0);
@@ -1856,6 +1967,7 @@
 
             if (validOpt) {
                 sound.playType();
+                // 1 Key = +1 Point
                 game.score += 1;
                 game.correctCount++;
                 document.getElementById('game-score').textContent = game.score;
@@ -1867,6 +1979,7 @@
                     game.nodeIndex += 1;
                     if (game.nodeIndex >= game.nodes.length) {
                         sound.playPingPong();
+                        // 1 Word Finished = +10 Points
                         game.score += 10;
                         document.getElementById('game-score').textContent = game.score;
 
@@ -2005,6 +2118,7 @@
 
         async function openVsLobby() {
             await initAuth();
+            initMqtt();
             document.getElementById('top-screen').classList.add('hidden');
             document.getElementById('vs-screen').classList.remove('hidden');
             document.getElementById('vs-lobby-view').classList.remove('hidden');
@@ -2062,6 +2176,7 @@
 
             vsRoomData = initialData;
             broadcastLocalVsRoom(vsRoomId, initialData);
+            subscribeMqttVsTopic(vsRoomId);
 
             if (hasValidFirebaseConfig()) {
                 try {
@@ -2071,7 +2186,7 @@
                         await setDoc(roomRef, initialData);
                     }
                 } catch (e) {
-                    console.warn("Firestore setDoc failed, operating in local mode:", e);
+                    console.warn("Firestore setDoc failed, operating in MQTT hybrid mode:", e);
                 }
             }
 
@@ -2102,8 +2217,9 @@
             vsIsHost = false;
             vsRoomId = code;
 
-            let room = null;
+            subscribeMqttVsTopic(code);
 
+            let room = null;
             if (localVsRooms[code]) {
                 room = localVsRooms[code];
             }
@@ -2111,9 +2227,7 @@
             if (!room) {
                 try {
                     const stored = localStorage.getItem(`typing_vs_room_${code}`);
-                    if (stored) {
-                        room = safeJsonParse(stored, null);
-                    }
+                    if (stored) room = safeJsonParse(stored, null);
                 } catch(e) {}
             }
 
@@ -2127,37 +2241,58 @@
                     if (snapshot && snapshot.exists()) {
                         room = snapshot.data();
                     }
-                } catch (e) {
-                    console.warn("Firestore lookup fallback to local:", e);
-                }
+                } catch (e) {}
+            }
+
+            // MQTT PING to request room state across devices
+            const client = initMqtt();
+            if (client && client.connected) {
+                client.publish(`typing_rush_100/vs/${code}`, JSON.stringify({
+                    type: 'JOIN_REQ',
+                    user: {
+                        id: vsUserId,
+                        name: vsUserNickname,
+                        isHost: false,
+                        score: 0,
+                        wpm: 0,
+                        finished: false,
+                        unlocked: state.unlockedCourses || ['aiueo', 'dakuon_handakuon', 'sokuon_youon']
+                    }
+                }));
             }
 
             if (!room && vsChannel) {
                 vsChannel.postMessage({ type: 'REQ_VS_ROOM', roomCode: code });
-                for (let i = 0; i < 8; i++) {
-                    await new Promise(r => setTimeout(r, 100));
-                    if (localVsRooms[code]) {
-                        room = localVsRooms[code];
-                        break;
-                    }
-                    try {
-                        const stored = localStorage.getItem(`typing_vs_room_${code}`);
-                        if (stored) {
-                            room = safeJsonParse(stored, null);
-                            if (room) break;
-                        }
-                    } catch(e) {}
+            }
+
+            // Short wait to receive room state via MQTT / BroadcastChannel
+            for (let i = 0; i < 10; i++) {
+                if (localVsRooms[code] || vsRoomData) {
+                    room = localVsRooms[code] || vsRoomData;
+                    break;
                 }
+                await new Promise(r => setTimeout(r, 100));
             }
 
             if (!room) {
-                showMessage("指定された対戦部屋が見つかりません。");
-                return;
-            }
-
-            if (room.status === 'closed') {
-                showMessage("この対戦部屋はすでに閉じられています。");
-                return;
+                // Construct temporary guest view room if waiting for host broadcast
+                room = {
+                    code: code,
+                    hostId: 'unknown',
+                    status: 'waiting',
+                    courseId: 'aiueo',
+                    members: {
+                        [vsUserId]: {
+                            id: vsUserId,
+                            name: vsUserNickname,
+                            isHost: false,
+                            score: 0,
+                            wpm: 0,
+                            finished: false,
+                            unlocked: state.unlockedCourses || ['aiueo', 'dakuon_handakuon', 'sokuon_youon']
+                        }
+                    }
+                };
             }
 
             room.members = room.members || {};
@@ -2301,6 +2436,7 @@
             const allCourses = [];
             COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
 
+            // UNION of Unlocked Courses across ALL room members
             let unionUnlocked = new Set();
             members.forEach(m => {
                 if (m.unlocked && Array.isArray(m.unlocked)) {
@@ -2328,14 +2464,6 @@
             } else {
                 const firstAvailable = allCourses.find(c => unionUnlocked.has(c.id));
                 if (firstAvailable) courseSelect.value = firstAvailable.id;
-            }
-
-            if (!vsIsHost) {
-                const hostExists = members.some(m => m.isHost);
-                if (!hostExists) {
-                    showMessage("対戦オーナーが退出したため、対戦部屋は解散されました。");
-                    exitToTop();
-                }
             }
         }
 
@@ -2387,6 +2515,14 @@
             if (vsRoomData && vsRoomData.members[vsUserId]) {
                 vsRoomData.members[vsUserId].score = game.score;
                 broadcastLocalVsRoom(vsRoomId, vsRoomData);
+            }
+            const client = initMqtt();
+            if (client && client.connected) {
+                client.publish(`typing_rush_100/vs/${vsRoomId}`, JSON.stringify({
+                    type: 'SCORE_UPDATE',
+                    userId: vsUserId,
+                    score: game.score
+                }));
             }
             try {
                 if (firebaseDb) {
@@ -2533,6 +2669,14 @@
             }
 
             if (vsRoomId && vsUserId) {
+                const client = initMqtt();
+                if (client && client.connected) {
+                    client.publish(`typing_rush_100/vs/${vsRoomId}`, JSON.stringify({
+                        type: vsIsHost ? 'ROOM_CLOSED' : 'LEAVE_REQ',
+                        userId: vsUserId
+                    }));
+                }
+
                 delete localVsRooms[vsRoomId];
                 try {
                     localStorage.removeItem(`typing_vs_room_${vsRoomId}`);
@@ -2967,6 +3111,7 @@
             const allCourses = [];
             COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
 
+            // Filter UNLOCKED courses ONLY
             const unlockedCoursesList = allCourses.filter(course => state.unlockedCourses && state.unlockedCourses.includes(course.id));
 
             if (unlockedCoursesList.length === 0) {
