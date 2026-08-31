@@ -43,34 +43,41 @@
             -webkit-user-select: none;
         }
         
-        /* Ruby positioning strictly over kanji */
+        /* Ruby positioning strictly over kanji - always visible without clipping */
         ruby {
             display: inline-flex;
             flex-direction: column-reverse;
             align-items: center;
             vertical-align: bottom;
-            line-height: 1.15;
-            margin: 0 1px;
+            line-height: 1.25;
+            margin: 0 1.5px;
         }
 
         ruby rt {
-            font-size: 0.55em;
+            font-size: 0.52em;
             color: #0284c7;
-            font-weight: bold;
-            line-height: 1;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 2px;
             display: block;
             text-align: center;
             white-space: nowrap;
         }
 
+        /* Ensure target word display never clips ruby or requires scrolling */
+        #target-display {
+            word-break: keep-all;
+            overflow-wrap: break-word;
+            line-height: 1.45;
+        }
+
         .key-cap {
             transition: all 0.08s ease;
-            box-shadow: 0 4px 0 #cbd5e1;
+            box-shadow: 0 3px 0 #cbd5e1;
         }
         .key-cap:active, .key-cap.active {
-            transform: translateY(3px);
+            transform: translateY(2px);
             box-shadow: 0 1px 0 #cbd5e1;
-            background-color: #38bdf8 !important;
             color: white !important;
         }
 
@@ -154,120 +161,11 @@
             <div class="flex-1 bg-white/70 backdrop-blur p-3 sm:p-5 rounded-3xl shadow-sm border border-white overflow-y-auto max-h-[calc(100vh-320px)]">
                 <div id="categories-container" class="space-y-6"></div>
             </div>
-
-            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-center">
-                <button id="open-vs-btn" class="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-rose-500 hover:from-purple-700 hover:to-rose-600 text-white font-extrabold text-sm sm:text-base py-3 rounded-2xl shadow-md transition transform active:scale-98 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-users text-amber-300 text-lg"></i> 友だちと対戦（マルチプレイ）
-                </button>
-                <button id="open-group-btn" class="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-extrabold text-sm sm:text-base py-3 rounded-2xl shadow-md transition transform active:scale-98 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-users-rectangle text-amber-300 text-lg"></i> <ruby>グ<rt>ぐ</rt></ruby><ruby>ルー<rt>るー</rt></ruby><ruby>プ<rt>ぷ</rt></ruby><ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>・<ruby>管<rt>かん</rt></ruby><ruby>理<rt>り</rt></ruby>
-                </button>
-            </div>
-        </div>
-
-        <!-- VS MULTIPLAYER SCREEN -->
-        <div id="vs-screen" class="hidden flex-1 flex flex-col">
-            <div class="bg-white/90 backdrop-blur px-4 py-2.5 rounded-2xl shadow-sm border border-white mb-3 flex items-center justify-between">
-                <button id="exit-vs-btn" class="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition">
-                    <i class="fa-solid fa-arrow-left mr-1"></i>トップへもどる
-                </button>
-                <div class="font-extrabold text-base sm:text-lg text-purple-700 flex items-center gap-2">
-                    <i class="fa-solid fa-gamepad text-purple-600"></i> 友だちと対戦（Firebase RTDB + PeerJS P2P）
-                </div>
-                <div class="w-16"></div>
-            </div>
-
-            <div id="vs-lobby-view" class="flex-1 bg-white/80 backdrop-blur p-4 sm:p-6 rounded-3xl shadow-sm border border-white flex flex-col justify-center max-w-xl mx-auto w-full">
-                <div class="text-center mb-6">
-                    <h2 class="text-xl sm:text-2xl font-black text-slate-800 mb-1">対戦部屋に入る・作る</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 font-bold">スマホやパソコン同士で超低遅延P2P対戦！（最大40人以上）</p>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <label class="block text-xs font-bold text-slate-600 mb-1">あなたのニックネーム</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="vs-nickname-input" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="ニックネームを入力" maxlength="12">
-                            <button id="vs-random-name-btn" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold px-3 py-2 rounded-xl text-xs transition border border-purple-300 flex items-center gap-1 whitespace-nowrap">
-                                <i class="fa-solid fa-dice text-purple-600"></i> チェンジ
-                            </button>
-                        </div>
-                    </div>
-
-                    <button id="vs-create-room-btn" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-extrabold py-3.5 rounded-2xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus-circle text-lg"></i> 新しく部屋を作る（対戦オーナー）
-                    </button>
-
-                    <div class="relative flex py-1 items-center">
-                        <div class="flex-grow border-t border-slate-300"></div>
-                        <span class="flex-shrink mx-4 text-xs font-bold text-slate-400">または</span>
-                        <div class="flex-grow border-t border-slate-300"></div>
-                    </div>
-
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
-                        <label class="block text-xs font-bold text-slate-600">対戦コード（8桁）を入力して参加</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="vs-room-code-input" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl font-mono font-bold text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="例: r8m9k2a4" maxlength="8" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9]/g, '')">
-                            <button id="vs-join-room-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-5 py-2 rounded-xl text-sm transition shadow-sm active:scale-95">
-                                参加する
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="vs-room-view" class="hidden flex-1 bg-white/80 backdrop-blur p-4 sm:p-6 rounded-3xl shadow-sm border border-white flex flex-col max-w-2xl mx-auto w-full overflow-y-auto">
-                <div class="bg-purple-50 border border-purple-200 rounded-2xl p-3.5 mb-4 text-center relative">
-                    <div class="text-xs font-bold text-purple-700">部屋コード（友だちに教えてね）</div>
-                    <div id="vs-room-code-display" class="font-mono text-2xl sm:text-3xl font-black text-purple-900 tracking-wider my-1">
-                        --------
-                    </div>
-                    <button id="vs-copy-code-btn" class="text-xs bg-purple-200 hover:bg-purple-300 text-purple-900 font-bold px-3 py-1 rounded-full transition">
-                        <i class="fa-solid fa-copy mr-1"></i>コードをコピー
-                    </button>
-                </div>
-
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 mb-4 shadow-sm">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="text-xs font-bold text-slate-700 flex items-center gap-1">
-                            <i class="fa-solid fa-book-open text-indigo-500"></i> 対戦コース（参加者の誰かが解放していれば選択可）
-                        </label>
-                        <div id="vs-course-picker-controls" class="flex gap-2">
-                            <button id="vs-random-course-btn" class="hidden text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 font-extrabold px-3 py-1 rounded-xl border border-amber-300 transition">
-                                <i class="fa-solid fa-dice text-amber-600 mr-1"></i> おまかせ
-                            </button>
-                        </div>
-                    </div>
-                    <select id="vs-course-select" class="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-purple-400">
-                    </select>
-                </div>
-
-                <div class="flex-1 bg-white p-4 rounded-2xl border border-slate-200 mb-4 shadow-sm flex flex-col min-h-[160px]">
-                    <div class="text-xs font-bold text-slate-600 mb-2 flex justify-between items-center">
-                        <span>参加メンバー一覧 (<span id="vs-member-count">0</span>人)</span>
-                        <span id="vs-net-badge" class="text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-wifi mr-1"></i>Firebase RTDB + PeerJS P2P 接続中</span>
-                    </div>
-                    <div id="vs-member-list" class="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-1.5 overflow-y-auto max-h-[220px] p-1">
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <button id="vs-start-game-btn" class="hidden w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold py-3.5 rounded-2xl shadow-md text-base sm:text-lg transition transform active:scale-95">
-                        <i class="fa-solid fa-flag-checkered mr-2"></i> 全員で対戦スタート！
-                    </button>
-                    <div id="vs-guest-waiting-msg" class="hidden text-center py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-bold">
-                        <i class="fa-solid fa-spinner fa-spin mr-1.5"></i>対戦オーナーがコースを選んでスタートするのを待っています...
-                    </div>
-                    <button id="vs-leave-room-btn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-2xl border border-slate-300 transition text-sm">
-                        対戦をやめる（部屋から退出）
-                    </button>
-                </div>
-            </div>
         </div>
 
         <!-- PLAY SCREEN -->
-        <div id="play-screen" class="hidden flex-1 flex flex-col justify-between max-h-[calc(100vh-20px)] overflow-hidden">
-            <div class="bg-white/90 backdrop-blur px-4 py-2 rounded-2xl shadow-sm border border-white flex items-center justify-between">
+        <div id="play-screen" class="hidden flex-1 flex flex-col justify-between max-h-[100vh] sm:max-h-[calc(100vh-20px)] overflow-hidden">
+            <div class="bg-white/90 backdrop-blur px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl shadow-sm border border-white flex items-center justify-between flex-shrink-0">
                 <div class="flex items-center gap-2">
                     <button id="exit-game-btn" class="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition">
                         <i class="fa-solid fa-arrow-left mr-1"></i>もどる
@@ -276,145 +174,66 @@
                         ルビ: <span id="ingame-ruby-state">ON</span>
                     </button>
                 </div>
-                <div id="playing-course-title" class="font-black text-sm sm:text-base text-indigo-700 truncate max-w-[200px] sm:max-w-xs">
+                <div id="playing-course-title" class="font-black text-sm sm:text-base text-indigo-700 truncate max-w-[160px] sm:max-w-xs">
                     コース名
                 </div>
-                <div class="flex items-center gap-3 font-bold text-xs sm:text-sm">
-                    <div class="text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                <div class="flex items-center gap-2 sm:gap-3 font-bold text-xs sm:text-sm">
+                    <div class="text-amber-600 bg-amber-50 px-2 sm:px-2.5 py-1 rounded-lg border border-amber-200">
                         スコア: <span id="game-score">0</span>
                     </div>
-                    <div id="timer-box" class="text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200 transition-colors">
-                        残り時間: <span id="game-timer">60</span>s
+                    <div id="timer-box" class="text-sky-600 bg-sky-50 px-2 sm:px-2.5 py-1 rounded-lg border border-sky-200 transition-colors">
+                        残り: <span id="game-timer">60</span>s
                     </div>
                 </div>
             </div>
 
-            <div id="vs-10s-notice" class="hidden bg-rose-500 text-white text-xs sm:text-sm font-black py-1.5 px-4 rounded-xl text-center shadow animate-pulse">
-                <i class="fa-solid fa-clock-rotate-left mr-1"></i><span id="vs-notice-text">クリア者が出ました！あと 10 秒で対戦が終了します！</span>
-            </div>
-
-            <div class="my-2 flex-1 flex flex-col items-center justify-center bg-white/95 backdrop-blur p-3 sm:p-5 rounded-3xl shadow-md border border-white relative text-center min-h-[140px] overflow-hidden">
-                <div id="target-display" class="font-extrabold text-slate-800 mb-2 pt-3 leading-relaxed whitespace-nowrap max-w-full overflow-x-auto text-2xl sm:text-4xl">
+            <!-- TARGET DISPLAY CONTAINER: ALWAYS VISIBLE WITHOUT SCROLLING -->
+            <div class="my-1.5 sm:my-2 flex-1 flex flex-col items-center justify-center bg-white/95 backdrop-blur p-2.5 sm:p-4 rounded-3xl shadow-md border border-white relative text-center min-h-[110px] overflow-visible">
+                <div id="target-display" class="font-extrabold text-slate-800 mb-1.5 sm:mb-2 pt-2 sm:pt-3 leading-relaxed flex flex-wrap justify-center items-center gap-x-0.5 text-2xl sm:text-3xl md:text-4xl max-w-full">
                     漢字
                 </div>
-                <div class="bg-slate-100 px-4 py-2 rounded-xl border border-slate-200 font-mono text-base sm:text-2xl tracking-widest whitespace-nowrap max-w-full overflow-x-auto">
+                <div class="bg-slate-100 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-slate-200 font-mono text-base sm:text-xl md:text-2xl tracking-widest flex flex-wrap justify-center break-all max-w-full">
                     <span id="romaji-done" class="text-emerald-500 font-black"></span><span id="romaji-next" class="text-rose-500 font-black underline underline-offset-4 animate-pulse"></span><span id="romaji-todo" class="text-slate-400"></span>
                 </div>
             </div>
 
-            <div class="bg-white/90 backdrop-blur p-2 sm:p-2.5 rounded-2xl shadow-sm border border-white">
+            <!-- KEYBOARD & FINGER GUIDE CONTAINER -->
+            <div class="bg-white/90 backdrop-blur p-2 sm:p-2.5 rounded-2xl shadow-sm border border-white flex-shrink-0">
+                <!-- 🖐️ FINGER GUIDE BAR -->
+                <div id="finger-guide-container" class="mb-2 bg-slate-50/90 border border-slate-200 rounded-xl p-1.5 sm:p-2 flex flex-col sm:flex-row items-center justify-between gap-1.5 shadow-inner">
+                    <!-- Left: Active finger label -->
+                    <div id="active-finger-badge" class="flex items-center gap-1.5 text-xs sm:text-sm font-black text-slate-700">
+                        <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-lg text-xs flex items-center gap-1 font-bold">
+                            <i class="fa-solid fa-hand text-slate-500"></i> 指ガイド
+                        </span>
+                        <span id="finger-guide-text" class="text-slate-600 font-extrabold">キーを押してスタート</span>
+                    </div>
+
+                    <!-- Right: 8-Finger Visual Pills -->
+                    <div class="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-extrabold">
+                        <!-- Left Hand -->
+                        <div class="flex gap-0.5 p-0.5 bg-slate-200/80 rounded-lg">
+                            <span id="finger-pill-l-pinky" class="finger-pill px-1.5 py-0.5 rounded text-white bg-rose-500 opacity-40 transition-all duration-150">左小</span>
+                            <span id="finger-pill-l-ring" class="finger-pill px-1.5 py-0.5 rounded text-white bg-orange-500 opacity-40 transition-all duration-150">左薬</span>
+                            <span id="finger-pill-l-middle" class="finger-pill px-1.5 py-0.5 rounded text-white bg-amber-500 opacity-40 transition-all duration-150">左中</span>
+                            <span id="finger-pill-l-index" class="finger-pill px-1.5 py-0.5 rounded text-white bg-emerald-500 opacity-40 transition-all duration-150">左人</span>
+                        </div>
+                        <div class="text-slate-300 font-black">|</div>
+                        <!-- Right Hand -->
+                        <div class="flex gap-0.5 p-0.5 bg-slate-200/80 rounded-lg">
+                            <span id="finger-pill-r-index" class="finger-pill px-1.5 py-0.5 rounded text-white bg-cyan-500 opacity-40 transition-all duration-150">右人</span>
+                            <span id="finger-pill-r-middle" class="finger-pill px-1.5 py-0.5 rounded text-white bg-indigo-500 opacity-40 transition-all duration-150">右中</span>
+                            <span id="finger-pill-r-ring" class="finger-pill px-1.5 py-0.5 rounded text-white bg-purple-500 opacity-40 transition-all duration-150">右薬</span>
+                            <span id="finger-pill-r-pinky" class="finger-pill px-1.5 py-0.5 rounded text-white bg-pink-500 opacity-40 transition-all duration-150">右小</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="max-w-4xl mx-auto space-y-1 sm:space-y-1.5 text-xs sm:text-sm font-bold text-slate-600">
                     <div class="flex justify-center gap-1 sm:gap-1.5" id="kbd-row-1"></div>
                     <div class="flex justify-center gap-1 sm:gap-1.5" id="kbd-row-2"></div>
                     <div class="flex justify-center gap-1 sm:gap-1.5" id="kbd-row-3"></div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- GROUP MODAL -->
-    <div id="group-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-        <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-2xl w-full p-4 sm:p-6 relative my-auto flex flex-col max-h-[90vh]">
-            <h2 class="text-xl font-black text-slate-800 text-center mb-2 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-users-rectangle text-purple-600"></i> <ruby>グ<rt>ぐ</rt></ruby><ruby>ルー<rt>るー</rt></ruby><ruby>プ<rt>ぷ</rt></ruby><ruby>成<rt>せい</rt></ruby><ruby>績<rt>せき</rt></ruby>・<ruby>管<rt>かん</rt></ruby><ruby>理<rt>り</rt></ruby>
-            </h2>
-
-            <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl mb-3 space-y-1.5">
-                <label class="block text-xs font-bold text-slate-600">あなたのニックネーム（自動生成／変更可）</label>
-                <div class="flex gap-2">
-                    <input type="text" id="group-user-nickname" class="flex-1 px-3 py-1.5 border border-slate-300 rounded-xl font-bold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="ニックネーム" maxlength="12">
-                    <button id="group-change-nickname-btn" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold px-3 py-1.5 rounded-xl text-xs transition border border-purple-300 flex items-center gap-1">
-                        <i class="fa-solid fa-dice text-purple-600"></i> チェンジ
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-purple-50 border border-purple-200 p-3.5 rounded-2xl mb-3 space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="text-xs font-extrabold text-purple-900">所属グループ切り替え</span>
-                    <select id="group-select-dropdown" class="px-3 py-1 border border-purple-300 rounded-xl font-bold text-xs bg-white text-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-400 flex-1 max-w-xs">
-                        <option value="">グループ未選択</option>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-purple-200">
-                    <button id="group-create-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-extrabold py-2 px-3 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1">
-                        <i class="fa-solid fa-plus-circle"></i> 新しくグループを作る
-                    </button>
-
-                    <div class="flex gap-1.5">
-                        <input type="text" id="group-join-code-input" class="flex-1 px-2.5 py-1.5 border border-purple-300 rounded-xl font-mono text-center font-bold text-xs uppercase focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="8桁コード" maxlength="8">
-                        <button id="group-join-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs transition shadow-sm">
-                            参加
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="group-active-view" class="hidden flex-1 flex flex-col space-y-3 overflow-hidden">
-                <div class="bg-white p-3 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-2 shadow-sm text-xs font-bold">
-                    <div>
-                        <span class="text-slate-500">グループ名:</span>
-                        <span id="group-display-name" class="text-purple-900 font-extrabold ml-1">グループ</span>
-                        <span id="group-role-badge" class="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-800">オーナー</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-500">グループコード:</span>
-                        <span id="group-display-code" class="font-mono font-black text-purple-700 ml-1">------</span>
-                        <button id="group-copy-code-btn" class="ml-1 text-[10px] bg-purple-100 hover:bg-purple-200 text-purple-800 px-2 py-0.5 rounded-lg border border-purple-300">
-                            コピー
-                        </button>
-                    </div>
-                </div>
-
-                <div id="group-owner-settings-box" class="hidden bg-amber-50 border border-amber-200 p-3 rounded-2xl text-xs space-y-2">
-                    <div class="font-extrabold text-amber-900 flex items-center justify-between">
-                        <span><i class="fa-solid fa-user-shield text-amber-600 mr-1"></i> オーナー公開設定（初期値：全非公開）</span>
-                        <span class="text-[10px] text-amber-700 font-normal">オンにすると全員が閲覧可能になります</span>
-                    </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-bold text-slate-700 text-[11px]">
-                        <label class="flex items-center gap-1.5 cursor-pointer bg-white p-1.5 rounded-xl border border-amber-200">
-                            <input type="checkbox" id="privacy-ranking" class="rounded text-purple-600 focus:ring-purple-400">
-                            <span>ランキング</span>
-                        </label>
-                        <label class="flex items-center gap-1.5 cursor-pointer bg-white p-1.5 rounded-xl border border-amber-200">
-                            <input type="checkbox" id="privacy-total-score" class="rounded text-purple-600 focus:ring-purple-400">
-                            <span>累計スコア</span>
-                        </label>
-                        <label class="flex items-center gap-1.5 cursor-pointer bg-white p-1.5 rounded-xl border border-amber-200">
-                            <input type="checkbox" id="privacy-last-played" class="rounded text-purple-600 focus:ring-purple-400">
-                            <span>最終プレイ日</span>
-                        </label>
-                        <label class="flex items-center gap-1.5 cursor-pointer bg-white p-1.5 rounded-xl border border-amber-200">
-                            <input type="checkbox" id="privacy-last-score" class="rounded text-purple-600 focus:ring-purple-400">
-                            <span>最終スコア</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between bg-slate-100 p-2 rounded-xl text-xs font-bold text-slate-600">
-                    <span>メンバー一覧並び替え:</span>
-                    <div class="flex gap-1" id="group-sort-buttons">
-                        <button data-sort="score" class="group-sort-btn px-2.5 py-1 rounded-lg bg-purple-600 text-white font-black">スコア順</button>
-                        <button data-sort="memo" class="group-sort-btn px-2.5 py-1 rounded-lg bg-white text-slate-600 border border-slate-300">メモ順</button>
-                        <button data-sort="custom" class="group-sort-btn px-2.5 py-1 rounded-lg bg-white text-slate-600 border border-slate-300">手動順</button>
-                    </div>
-                </div>
-
-                <div id="group-member-list-container" class="flex-1 overflow-y-auto space-y-2 pr-1 max-h-[220px]">
-                </div>
-
-                <div class="pt-2 border-t border-slate-200 flex justify-between items-center">
-                    <button id="group-leave-btn" class="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold px-3 py-1.5 rounded-xl text-xs transition border border-rose-300">
-                        <i class="fa-solid fa-right-from-bracket mr-1"></i> グループをやめる（脱退）
-                    </button>
-                </div>
-            </div>
-
-            <div class="mt-4 pt-2 border-t border-slate-200">
-                <button id="close-group-btn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-extrabold py-2.5 rounded-xl shadow-md transition active:scale-95 text-sm">
-                    とじる
-                </button>
             </div>
         </div>
     </div>
@@ -455,6 +274,14 @@
                         <button data-sound="OFF" class="sound-btn px-2 py-1.5 rounded-lg border border-slate-200 transition">OFF</button>
                     </div>
                 </div>
+
+                <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-music text-pink-500"></i> BGM (8bit音楽)</span>
+                    <button id="modal-bgm-btn" class="px-4 py-1 rounded-lg text-white font-black bg-pink-500 hover:bg-pink-600 transition shadow-sm text-xs">
+                        ON
+                    </button>
+                </div>
+
                 <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                     <span class="flex items-center gap-1.5"><i class="fa-solid fa-language text-indigo-500"></i> ルビ（ふりがな）</span>
                     <button id="modal-ruby-btn" class="px-4 py-1 rounded-lg text-white font-black bg-indigo-500 hover:bg-indigo-600 transition shadow-sm text-xs">
@@ -578,36 +405,86 @@
         </div>
     </div>
 
-    <!-- VS RESULT MODAL -->
-    <div id="vs-result-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl border border-white max-w-lg w-full p-6 text-center relative overflow-hidden">
-            <div id="vs-outcome-headline" class="text-3xl sm:text-4xl font-black mb-2 text-purple-600">
-                対戦結果
-            </div>
-
-            <div id="vs-user-rank-badge" class="my-3 py-2 px-4 bg-purple-50 border border-purple-200 rounded-2xl inline-block text-purple-900 font-extrabold text-lg sm:text-xl shadow-inner">
-                あなたの順位: 1位
-            </div>
-
-            <div class="bg-slate-50 rounded-2xl p-3 my-4 border border-slate-200 max-h-[220px] overflow-y-auto space-y-1.5" id="vs-final-leaderboard">
-            </div>
-
-            <div class="space-y-2">
-                <button id="vs-rematch-btn" class="hidden w-full bg-gradient-to-r from-amber-400 to-rose-500 hover:from-amber-500 hover:to-rose-600 text-white font-extrabold py-3 rounded-xl shadow-md transition transform active:scale-95 text-base">
-                    <i class="fa-solid fa-rotate-right mr-1"></i> もう1回（コースを選び直す）
-                </button>
-                <button id="vs-return-lobby-btn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl border border-slate-300 transition text-sm">
-                    対戦部屋にもどる
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
         let firebaseDb = null;
         let firebaseAuth = null;
         let currentUser = null;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'typing_rush_100';
+
+        // 🖐️ FINGER MAPPING DEFINITIONS (Color-coded for all 8 fingers)
+        const FINGER_MAP = {
+            // Left Hand
+            'q': { id: 'l-pinky', name: '左手・小指', color: '#f43f5e', bg: 'bg-rose-500', text: 'text-rose-600' },
+            'a': { id: 'l-pinky', name: '左手・小指', color: '#f43f5e', bg: 'bg-rose-500', text: 'text-rose-600' },
+            'z': { id: 'l-pinky', name: '左手・小指', color: '#f43f5e', bg: 'bg-rose-500', text: 'text-rose-600' },
+
+            'w': { id: 'l-ring', name: '左手・薬指', color: '#f97316', bg: 'bg-orange-500', text: 'text-orange-600' },
+            's': { id: 'l-ring', name: '左手・薬指', color: '#f97316', bg: 'bg-orange-500', text: 'text-orange-600' },
+            'x': { id: 'l-ring', name: '左手・薬指', color: '#f97316', bg: 'bg-orange-500', text: 'text-orange-600' },
+
+            'e': { id: 'l-middle', name: '左手・中指', color: '#eab308', bg: 'bg-amber-500', text: 'text-amber-600' },
+            'd': { id: 'l-middle', name: '左手・中指', color: '#eab308', bg: 'bg-amber-500', text: 'text-amber-600' },
+            'c': { id: 'l-middle', name: '左手・中指', color: '#eab308', bg: 'bg-amber-500', text: 'text-amber-600' },
+
+            'r': { id: 'l-index', name: '左手・人差し指', color: '#10b981', bg: 'bg-emerald-500', text: 'text-emerald-600' },
+            'f': { id: 'l-index', name: '左手・人差し指', color: '#10b981', bg: 'bg-emerald-500', text: 'text-emerald-600' },
+            'v': { id: 'l-index', name: '左手・人差し指', color: '#10b981', bg: 'bg-emerald-500', text: 'text-emerald-600' },
+            't': { id: 'l-index', name: '左手・人差し指', color: '#10b981', bg: 'bg-emerald-500', text: 'text-emerald-600' },
+            'g': { id: 'l-index', name: '左手・人差し指', color: '#10b981', bg: 'bg-emerald-500', text: 'text-emerald-600' },
+            'b': { id: 'l-index', name: '左手・人差し指', color: '#10b981', bg: 'bg-emerald-500', text: 'text-emerald-600' },
+
+            // Right Hand
+            'y': { id: 'r-index', name: '右手・人差し指', color: '#06b6d4', bg: 'bg-cyan-500', text: 'text-cyan-600' },
+            'h': { id: 'r-index', name: '右手・人差し指', color: '#06b6d4', bg: 'bg-cyan-500', text: 'text-cyan-600' },
+            'n': { id: 'r-index', name: '右手・人差し指', color: '#06b6d4', bg: 'bg-cyan-500', text: 'text-cyan-600' },
+            'u': { id: 'r-index', name: '右手・人差し指', color: '#06b6d4', bg: 'bg-cyan-500', text: 'text-cyan-600' },
+            'j': { id: 'r-index', name: '右手・人差し指', color: '#06b6d4', bg: 'bg-cyan-500', text: 'text-cyan-600' },
+            'm': { id: 'r-index', name: '右手・人差し指', color: '#06b6d4', bg: 'bg-cyan-500', text: 'text-cyan-600' },
+
+            'i': { id: 'r-middle', name: '右手・中指', color: '#6366f1', bg: 'bg-indigo-500', text: 'text-indigo-600' },
+            'k': { id: 'r-middle', name: '右手・中指', color: '#6366f1', bg: 'bg-indigo-500', text: 'text-indigo-600' },
+            ',': { id: 'r-middle', name: '右手・中指', color: '#6366f1', bg: 'bg-indigo-500', text: 'text-indigo-600' },
+
+            'o': { id: 'r-ring', name: '右手・薬指', color: '#a855f7', bg: 'bg-purple-500', text: 'text-purple-600' },
+            'l': { id: 'r-ring', name: '右手・薬指', color: '#a855f7', bg: 'bg-purple-500', text: 'text-purple-600' },
+            '.': { id: 'r-ring', name: '右手・薬指', color: '#a855f7', bg: 'bg-purple-500', text: 'text-purple-600' },
+
+            'p': { id: 'r-pinky', name: '右手・小指', color: '#ec4899', bg: 'bg-pink-500', text: 'text-pink-600' },
+            '-': { id: 'r-pinky', name: '右手・小指', color: '#ec4899', bg: 'bg-pink-500', text: 'text-pink-600' },
+            '!': { id: 'r-pinky', name: '右手・小指', color: '#ec4899', bg: 'bg-pink-500', text: 'text-pink-600' },
+            '?': { id: 'r-pinky', name: '右手・小指', color: '#ec4899', bg: 'bg-pink-500', text: 'text-pink-600' }
+        };
+
+        // Note Frequencies for 8-bit Synthesizer
+        const NOTE_FREQ = {
+            'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'F3': 174.61, 'G3': 196.00, 'A3': 220.00, 'B3': 246.94,
+            'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+            'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77,
+            'C6': 1046.50, 'D6': 1174.66, 'E6': 1318.51, 'G6': 1567.98,
+            '-': 0
+        };
+
+        // Cheerful Chiptune Loop (32 steps)
+        const BGM_MELODY = [
+            'E5', 'G5', 'A5', 'G5', 'C6', '-', 'G5', 'E5',
+            'D5', 'E5', 'G5', 'E5', 'D5', 'C5', 'D5', '-',
+            'E5', 'G5', 'C6', 'D6', 'E6', 'D6', 'C6', 'G5',
+            'A5', 'G5', 'E5', 'D5', 'C5', '-', 'C5', '-'
+        ];
+
+        const BGM_BASS = [
+            'C3', '-', 'C3', 'G3', 'C3', '-', 'E3', 'G3',
+            'A3', '-', 'A3', 'E3', 'A3', '-', 'C4', 'E3',
+            'F3', '-', 'F3', 'C4', 'F3', '-', 'A3', 'C4',
+            'G3', '-', 'G3', 'D4', 'G3', '-', 'B3', 'D4'
+        ];
+
+        const BGM_DRUM = [
+            1, 0, 1, 0, 2, 0, 1, 0,
+            1, 0, 1, 0, 2, 0, 1, 1,
+            1, 0, 1, 0, 2, 0, 1, 0,
+            1, 0, 1, 0, 2, 2, 2, 2
+        ];
 
         function safeJsonParse(str, fallback) {
             if (!str || typeof str !== 'string' || !str.trim()) return fallback;
@@ -638,7 +515,6 @@
                     firebaseDb = getFirestore(app);
                     firebaseAuth = getAuth(app);
 
-                    // Initialize RTDB global interface if available
                     if (typeof window.initFirebaseRTDB === 'function') {
                         window.initFirebaseRTDB(config);
                     }
@@ -666,292 +542,6 @@
             return currentUser;
         }
 
-        function normalizeCode(str) {
-            if (!str) return '';
-            return str
-                .trim()
-                .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
-                .replace(/[^a-z0-9]/g, '')
-                .toLowerCase();
-        }
-
-        function copyToClipboard(text, successMsg) {
-            try {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                textarea.style.position = 'fixed';
-                textarea.style.opacity = '0';
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                if (successMsg) showMessage(successMsg);
-            } catch (e) {
-                console.warn('Copy failed:', e);
-            }
-        }
-
-        let peerInstance = null;
-        let peerConnections = []; // Host's connections to guests
-        let hostPeerConnection = null; // Guest's connection to host
-
-        let mqttClient = null;
-        let mqttSubscribedTopic = null;
-        let vsHeartbeatTimer = null;
-
-        function initMqtt() {
-            if (mqttClient && mqttClient.connected) return mqttClient;
-            try {
-                if (typeof mqtt !== 'undefined') {
-                    const randomId = 'tr100_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now().toString(36);
-                    mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
-                        clientId: randomId,
-                        keepalive: 30,
-                        reconnectPeriod: 2000
-                    });
-
-                    mqttClient.on('connect', () => {
-                        if (mqttSubscribedTopic) {
-                            mqttClient.subscribe(mqttSubscribedTopic);
-                        }
-                    });
-
-                    mqttClient.on('message', (topic, message) => {
-                        try {
-                            const payload = JSON.parse(message.toString());
-                            handleMqttRealtimeMessage(topic, payload);
-                        } catch(e) {}
-                    });
-                }
-            } catch(e) {}
-            return mqttClient;
-        }
-
-        function handleMqttRealtimeMessage(topic, payload) {
-            if (!payload || !payload.type) return;
-
-            if (topic.startsWith('typing_rush_100/vs/')) {
-                const code = topic.replace('typing_rush_100/vs/', '');
-                if (vsRoomId !== code) return;
-
-                if (payload.type === 'PING') {
-                    if (vsIsHost && vsRoomData) {
-                        broadcastMqttVsRoomState(code, vsRoomData);
-                    }
-                } else if (payload.type === 'JOIN_REQ') {
-                    if (vsIsHost && vsRoomData) {
-                        vsRoomData.members = vsRoomData.members || {};
-                        vsRoomData.members[payload.user.id] = payload.user;
-                        broadcastLocalVsRoom(code, vsRoomData);
-                        broadcastMqttVsRoomState(code, vsRoomData);
-                    }
-                } else if (payload.type === 'LEAVE_REQ') {
-                    if (vsRoomData && vsRoomData.members) {
-                        delete vsRoomData.members[payload.userId];
-                        if (vsIsHost) {
-                            broadcastLocalVsRoom(code, vsRoomData);
-                            broadcastMqttVsRoomState(code, vsRoomData);
-                        }
-                    }
-                } else if (payload.type === 'ROOM_STATE') {
-                    if (payload.data) {
-                        vsRoomData = payload.data;
-                        broadcastLocalVsRoom(code, vsRoomData);
-                        if (typeof window.onLocalVsRoomUpdate === 'function') {
-                            window.onLocalVsRoomUpdate(vsRoomData);
-                        }
-                    }
-                } else if (payload.type === 'SCORE_UPDATE') {
-                    if (vsRoomData && vsRoomData.members && vsRoomData.members[payload.userId]) {
-                        vsRoomData.members[payload.userId].score = payload.score;
-                        if (vsIsHost) {
-                            broadcastMqttVsRoomState(code, vsRoomData);
-                        }
-                        if (typeof window.onLocalVsRoomUpdate === 'function') {
-                            window.onLocalVsRoomUpdate(vsRoomData);
-                        }
-                    }
-                } else if (payload.type === 'ROOM_CLOSED') {
-                    delete localVsRooms[code];
-                    if (typeof window.onLocalVsRoomUpdate === 'function') {
-                        window.onLocalVsRoomUpdate(null);
-                    }
-                }
-            }
-        }
-
-        function broadcastMqttVsRoomState(code, roomData) {
-            const client = initMqtt();
-            if (client && client.connected) {
-                const topic = `typing_rush_100/vs/${code}`;
-                client.publish(topic, JSON.stringify({
-                    type: 'ROOM_STATE',
-                    data: roomData
-                }));
-            }
-        }
-
-        function subscribeMqttVsTopic(code) {
-            const client = initMqtt();
-            const topic = `typing_rush_100/vs/${code}`;
-            mqttSubscribedTopic = topic;
-            if (client && client.connected) {
-                client.subscribe(topic);
-            }
-        }
-
-        function startVsHeartbeat(code) {
-            if (vsHeartbeatTimer) clearInterval(vsHeartbeatTimer);
-            vsHeartbeatTimer = setInterval(() => {
-                if (vsIsHost && vsRoomData && vsRoomId === code) {
-                    broadcastMqttVsRoomState(code, vsRoomData);
-                } else if (!vsIsHost && vsRoomId === code) {
-                    const client = initMqtt();
-                    if (client && client.connected) {
-                        client.publish(`typing_rush_100/vs/${code}`, JSON.stringify({ type: 'PING' }));
-                    }
-                } else {
-                    clearInterval(vsHeartbeatTimer);
-                }
-            }, 2000);
-        }
-
-        function initPeerJSForHost(roomCode) {
-            if (typeof Peer === 'undefined') return;
-            try {
-                const peerId = `tr100_host_${roomCode}`;
-                peerInstance = new Peer(peerId, { debug: 1 });
-
-                peerInstance.on('connection', (conn) => {
-                    peerConnections.push(conn);
-
-                    conn.on('data', (data) => {
-                        handleP2PDataReceived(data);
-                    });
-
-                    conn.on('close', () => {
-                        peerConnections = peerConnections.filter(c => c !== conn);
-                    });
-                });
-            } catch(e) {
-                console.warn("PeerJS Host init fallback:", e);
-            }
-        }
-
-        function initPeerJSForGuest(roomCode) {
-            if (typeof Peer === 'undefined') return;
-            try {
-                peerInstance = new Peer();
-                peerInstance.on('open', () => {
-                    hostPeerConnection = peerInstance.connect(`tr100_host_${roomCode}`);
-                    
-                    if (hostPeerConnection) {
-                        hostPeerConnection.on('open', () => {
-                            hostPeerConnection.send({
-                                type: 'P2P_JOIN',
-                                userId: vsUserId,
-                                name: vsUserNickname
-                            });
-                        });
-
-                        hostPeerConnection.on('data', (data) => {
-                            handleP2PDataReceived(data);
-                        });
-                    }
-                });
-            } catch(e) {
-                console.warn("PeerJS Guest init fallback:", e);
-            }
-        }
-
-        function broadcastP2PToAll(payload) {
-            if (vsIsHost) {
-                peerConnections.forEach(conn => {
-                    if (conn && conn.open) {
-                        conn.send(payload);
-                    }
-                });
-            } else if (hostPeerConnection && hostPeerConnection.open) {
-                hostPeerConnection.send(payload);
-            }
-        }
-
-        function handleP2PDataReceived(data) {
-            if (!data || !data.type) return;
-
-            if (data.type === 'P2P_SCORE') {
-                if (vsRoomData && vsRoomData.members && vsRoomData.members[data.userId]) {
-                    vsRoomData.members[data.userId].score = data.score;
-                    if (typeof window.onLocalVsRoomUpdate === 'function') {
-                        window.onLocalVsRoomUpdate(vsRoomData);
-                    }
-                    if (vsIsHost) {
-                        broadcastP2PToAll(data);
-                    }
-                }
-            }
-        }
-
-        const localVsRooms = {};
-        const vsChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('typing_vs_hybrid_channel') : null;
-
-        function broadcastLocalVsRoom(roomCode, roomData) {
-            if (!roomCode || !roomData) return;
-            localVsRooms[roomCode] = roomData;
-            try {
-                localStorage.setItem(`typing_vs_room_${roomCode}`, JSON.stringify(roomData));
-            } catch(e) {}
-            if (vsChannel) {
-                vsChannel.postMessage({ type: 'VS_ROOM_SYNC', roomCode, data: roomData });
-            }
-            if (vsIsHost) {
-                broadcastMqttVsRoomState(roomCode, roomData);
-            }
-        }
-
-        window.addEventListener('storage', (e) => {
-            if (e.key && e.key.startsWith('typing_vs_room_')) {
-                const roomCode = e.key.replace('typing_vs_room_', '');
-                if (e.newValue) {
-                    const data = safeJsonParse(e.newValue, null);
-                    if (data) {
-                        localVsRooms[roomCode] = data;
-                        if (vsRoomId === roomCode && typeof window.onLocalVsRoomUpdate === 'function') {
-                            window.onLocalVsRoomUpdate(data);
-                        }
-                    }
-                } else {
-                    delete localVsRooms[roomCode];
-                    if (vsRoomId === roomCode && typeof window.onLocalVsRoomUpdate === 'function') {
-                        window.onLocalVsRoomUpdate(null);
-                    }
-                }
-            }
-        });
-
-        if (vsChannel) {
-            vsChannel.onmessage = (event) => {
-                const { type, roomCode, data } = event.data || {};
-                if (type === 'VS_ROOM_SYNC' && roomCode && data) {
-                    localVsRooms[roomCode] = data;
-                    try {
-                        localStorage.setItem(`typing_vs_room_${roomCode}`, JSON.stringify(data));
-                    } catch(e) {}
-                    if (vsRoomId === roomCode && typeof window.onLocalVsRoomUpdate === 'function') {
-                        window.onLocalVsRoomUpdate(data);
-                    }
-                } else if (type === 'VS_ROOM_DELETE' && roomCode) {
-                    delete localVsRooms[roomCode];
-                    try {
-                        localStorage.removeItem(`typing_vs_room_${roomCode}`);
-                    } catch(e) {}
-                    if (vsRoomId === roomCode && typeof window.onLocalVsRoomUpdate === 'function') {
-                        window.onLocalVsRoomUpdate(null);
-                    }
-                }
-            };
-        }
-
         function showMessage(msg) {
             const container = document.getElementById('toast-container');
             if (!container) return;
@@ -971,6 +561,11 @@
             constructor() {
                 this.ctx = null;
                 this.soundMode = '1';
+                this.bgmOn = true;
+                this.bgmPlaying = false;
+                this.bgmTimer = null;
+                this.bgmStep = 0;
+                this.bgmFast = false;
             }
 
             init() {
@@ -980,6 +575,114 @@
                 }
                 if (this.ctx && this.ctx.state === 'suspended') {
                     this.ctx.resume();
+                }
+            }
+
+            // 🎵 8-bit Pop Chiptune BGM Generator
+            startBgm() {
+                if (!this.bgmOn || this.soundMode === 'OFF') return;
+                this.init();
+                if (!this.ctx) return;
+                this.stopBgm();
+                this.bgmPlaying = true;
+                this.bgmStep = 0;
+                this.bgmFast = false;
+                this.scheduleNextBgmStep();
+            }
+
+            setBgmSpeed(fast = false) {
+                this.bgmFast = fast;
+            }
+
+            scheduleNextBgmStep() {
+                if (!this.bgmPlaying || !this.ctx || !this.bgmOn || this.soundMode === 'OFF') return;
+                const stepDuration = this.bgmFast ? 0.095 : 0.145;
+                const now = this.ctx.currentTime;
+
+                const melNote = BGM_MELODY[this.bgmStep % BGM_MELODY.length];
+                const bassNote = BGM_BASS[this.bgmStep % BGM_BASS.length];
+                const drum = BGM_DRUM[this.bgmStep % BGM_DRUM.length];
+
+                // 1. Melody (Chiptune Pulse/Square Wave)
+                if (melNote && melNote !== '-' && NOTE_FREQ[melNote]) {
+                    try {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(NOTE_FREQ[melNote], now);
+                        
+                        const noteLen = stepDuration * 0.85;
+                        gain.gain.setValueAtTime(0.04, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + noteLen);
+                        
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start(now);
+                        osc.stop(now + noteLen);
+                    } catch(e) {}
+                }
+
+                // 2. Bass (Chiptune Triangle Wave)
+                if (bassNote && bassNote !== '-' && NOTE_FREQ[bassNote]) {
+                    try {
+                        const bOsc = this.ctx.createOscillator();
+                        const bGain = this.ctx.createGain();
+                        bOsc.type = 'triangle';
+                        bOsc.frequency.setValueAtTime(NOTE_FREQ[bassNote], now);
+
+                        const bLen = stepDuration * 0.9;
+                        bGain.gain.setValueAtTime(0.05, now);
+                        bGain.gain.linearRampToValueAtTime(0.005, now + bLen);
+
+                        bOsc.connect(bGain);
+                        bGain.connect(this.ctx.destination);
+                        bOsc.start(now);
+                        bOsc.stop(now + bLen);
+                    } catch(e) {}
+                }
+
+                // 3. 8-bit Noise Rhythm
+                if (drum === 1) {
+                    try {
+                        const hOsc = this.ctx.createOscillator();
+                        const hGain = this.ctx.createGain();
+                        hOsc.type = 'sawtooth';
+                        hOsc.frequency.setValueAtTime(7000, now);
+                        hOsc.frequency.exponentialRampToValueAtTime(300, now + 0.02);
+                        hGain.gain.setValueAtTime(0.012, now);
+                        hGain.gain.linearRampToValueAtTime(0.0001, now + 0.02);
+                        hOsc.connect(hGain);
+                        hGain.connect(this.ctx.destination);
+                        hOsc.start(now);
+                        hOsc.stop(now + 0.02);
+                    } catch(e) {}
+                } else if (drum === 2) {
+                    try {
+                        const sOsc = this.ctx.createOscillator();
+                        const sGain = this.ctx.createGain();
+                        sOsc.type = 'triangle';
+                        sOsc.frequency.setValueAtTime(420, now);
+                        sOsc.frequency.exponentialRampToValueAtTime(80, now + 0.04);
+                        sGain.gain.setValueAtTime(0.025, now);
+                        sGain.gain.linearRampToValueAtTime(0.001, now + 0.04);
+                        sOsc.connect(sGain);
+                        sGain.connect(this.ctx.destination);
+                        sOsc.start(now);
+                        sOsc.stop(now + 0.04);
+                    } catch(e) {}
+                }
+
+                this.bgmStep++;
+                this.bgmTimer = setTimeout(() => {
+                    this.scheduleNextBgmStep();
+                }, stepDuration * 1000);
+            }
+
+            stopBgm() {
+                this.bgmPlaying = false;
+                if (this.bgmTimer) {
+                    clearTimeout(this.bgmTimer);
+                    this.bgmTimer = null;
                 }
             }
 
@@ -1014,7 +717,6 @@
                         osc.start(now);
                         osc.stop(now + 0.1);
                     } else if (this.soundMode === '3') {
-                        // 派手で伸びのある「ズギューン！」発砲音
                         const osc = this.ctx.createOscillator();
                         const gain = this.ctx.createGain();
                         const filter = this.ctx.createBiquadFilter();
@@ -1215,23 +917,6 @@
 
         const sound = new SoundEngine();
 
-        const RAND_NICKNAMES_100 = [
-            "しばいぬ", "とらねこ", "らいおん", "ぱんだ", "こあら", "ペンギン", "うさぎ", "りす", "きつね", "たぬき",
-            "ぞう", "きりん", "かば", "さい", "らくだ", "あるぱか", "かぴばら", "はりねずみ", "ももんが", "ふくろう",
-            "わし", "たか", "つばめ", "すずめ", "ひよこ", "あひる", "はくちょう", "かわせみ", "オウム", "フラミンゴ",
-            "イルカ", "クジラ", "シャチ", "ラッコ", "アシカ", "アザラシ", "マンボウ", "ジンベエザメ", "タツノオトシゴ", "チーター",
-            "ヒョウ", "クマ", "オオカミ", "カンガルー", "ウォンバット", "ナマケモノ", "プレーリードッグ", "カブトムシ", "クワガタ", "テントウムシ",
-            "ミツバチ", "トンボ", "セミ", "カマキリ", "ホタル", "バッタ", "コオロギ", "アゲハチョウ", "スズムシ", "ダンゴムシ",
-            "カナブン", "アメンボ", "ヒマワリ", "チューリップ", "サクラ", "アジサイ", "アサガオ", "タンポポ", "コスモス", "バラ",
-            "ユリ", "カーネーション", "マリーゴールド", "スズラン", "クローバー", "サボテン", "モミジ", "イチョウ", "スイレン", "カスミソウ",
-            "ダリア", "パンジー", "ハイビスカス", "オリーブ", "パセリ", "ミント", "カモミール", "ラベンダー", "シクラメン", "アネモネ",
-            "スイセン", "ポインセチア", "センニチコウ", "ネモフィラ", "ギボウシ", "アロエ", "ガーベラ", "ペチュニア", "ベゴニア", "マツムシ"
-        ];
-
-        function getRandomNickname() {
-            return RAND_NICKNAMES_100[Math.floor(Math.random() * RAND_NICKNAMES_100.length)];
-        }
-
         const KANA_ROMAJI_MAP = {
             'あ':['a'], 'い':['i'], 'う':['u'], 'え':['e'], 'お':['o'],
             'か':['ka'], 'き':['ki'], 'く':['ku'], 'け':['ke'], 'こ':['ko'],
@@ -1331,7 +1016,7 @@
                     { id: 'space_astronomy', name: '<ruby>宇<rt>う</rt></ruby><ruby>宙<rt>ちゅう</rt></ruby>と<ruby>天<rt>てん</rt></ruby><ruby>体<rt>たい</rt></ruby>' },
                     { id: 'human_body', name: '<ruby>人<rt>じん</rt></ruby><ruby>体<rt>たい</rt></ruby>のふしぎ' },
                     { id: 'elements_science', name: '<ruby>元<rt>げん</rt></ruby><ruby>素<rt>そ</rt></ruby>と<ruby>科<rt>か</rt></ruby><ruby>学<rt>がく</rt></ruby>' },
-                    { id: 'world_history', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby><ruby>史<rt>し</rt></ruby>' },
+                    { id: 'world_history', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby>史<rt>し</rt>' },
                     { id: 'classical_quotes', name: '<ruby>古<rt>こ</rt></ruby><ruby>文<rt>ぶん</rt></ruby>・<ruby>名<rt>めい</rt></ruby><ruby>言<rt>げん</rt></ruby>' },
                     { id: 'math_theorems', name: '<ruby>数<rt>すう</rt></ruby><ruby>学<rt>がく</rt></ruby>の<ruby>定<rt>てい</rt></ruby><ruby>理<rt>り</rt></ruby>' }
                 ]
@@ -1352,7 +1037,7 @@
                     { id: 'americas_oceania', name: '<ruby>北<rt>ほく</rt></ruby><ruby>米<rt>べい</rt></ruby>・<ruby>南<rt>なん</rt></ruby><ruby>米<rt>べい</rt></ruby>・オセアニア' },
                     { id: 'africa_countries', name: 'アフリカの<ruby>国<rt>くに</rt></ruby>' },
                     { id: 'world_capitals', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby>の<ruby>首<rt>しゅ</rt></ruby><ruby>都<rt>と</rt></ruby>' },
-                    { id: 'world_heritage', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby><ruby>遺<rt>い</rt></ruby><ruby>産<rt>さん</rt></ruby>' },
+                    { id: 'world_heritage', name: '<ruby>世<rt>せ</rt></ruby><ruby>界<rt>かい</rt></ruby>遺<rt>い</rt></ruby><ruby>産<rt>さん</rt></ruby>' },
                     { id: 'japanese_castles', name: '<ruby>日<rt>に</rt></ruby><ruby>本<rt>ほん</rt></ruby>の<ruby>城<rt>しろ</rt></ruby>' },
                     { id: 'shinkansen', name: '<ruby>新<rt>しん</rt></ruby><ruby>幹<rt>かん</rt></ruby><ruby>線<rt>せん</rt></ruby>・<ruby>特<rt>とっ</rt></ruby><ruby>急<rt>きゅう</rt></ruby>' },
                     { id: 'traditional_crafts', name: '<ruby>伝<rt>でん</rt></ruby><ruby>統<rt>とう</rt></ruby><ruby>工<rt>こう</rt></ruby><ruby>芸<rt>げい</rt></ruby>' },
@@ -1420,7 +1105,7 @@
                     { id: 'vehicles_transport', name: '<ruby>乗<rt>の</rt></ruby>り<ruby>物<rt>もの</rt></ruby>・<ruby>交<rt>こう</rt></ruby><ruby>通<rt>つう</rt></ruby>' },
                     { id: 'city_buildings', name: '<ruby>街<rt>まち</rt></ruby>にある<ruby>建<rt>たて</rt></ruby><ruby>物<rt>もの</rt></ruby>' },
                     { id: 'tools_stationery', name: '<ruby>道<rt>どう</rt></ruby><ruby>具<rt>ぐ</rt></ruby>・<ruby>文<rt>ぶん</rt></ruby><ruby>房<rt>ぼう</rt></ruby><ruby>具<rt>ぐ</rt></ruby>' },
-                    { id: 'medical_health', name: '<ruby>医<rt>い</rt></ruby><ruby>療<rt>りょう</rt></ruby>・<ruby>健<rt>けん</rt></ruby><ruby>康<rt>こう</rt></ruby>' },
+                    { id: 'medical_health', name: '<ruby>医<rt>い</rt></ruby><ruby>療<rt>ryou</rt></ruby>・<ruby>健<rt>けん</rt></ruby><ruby>康<rt>こう</rt></ruby>' },
                     { id: 'musical_instruments', name: '<ruby>楽<rt>がく</rt></ruby><ruby>器<rt>き</rt></ruby>' },
                     { id: 'hobbies_leisure', name: '<ruby>趣<rt>しゅ</rt></ruby><ruby>味<rt>み</rt></ruby>・レジャー' },
                     { id: 'laws_rules', name: '<ruby>法<rt>ほう</rt></ruby><ruby>律<rt>りつ</rt></ruby>・ルール' },
@@ -1453,6 +1138,7 @@
             }
         ];
 
+        // [Display, Ruby (ふりがな), Typing Target (optional)]
         const WORD_DATA = {
             aiueo: [["あいうえお","あいうえお"],["かきくけこ","かきくけこ"],["さしすせそ","さしすせそ"],["たちつてと","たちつてと"],["なにぬねの","なにぬねの"],["はひふへほ","はひふへほ"],["まみむめも","まみむめも"],["やゆよ","やゆよ"],["らりるれろ","らりるれろ"],["わをん","わをん"]],
             dakuon_handakuon: [["がぎぐげご","がぎぐげご"],["ざじずぜぞ","ざじずぜぞ"],["だぢづでど","だぢづでど"],["ばびぶべぼ","ばびぶべぼ"],["ぱぴぷぺぽ","ぱぴぷぺぽ"]],
@@ -1469,7 +1155,8 @@
             pe: [["体育","たいいく"],["かけっこ","かけっこ"],["跳び箱","とびばこ"],["鉄棒","てつぼう"],["水泳","すいえい"]],
             school_items: [["ランドセル","らんどせる"],["筆箱","ふでばこ"],["黒板","こくばん"],["教科書","きょうかしょ"],["ノート","のーと"]],
             school_lunch: [["揚げパン","あげぱん"],["カレーライス","かれーらいす"],["ソフトめん","そふとめん"],["牛乳","ぎゅうにゅう"]],
-            english_words: [["apple","apple"],["banana","banana"],["school","school"],["pencil","pencil"],["friend","friend"]],
+            // 🍎 【修正】英単語コース：上に日本語の読み（ルビ）を表示し、タイピングは英単語を打てるように対応
+            english_words: [["apple","あっぷる","apple"],["banana","ばなな","banana"],["school","すくーる","school"],["pencil","ぺんしる","pencil"],["friend","ふれんど","friend"]],
             yojijukugo: [["一石二鳥","いっせきにちょう"],["十人十色","じゅうにんといろ"],["温故知新","おんこちしん"],["試行錯誤","しこうさくご"]],
             kotowaza: [["犬も歩けば棒に当たる","いぬもあるけばぼうにあたる"],["塵も積もれば山となる","ちりもつもればやまとなる"]],
             kanyoku: [["腹が立つ","はらがたつ"],["耳を傾ける","みみをかたむける"],["手を打つ","てをうつ"]],
@@ -1520,7 +1207,8 @@
             trees_nuts: [["ドングリ","どんぐり"],["サクラ","さくら"],["イチョウ","いちょう"]],
             weather_climate: [["快晴","かいせい"],["夕立","ゆうだち"],["台風","たいふう"],["積乱雲","せきらんうん"]],
             seasons_nature: [["新緑","しんりょく"],["紅葉","こうよう"],["初雪","はつゆき"],["桜前線","さくらぜんせん"]],
-            endangered_species: [["トキ","とき"],["ヤンバルクイナ","やんばるくいな"],["イリオモテヤマネコ","いりおもてヤマネコ"]],
+            // 🚨 【修正】イリオモテヤマネコの読みデータをすべてひらがなに修正（カタカナによる停止バグ解消）
+            endangered_species: [["トキ","とき"],["ヤンバルクイナ","やんばるくいな"],["イリオモテヤマネコ","いりおもてやまねこ"]],
             dangerous_animals: [["ヒグマ","ひぐま"],["スズメバチ","すずめばち"],["ハブ","はぶ"]],
             microorganisms: [["ミドリムシ","みどりむし"],["ゾウリムシ","ぞうりむし"],["アメーバ","あめーば"]],
             disasters_prevention: [["避難訓練","ひなんくんれん"],["防災グッズ","ぼうさいぐっず"],["地震","じしん"]],
@@ -1569,6 +1257,7 @@
             selectedTime: 60,
             soundOn: true,
             soundMode: '1',
+            bgmOn: true,
             rubyOn: true,
             romajiStyle: 'kunrei',
             keyboardCase: 'lowercase',
@@ -1578,15 +1267,11 @@
             courseTotalScores: {},
             courseMaxWpm: {},
             missedKeyCounts: {},
-            viewMode: 'categories',
-            userNickname: getRandomNickname(),
-            joinedGroupIds: [],
-            selectedGroupId: ''
+            viewMode: 'categories'
         };
 
         let game = {
             active: false,
-            isVsMode: false,
             courseId: '',
             words: [],
             wordIndex: 0,
@@ -1598,20 +1283,8 @@
             timerInterval: null,
             correctCount: 0,
             missCount: 0,
-            startTime: 0,
-            vsEndTime: null
+            startTime: 0
         };
-
-        let vsRoomId = null;
-        let vsUserId = null;
-        let vsUserNickname = '';
-        let vsIsHost = false;
-        let vsRoomData = null;
-        let vsUnsubscribe = null;
-
-        let activeGroupData = null;
-        let groupUnsubscribe = null;
-        let groupSortMode = 'score';
 
         function loadState() {
             try {
@@ -1632,11 +1305,11 @@
             if (!state.courseTotalScores || typeof state.courseTotalScores !== 'object') state.courseTotalScores = {};
             if (!state.courseMaxWpm || typeof state.courseMaxWpm !== 'object') state.courseMaxWpm = {};
             if (!state.missedKeyCounts || typeof state.missedKeyCounts !== 'object') state.missedKeyCounts = {};
-            if (!Array.isArray(state.joinedGroupIds)) state.joinedGroupIds = [];
-            if (!state.userNickname) state.userNickname = getRandomNickname();
             if (!state.soundMode) state.soundMode = '1';
+            if (state.bgmOn === undefined) state.bgmOn = true;
 
             sound.soundMode = state.soundMode;
+            sound.bgmOn = state.bgmOn;
 
             try {
                 const lastLogin = localStorage.getItem('typing_rush_last_login_date');
@@ -1685,8 +1358,7 @@
                 "毎日タイピングを続けると、どんどん指が速くなるよ！",
                 "落ち着いて、画面を見てリラックスして打とう！",
                 "好きなコースを何回もプレイしてスコアアップを目指そう！",
-                "間違えても大丈夫！何度もチャレンジして覚えよう！",
-                "Firebase RTDB + PeerJS P2Pの超低遅延マルチ対戦で友達と対戦しよう！"
+                "間違えても大丈夫！何度もチャレンジして覚えよう！"
             ];
             const msg = messages[Math.floor(Math.random() * messages.length)];
             const el = document.getElementById('daily-message-text');
@@ -1813,11 +1485,12 @@
             }
         }
 
+        // ⌨️ 【修正】キーボードに「 - 」「 , 」「 . 」を追加して指ガイドと完全連動
         function renderKeyboard() {
             const rows = [
-                ['Q','W','E','R','T','Y','U','I','O','P'],
+                ['Q','W','E','R','T','Y','U','I','O','P','-'],
                 ['A','S','D','F','G','H','J','K','L'],
-                ['Z','X','C','V','B','N','M']
+                ['Z','X','C','V','B','N','M',',','.']
             ];
 
             rows.forEach((row, idx) => {
@@ -1826,23 +1499,76 @@
                 rowEl.innerHTML = '';
 
                 row.forEach(char => {
-                    const displayChar = state.keyboardCase === 'uppercase' ? char.toUpperCase() : char.toLowerCase();
+                    let displayChar = char;
+                    if (char >= 'A' && char <= 'Z') {
+                        displayChar = state.keyboardCase === 'uppercase' ? char.toUpperCase() : char.toLowerCase();
+                    }
                     const keyCap = document.createElement('div');
                     keyCap.dataset.key = char.toLowerCase();
-                    keyCap.className = 'key-cap bg-slate-100 border border-slate-300 rounded-lg py-2 sm:py-2.5 px-2 sm:px-3 min-w-[28px] sm:min-w-[40px] text-center font-bold text-xs sm:text-base text-slate-700 shadow-sm transition active:scale-95';
-                    keyCap.textContent = displayChar;
+                    const fInfo = FINGER_MAP[char.toLowerCase()];
+                    const fDotColor = fInfo ? fInfo.color : '#cbd5e1';
+
+                    keyCap.className = 'key-cap bg-slate-100 border border-slate-300 rounded-lg py-1.5 sm:py-2 px-1.5 sm:px-2 min-w-[24px] sm:min-w-[34px] text-center font-extrabold text-xs sm:text-base text-slate-700 shadow-sm transition flex flex-col items-center justify-between';
+                    keyCap.innerHTML = `
+                        <span>${displayChar}</span>
+                        <span class="w-2.5 sm:w-3.5 h-1 rounded-full mt-0.5 opacity-75" style="background-color: ${fDotColor}"></span>
+                    `;
                     rowEl.appendChild(keyCap);
                 });
             });
         }
 
         function highlightTargetKey(char) {
-            document.querySelectorAll('.key-cap').forEach(k => k.classList.remove('active'));
-            if (!char) return;
+            // Reset all keycaps
+            document.querySelectorAll('.key-cap').forEach(k => {
+                k.classList.remove('active');
+                k.style.backgroundColor = '';
+                k.style.boxShadow = '';
+            });
+
+            // Reset finger pills
+            document.querySelectorAll('.finger-pill').forEach(p => {
+                p.classList.remove('opacity-100', 'scale-110', 'ring-2', 'ring-offset-1', 'shadow-md');
+                p.classList.add('opacity-40');
+            });
+
+            const guideText = document.getElementById('finger-guide-text');
+
+            if (!char) {
+                if (guideText) guideText.innerHTML = '<span class="text-slate-500 font-bold">準備完了！</span>';
+                return;
+            }
+
             const lower = char.toLowerCase();
+            const finger = FINGER_MAP[lower];
+
+            if (finger) {
+                // Highlight active finger pill in bar
+                const pill = document.getElementById(`finger-pill-${finger.id}`);
+                if (pill) {
+                    pill.classList.remove('opacity-40');
+                    pill.classList.add('opacity-100', 'scale-110', 'ring-2', 'ring-offset-1', 'shadow-md');
+                }
+
+                // Update Guide Text Banner
+                if (guideText) {
+                    guideText.innerHTML = `
+                        <span class="px-2.5 py-0.5 rounded-lg text-white font-black shadow-sm ${finger.bg} inline-flex items-center gap-1 animate-pulse">
+                            👉 ${finger.name} 【 ${char.toUpperCase()} 】
+                        </span>
+                    `;
+                }
+            } else if (guideText) {
+                guideText.innerHTML = `<span class="text-indigo-600 font-black">【 ${char.toUpperCase()} 】 をおそう！</span>`;
+            }
+
             const target = document.querySelector(`.key-cap[data-key="${lower}"]`);
             if (target) {
                 target.classList.add('active');
+                if (finger) {
+                    target.style.backgroundColor = finger.color;
+                    target.style.boxShadow = `0 0 12px ${finger.color}88`;
+                }
             }
         }
 
@@ -1940,11 +1666,12 @@
 
             game.currWord = game.words[game.wordIndex++];
             const kanji = game.currWord[0];
-            const kana = game.currWord[1];
+            const ruby = game.currWord[1];
+            const typingTarget = game.currWord[2] || game.currWord[1];
 
-            document.getElementById('target-display').innerHTML = state.rubyOn ? `<ruby>${kanji}<rt>${kana}</rt></ruby>` : kanji;
+            document.getElementById('target-display').innerHTML = state.rubyOn ? `<ruby>${kanji}<rt>${ruby}</rt></ruby>` : kanji;
 
-            game.nodes = buildKanaNodes(kana);
+            game.nodes = buildKanaNodes(typingTarget);
             game.nodeIndex = 0;
 
             updateRomajiDisplay();
@@ -1952,15 +1679,13 @@
 
         function startGame() {
             sound.init();
+            sound.stopBgm();
             sound.playStart();
 
             document.getElementById('result-modal').classList.add('hidden');
-            document.getElementById('vs-result-modal').classList.add('hidden');
             document.getElementById('unlock-ceremony-modal').classList.add('hidden');
             document.getElementById('settings-modal').classList.add('hidden');
             document.getElementById('stats-modal').classList.add('hidden');
-            document.getElementById('group-modal').classList.add('hidden');
-            document.getElementById('vs-10s-notice').classList.add('hidden');
 
             const timerBox = document.getElementById('timer-box');
             timerBox.className = 'text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200 transition-colors';
@@ -1974,7 +1699,6 @@
             game.correctCount = 0;
             game.missCount = 0;
             game.startTime = Date.now();
-            game.vsEndTime = null;
             game.active = false;
 
             document.getElementById('game-score').textContent = '0';
@@ -2008,16 +1732,23 @@
                     modal.classList.add('hidden');
 
                     document.getElementById('top-screen').classList.add('hidden');
-                    document.getElementById('vs-screen').classList.add('hidden');
                     document.getElementById('play-screen').classList.remove('hidden');
 
                     game.active = true;
+                    sound.startBgm(); // 🎵 Start 8-bit chiptune BGM
                     nextWord();
 
                     if (game.timerInterval) clearInterval(game.timerInterval);
                     game.timerInterval = setInterval(() => {
                         game.timer--;
                         document.getElementById('game-timer').textContent = game.timer;
+
+                        // ⚡ 残り10秒 ドキドキテンポアップ演出！
+                        if (game.timer <= 10 && game.timer > 0) {
+                            sound.setBgmSpeed(true);
+                            timerBox.className = 'text-rose-600 bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-300 transition-colors animate-pulse';
+                        }
+
                         if (game.timer <= 0) {
                             endGame();
                         }
@@ -2042,7 +1773,7 @@
 
             if (validOpt) {
                 sound.playType();
-                // Exact Scoring: 1 Key = +1 Point
+                // 1 Key = +1 Point
                 game.score += 1;
                 game.correctCount++;
                 document.getElementById('game-score').textContent = game.score;
@@ -2054,13 +1785,9 @@
                     game.nodeIndex += 1;
                     if (game.nodeIndex >= game.nodes.length) {
                         sound.playPingPong();
-                        // Exact Scoring: 1 Word Complete = +10 Points
+                        // 1 Word Complete = +10 Points
                         game.score += 10;
                         document.getElementById('game-score').textContent = game.score;
-
-                        if (game.isVsMode) {
-                            updateVsLiveScore();
-                        }
 
                         nextWord();
                         return;
@@ -2083,39 +1810,10 @@
             }
         }
 
-        async function syncGameStatsToGroups(finalScore) {
-            await initAuth();
-            const uId = currentUser?.uid;
-            if (!uId || !state.joinedGroupIds || state.joinedGroupIds.length === 0) return;
-
-            const dateStr = new Date().toLocaleDateString('ja-JP', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-
-            state.joinedGroupIds.forEach(async (gId) => {
-                try {
-                    if (firebaseDb) {
-                        const { doc, getDoc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                        const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', gId);
-                        const snap = await getDoc(gRef);
-                        if (snap.exists()) {
-                            const gData = snap.data();
-                            if (gData.members && gData.members[uId]) {
-                                const curTotal = gData.members[uId].totalScore || 0;
-                                await updateDoc(gRef, {
-                                    [`members.${uId}.totalScore`]: curTotal + finalScore,
-                                    [`members.${uId}.lastScore`]: finalScore,
-                                    [`members.${uId}.lastPlayedAt`]: dateStr,
-                                    [`members.${uId}.nickname`]: state.userNickname
-                                });
-                            }
-                        }
-                    }
-                } catch (e) {}
-            });
-        }
-
         function endGame() {
             if (game.timerInterval) clearInterval(game.timerInterval);
             game.active = false;
+            sound.stopBgm(); // 🎵 Stop BGM
 
             const elapsedSec = Math.max((Date.now() - game.startTime) / 1000, 1);
             const elapsedMin = elapsedSec / 60;
@@ -2144,877 +1842,39 @@
             updateHeaderStats();
             renderCategories();
 
-            syncGameStatsToGroups(game.score);
+            document.getElementById('res-score').textContent = `${game.score} pt`;
+            document.getElementById('res-accuracy').textContent = `${accuracy}%`;
+            document.getElementById('res-wpm').textContent = `${wpm} キー/分`;
+            document.getElementById('res-correct').textContent = game.correctCount;
+            document.getElementById('res-miss').textContent = game.missCount;
 
-            if (game.isVsMode) {
-                submitVsFinalResult(game.score, wpm);
+            const newRecBadge = document.getElementById('new-record-badge');
+            if (isNewRecord) {
+                newRecBadge.classList.remove('hidden');
             } else {
-                document.getElementById('res-score').textContent = `${game.score} pt`;
-                document.getElementById('res-accuracy').textContent = `${accuracy}%`;
-                document.getElementById('res-wpm').textContent = `${wpm} キー/分`;
-                document.getElementById('res-correct').textContent = game.correctCount;
-                document.getElementById('res-miss').textContent = game.missCount;
-
-                const newRecBadge = document.getElementById('new-record-badge');
-                if (isNewRecord) {
-                    newRecBadge.classList.remove('hidden');
-                } else {
-                    newRecBadge.classList.add('hidden');
-                }
-
-                sound.playFanfare();
-                try {
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                } catch(e) {}
-
-                document.getElementById('result-modal').classList.remove('hidden');
-                checkAndTriggerUnlockCeremony();
+                newRecBadge.classList.add('hidden');
             }
+
+            sound.playFanfare();
+            try {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } catch(e) {}
+
+            document.getElementById('result-modal').classList.remove('hidden');
+            checkAndTriggerUnlockCeremony();
         }
 
         function exitToTop() {
             if (game.timerInterval) clearInterval(game.timerInterval);
             game.active = false;
-            game.isVsMode = false;
-
-            leaveVsRoom();
+            sound.stopBgm(); // 🎵 Stop BGM
 
             document.getElementById('play-screen').classList.add('hidden');
-            document.getElementById('vs-screen').classList.add('hidden');
             document.getElementById('top-screen').classList.remove('hidden');
             document.getElementById('result-modal').classList.add('hidden');
-            document.getElementById('vs-result-modal').classList.add('hidden');
 
             updateHeaderStats();
             renderCategories();
-        }
-
-        async function openVsLobby() {
-            await initAuth();
-            initMqtt();
-            document.getElementById('top-screen').classList.add('hidden');
-            document.getElementById('vs-screen').classList.remove('hidden');
-            document.getElementById('vs-lobby-view').classList.remove('hidden');
-            document.getElementById('vs-room-view').classList.add('hidden');
-
-            const nickInput = document.getElementById('vs-nickname-input');
-            if (!nickInput.value.trim()) {
-                nickInput.value = state.userNickname || getRandomNickname();
-            }
-        }
-
-        async function createVsRoom() {
-            await initAuth();
-            const nickname = document.getElementById('vs-nickname-input').value.trim();
-            if (!nickname) {
-                showMessage("ニックネームを入力してください！");
-                return;
-            }
-
-            vsUserNickname = nickname;
-            state.userNickname = nickname;
-            saveState();
-
-            vsUserId = currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
-            vsIsHost = true;
-
-            const codeChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-            let roomCode = '';
-            for (let i = 0; i < 8; i++) {
-                roomCode += codeChars.charAt(Math.floor(Math.random() * codeChars.length));
-            }
-
-            vsRoomId = roomCode;
-
-            // Initialize PeerJS for Host P2P Data Channels
-            initPeerJSForHost(roomCode);
-
-            const initialData = {
-                code: vsRoomId,
-                hostId: vsUserId,
-                hostPeerId: `tr100_host_${vsRoomId}`,
-                status: 'waiting',
-                courseId: 'aiueo',
-                members: {
-                    [vsUserId]: {
-                        id: vsUserId,
-                        name: vsUserNickname,
-                        isHost: true,
-                        score: 0,
-                        wpm: 0,
-                        finished: false,
-                        unlocked: state.unlockedCourses || ['aiueo', 'dakuon_handakuon', 'sokuon_youon']
-                    }
-                },
-                firstFinishTime: null,
-                firstFinishName: null,
-                createdAt: Date.now()
-            };
-
-            vsRoomData = initialData;
-            broadcastLocalVsRoom(vsRoomId, initialData);
-            subscribeMqttVsTopic(vsRoomId);
-            startVsHeartbeat(vsRoomId);
-
-            // Firebase Realtime Database setup with onDisconnect().remove()
-            if (window.rtdb && window.rtdb.db) {
-                try {
-                    const roomRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}`);
-                    await window.rtdb.set(roomRef, initialData);
-                    // Automatic room cleanup when Host disconnects
-                    window.rtdb.onDisconnect(roomRef).remove();
-                } catch(e) {
-                    console.warn("RTDB set error:", e);
-                }
-            }
-
-            subscribeVsRoom(vsRoomId);
-            enterVsRoomUI();
-        }
-
-        async function joinVsRoom() {
-            await initAuth();
-            const nickname = document.getElementById('vs-nickname-input').value.trim();
-            const rawCode = document.getElementById('vs-room-code-input').value;
-            const code = normalizeCode(rawCode);
-
-            if (!nickname) {
-                showMessage("ニックネームを入力してください！");
-                return;
-            }
-            if (!code || code.length !== 8) {
-                showMessage("8桁の対戦コードを正しく入力してください！");
-                return;
-            }
-
-            vsUserNickname = nickname;
-            state.userNickname = nickname;
-            saveState();
-
-            vsUserId = currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
-            vsIsHost = false;
-            vsRoomId = code;
-
-            // Initialize PeerJS for Guest P2P Data Channel
-            initPeerJSForGuest(code);
-
-            subscribeMqttVsTopic(code);
-            startVsHeartbeat(code);
-
-            const myMemberData = {
-                id: vsUserId,
-                name: vsUserNickname,
-                isHost: false,
-                score: 0,
-                wpm: 0,
-                finished: false,
-                unlocked: state.unlockedCourses || ['aiueo', 'dakuon_handakuon', 'sokuon_youon']
-            };
-
-            const client = initMqtt();
-            if (client && client.connected) {
-                client.publish(`typing_rush_100/vs/${code}`, JSON.stringify({
-                    type: 'JOIN_REQ',
-                    user: myMemberData
-                }));
-                client.publish(`typing_rush_100/vs/${code}`, JSON.stringify({ type: 'PING' }));
-            }
-
-            let room = localVsRooms[code] || null;
-
-            if (!room) {
-                try {
-                    const stored = localStorage.getItem(`typing_vs_room_${code}`);
-                    if (stored) room = safeJsonParse(stored, null);
-                } catch(e) {}
-            }
-
-            for (let i = 0; i < 12; i++) {
-                if (localVsRooms[code] || vsRoomData) {
-                    room = localVsRooms[code] || vsRoomData;
-                    break;
-                }
-                await new Promise(r => setTimeout(r, 100));
-            }
-
-            if (!room) {
-                room = {
-                    code: code,
-                    hostId: 'unknown',
-                    status: 'waiting',
-                    courseId: 'aiueo',
-                    members: {
-                        [vsUserId]: myMemberData
-                    }
-                };
-            }
-
-            room.members = room.members || {};
-            room.members[vsUserId] = myMemberData;
-
-            vsRoomData = room;
-            broadcastLocalVsRoom(code, room);
-
-            // RTDB member registration & onDisconnect handler
-            if (window.rtdb && window.rtdb.db) {
-                try {
-                    const memberRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${code}/members/${vsUserId}`);
-                    await window.rtdb.set(memberRef, myMemberData);
-                    window.rtdb.onDisconnect(memberRef).remove();
-                } catch(e) {}
-            }
-
-            subscribeVsRoom(vsRoomId);
-            enterVsRoomUI();
-        }
-
-        function subscribeVsRoom(roomId) {
-            if (vsUnsubscribe) {
-                vsUnsubscribe();
-                vsUnsubscribe = null;
-            }
-
-            window.onLocalVsRoomUpdate = (updatedData) => {
-                if (!updatedData || updatedData.status === 'closed') {
-                    if (vsRoomData && vsRoomData.status !== 'closed') {
-                        showMessage("対戦部屋が解散されました。");
-                        exitToTop();
-                    }
-                    return;
-                }
-
-                vsRoomData = updatedData;
-                updateVsRoomUI();
-
-                if (vsRoomData.status === 'waiting') {
-                    document.getElementById('vs-result-modal').classList.add('hidden');
-                    if (!document.getElementById('play-screen').classList.contains('hidden')) {
-                        document.getElementById('play-screen').classList.add('hidden');
-                        document.getElementById('vs-screen').classList.remove('hidden');
-                        document.getElementById('vs-room-view').classList.remove('hidden');
-                    }
-                } else if (vsRoomData.status === 'playing') {
-                    document.getElementById('vs-result-modal').classList.add('hidden');
-                    if (!game.active && document.getElementById('play-screen').classList.contains('hidden')) {
-                        state.selectedCourse = vsRoomData.courseId;
-                        game.isVsMode = true;
-                        startGame();
-                    }
-                }
-
-                if (game.active && vsRoomData.firstFinishTime) {
-                    handleVsCountdownTrigger(vsRoomData.firstFinishTime, vsRoomData.firstFinishName);
-                }
-            };
-
-            // Subscribe to Realtime Database onValue listener
-            if (window.rtdb && window.rtdb.db) {
-                try {
-                    const roomRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${roomId}`);
-                    window.rtdb.onValue(roomRef, (snapshot) => {
-                        const data = snapshot.val();
-                        if (!data) {
-                            window.onLocalVsRoomUpdate(null);
-                        } else {
-                            localVsRooms[roomId] = data;
-                            broadcastLocalVsRoom(roomId, data);
-                            window.onLocalVsRoomUpdate(data);
-                        }
-                    });
-                } catch(e) {}
-            } else if (localVsRooms[roomId]) {
-                window.onLocalVsRoomUpdate(localVsRooms[roomId]);
-            }
-        }
-
-        function enterVsRoomUI() {
-            document.getElementById('vs-lobby-view').classList.add('hidden');
-            document.getElementById('vs-room-view').classList.remove('hidden');
-            document.getElementById('vs-room-code-display').textContent = vsRoomId;
-
-            if (vsIsHost) {
-                document.getElementById('vs-start-game-btn').classList.remove('hidden');
-                document.getElementById('vs-random-course-btn').classList.remove('hidden');
-                document.getElementById('vs-course-select').disabled = false;
-                document.getElementById('vs-guest-waiting-msg').classList.add('hidden');
-            } else {
-                document.getElementById('vs-start-game-btn').classList.add('hidden');
-                document.getElementById('vs-random-course-btn').classList.add('hidden');
-                document.getElementById('vs-course-select').disabled = true;
-                document.getElementById('vs-guest-waiting-msg').classList.remove('hidden');
-            }
-
-            updateVsRoomUI();
-        }
-
-        function updateVsRoomUI() {
-            if (!vsRoomData) return;
-
-            const members = Object.values(vsRoomData.members || {});
-            document.getElementById('vs-member-count').textContent = members.length;
-
-            const memberList = document.getElementById('vs-member-list');
-            memberList.innerHTML = '';
-
-            members.forEach(m => {
-                const card = document.createElement('div');
-                card.className = 'bg-slate-50 border border-slate-200 px-2 py-1 rounded-xl text-xs font-bold flex items-center justify-between shadow-sm';
-                card.innerHTML = `
-                    <span class="truncate max-w-[100px] text-slate-800">${m.name}</span>
-                    ${m.isHost ? '<span class="text-[9px] bg-purple-500 text-white px-1.5 py-0.2 rounded-full font-black">👑 ホスト</span>' : ''}
-                `;
-                memberList.appendChild(card);
-            });
-
-            const allCourses = [];
-            COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
-
-            // Union condition: Course unlocked if ANY joined member has unlocked it
-            let unionUnlocked = new Set();
-            members.forEach(m => {
-                if (m.unlocked && Array.isArray(m.unlocked)) {
-                    m.unlocked.forEach(id => unionUnlocked.add(id));
-                }
-            });
-
-            const courseSelect = document.getElementById('vs-course-select');
-            const currentSelectedVal = courseSelect.value;
-            courseSelect.innerHTML = '';
-
-            allCourses.forEach(c => {
-                const isAvailable = unionUnlocked.has(c.id);
-                const opt = document.createElement('option');
-                opt.value = c.id;
-                opt.disabled = !isAvailable;
-                opt.textContent = (isAvailable ? '' : '🔒 ') + getPlainTitle(c.name);
-                courseSelect.appendChild(opt);
-            });
-
-            if (currentSelectedVal && unionUnlocked.has(currentSelectedVal)) {
-                courseSelect.value = currentSelectedVal;
-            } else if (vsRoomData.courseId && unionUnlocked.has(vsRoomData.courseId)) {
-                courseSelect.value = vsRoomData.courseId;
-            } else {
-                const firstAvailable = allCourses.find(c => unionUnlocked.has(c.id));
-                if (firstAvailable) courseSelect.value = firstAvailable.id;
-            }
-        }
-
-        async function startVsGameHost() {
-            if (!vsIsHost || !vsRoomId) return;
-            const courseId = document.getElementById('vs-course-select').value;
-
-            if (vsRoomData) {
-                vsRoomData.status = 'playing';
-                vsRoomData.courseId = courseId;
-                vsRoomData.firstFinishTime = null;
-                vsRoomData.firstFinishName = null;
-
-                Object.keys(vsRoomData.members).forEach(id => {
-                    vsRoomData.members[id].score = 0;
-                    vsRoomData.members[id].wpm = 0;
-                    vsRoomData.members[id].finished = false;
-                });
-
-                broadcastLocalVsRoom(vsRoomId, vsRoomData);
-            }
-
-            if (window.rtdb && window.rtdb.db) {
-                try {
-                    const roomRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}`);
-                    await window.rtdb.update(roomRef, {
-                        status: 'playing',
-                        courseId: courseId,
-                        firstFinishTime: null,
-                        firstFinishName: null
-                    });
-                } catch (e) {}
-            }
-        }
-
-        async function updateVsLiveScore() {
-            if (!vsRoomId || !vsUserId) return;
-            if (vsRoomData && vsRoomData.members[vsUserId]) {
-                vsRoomData.members[vsUserId].score = game.score;
-                broadcastLocalVsRoom(vsRoomId, vsRoomData);
-            }
-
-            // High-speed P2P WebRTC data transmission
-            broadcastP2PToAll({
-                type: 'P2P_SCORE',
-                userId: vsUserId,
-                score: game.score
-            });
-
-            const client = initMqtt();
-            if (client && client.connected) {
-                client.publish(`typing_rush_100/vs/${vsRoomId}`, JSON.stringify({
-                    type: 'SCORE_UPDATE',
-                    userId: vsUserId,
-                    score: game.score
-                }));
-            }
-        }
-
-        function handleVsCountdownTrigger(firstFinishTime, winnerName) {
-            const noticeEl = document.getElementById('vs-10s-notice');
-            const noticeText = document.getElementById('vs-notice-text');
-            const timerBox = document.getElementById('timer-box');
-
-            noticeEl.classList.remove('hidden');
-            if (winnerName) {
-                noticeText.textContent = `🎉 ${winnerName}さんがクリア！あと 10 秒で対戦が終了します！`;
-            } else {
-                noticeText.textContent = `クリア者が出ました！あと 10 秒で対戦が終了します！`;
-            }
-
-            timerBox.className = 'text-rose-600 bg-rose-100 px-2.5 py-1 rounded-lg border border-rose-300 transition-colors animate-pulse';
-
-            if (!game.vsEndTime) {
-                game.vsEndTime = Math.min(Date.now() + 10000, game.startTime + state.selectedTime * 1000);
-            }
-            
-            const remaining = Math.max(0, Math.ceil((game.vsEndTime - Date.now()) / 1000));
-            game.timer = remaining;
-            document.getElementById('game-timer').textContent = remaining;
-
-            if (remaining <= 0) {
-                endGame();
-            }
-        }
-
-        async function submitVsFinalResult(finalScore, wpm) {
-            if (vsRoomId && vsUserId) {
-                if (vsRoomData && vsRoomData.members[vsUserId]) {
-                    vsRoomData.members[vsUserId].score = finalScore;
-                    vsRoomData.members[vsUserId].wpm = wpm;
-                    vsRoomData.members[vsUserId].finished = true;
-                    if (!vsRoomData.firstFinishTime) {
-                        vsRoomData.firstFinishTime = Date.now();
-                        vsRoomData.firstFinishName = vsUserNickname;
-                    }
-                    broadcastLocalVsRoom(vsRoomId, vsRoomData);
-                }
-
-                if (window.rtdb && window.rtdb.db) {
-                    try {
-                        const memberRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}/members/${vsUserId}`);
-                        await window.rtdb.update(memberRef, { score: finalScore, wpm: wpm, finished: true });
-                    } catch(e) {}
-                }
-            }
-            setTimeout(showVsResultModal, 800);
-        }
-
-        function showVsResultModal() {
-            const modal = document.getElementById('vs-result-modal');
-            const members = Object.values(vsRoomData ? vsRoomData.members : {});
-
-            members.sort((a, b) => b.score - a.score);
-
-            const myRank = members.findIndex(m => m.id === vsUserId) + 1;
-            const totalCount = members.length;
-
-            const headline = document.getElementById('vs-outcome-headline');
-            const rankBadge = document.getElementById('vs-user-rank-badge');
-
-            if (totalCount === 2) {
-                if (members[0].score === members[1].score) {
-                    headline.textContent = '🤝 ひきわけ！';
-                    headline.className = 'text-3xl sm:text-4xl font-black mb-2 text-indigo-600';
-                } else if (myRank === 1) {
-                    headline.textContent = '🎉 勝ち！';
-                    headline.className = 'text-3xl sm:text-4xl font-black mb-2 text-amber-500';
-                    try { confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } }); } catch(e){}
-                } else {
-                    headline.textContent = '😭 負け...';
-                    headline.className = 'text-3xl sm:text-4xl font-black mb-2 text-slate-500';
-                }
-                const opponent = members.find(m => m.id !== vsUserId);
-                rankBadge.textContent = `あなた: ${game.score} pt / 相手 (${opponent ? opponent.name : '相手'}): ${opponent ? opponent.score : 0} pt`;
-            } else {
-                headline.textContent = '対戦結果';
-                headline.className = 'text-3xl sm:text-4xl font-black mb-2 text-purple-600';
-                rankBadge.textContent = `あなたの順位: ${myRank}位 (${totalCount}人中)`;
-            }
-
-            const leaderboard = document.getElementById('vs-final-leaderboard');
-            leaderboard.innerHTML = '';
-
-            const top3 = members.slice(0, 3);
-            top3.forEach((m, idx) => {
-                const item = document.createElement('div');
-                item.className = 'flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200 font-bold text-xs sm:text-sm';
-                item.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-full ${idx === 0 ? 'bg-amber-400 text-white' : idx === 1 ? 'bg-slate-300 text-slate-800' : 'bg-amber-700 text-white'} font-black text-xs flex items-center justify-center">${idx + 1}</span>
-                        <span class="text-slate-800">${m.name}</span>
-                    </div>
-                    <span class="text-amber-600 font-extrabold">${m.score} pt</span>
-                `;
-                leaderboard.appendChild(item);
-            });
-
-            const rematchBtn = document.getElementById('vs-rematch-btn');
-            if (vsIsHost) {
-                rematchBtn.classList.remove('hidden');
-            } else {
-                rematchBtn.classList.add('hidden');
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        async function leaveVsRoom() {
-            if (vsHeartbeatTimer) {
-                clearInterval(vsHeartbeatTimer);
-                vsHeartbeatTimer = null;
-            }
-
-            if (vsUnsubscribe) {
-                vsUnsubscribe();
-                vsUnsubscribe = null;
-            }
-
-            if (vsRoomId && vsUserId) {
-                if (window.rtdb && window.rtdb.db) {
-                    try {
-                        const roomRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}`);
-                        if (vsIsHost) {
-                            await window.rtdb.remove(roomRef);
-                        } else {
-                            const memberRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}/members/${vsUserId}`);
-                            await window.rtdb.remove(memberRef);
-                        }
-                    } catch(e) {}
-                }
-
-                delete localVsRooms[vsRoomId];
-                try {
-                    localStorage.removeItem(`typing_vs_room_${vsRoomId}`);
-                } catch(e) {}
-            }
-
-            vsRoomId = null;
-            vsUserId = null;
-            vsRoomData = null;
-            vsIsHost = false;
-        }
-
-        async function createGroup() {
-            await initAuth();
-            const uId = currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
-            const nickname = document.getElementById('group-user-nickname').value.trim() || getRandomNickname();
-
-            state.userNickname = nickname;
-            saveState();
-
-            const codeChars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-            let gCode = '';
-            for (let i = 0; i < 8; i++) {
-                gCode += codeChars.charAt(Math.floor(Math.random() * codeChars.length));
-            }
-
-            const initialGroup = {
-                code: gCode,
-                name: `${nickname}のグループ`,
-                ownerId: uId,
-                createdAt: Date.now(),
-                settings: {
-                    showRanking: false,
-                    showTotalScore: false,
-                    showLastPlayedAt: false,
-                    showLastScore: false
-                },
-                members: {
-                    [uId]: {
-                        id: uId,
-                        nickname: nickname,
-                        isOwner: true,
-                        totalScore: state.totalScore || 0,
-                        lastScore: 0,
-                        lastPlayedAt: '-',
-                        memo: '',
-                        order: 1
-                    }
-                }
-            };
-
-            try {
-                if (firebaseDb) {
-                    const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                    const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', gCode);
-                    await setDoc(gRef, initialGroup);
-                }
-
-                if (!state.joinedGroupIds.includes(gCode)) {
-                    state.joinedGroupIds.push(gCode);
-                }
-                state.selectedGroupId = gCode;
-                saveState();
-
-                showMessage(`新しいグループを作りました！（コード: ${gCode}）`);
-                renderGroupModal();
-            } catch (e) {
-                showMessage("グループの作成に失敗しました。");
-            }
-        }
-
-        async function joinGroup() {
-            await initAuth();
-            const rawCode = document.getElementById('group-join-code-input').value;
-            const gCode = normalizeCode(rawCode);
-
-            if (!gCode || gCode.length !== 8) {
-                showMessage("8桁のグループコードを正しく入力してください！");
-                return;
-            }
-
-            const uId = currentUser?.uid || ('user_' + Math.random().toString(36).substr(2, 9));
-            const nickname = document.getElementById('group-user-nickname').value.trim() || getRandomNickname();
-
-            state.userNickname = nickname;
-            saveState();
-
-            try {
-                if (firebaseDb) {
-                    const { doc, getDoc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                    const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', gCode);
-                    const snap = await getDoc(gRef);
-
-                    if (!snap.exists()) {
-                        showMessage("指定されたグループが見つかりません。");
-                        return;
-                    }
-
-                    const gData = snap.data();
-                    const members = gData.members || {};
-                    const currentMemberCount = Object.keys(members).length;
-
-                    members[uId] = members[uId] || {
-                        id: uId,
-                        nickname: nickname,
-                        isOwner: (gData.ownerId === uId),
-                        totalScore: state.totalScore || 0,
-                        lastScore: 0,
-                        lastPlayedAt: '-',
-                        memo: '',
-                        order: currentMemberCount + 1
-                    };
-
-                    await updateDoc(gRef, { [`members.${uId}`]: members[uId] });
-                }
-
-                if (!state.joinedGroupIds.includes(gCode)) {
-                    state.joinedGroupIds.push(gCode);
-                }
-                state.selectedGroupId = gCode;
-                saveState();
-
-                document.getElementById('group-join-code-input').value = '';
-                showMessage("グループに参加しました！");
-                renderGroupModal();
-            } catch (e) {
-                showMessage("グループへの参加に失敗しました。");
-            }
-        }
-
-        async function leaveCurrentGroup() {
-            if (!state.selectedGroupId) return;
-            await initAuth();
-            const uId = currentUser?.uid;
-            const gCode = state.selectedGroupId;
-
-            try {
-                if (firebaseDb) {
-                    const { doc, getDoc, updateDoc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                    const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', gCode);
-                    const snap = await getDoc(gRef);
-
-                    if (snap.exists()) {
-                        const gData = snap.data();
-                        if (gData.members && gData.members[uId]) {
-                            delete gData.members[uId];
-                            const remaining = Object.keys(gData.members).length;
-                            if (remaining === 0) {
-                                await deleteDoc(gRef);
-                            } else {
-                                await updateDoc(gRef, { members: gData.members });
-                            }
-                        }
-                    }
-                }
-            } catch (e) {}
-
-            state.joinedGroupIds = state.joinedGroupIds.filter(id => id !== gCode);
-            state.selectedGroupId = state.joinedGroupIds[0] || '';
-            saveState();
-
-            showMessage("グループを脱退しました。");
-            renderGroupModal();
-        }
-
-        function subscribeGroup(gCode) {
-            if (groupUnsubscribe) {
-                groupUnsubscribe();
-                groupUnsubscribe = null;
-            }
-
-            if (!gCode) return;
-
-            try {
-                if (firebaseDb) {
-                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ doc, onSnapshot }) => {
-                        const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', gCode);
-                        groupUnsubscribe = onSnapshot(gRef, (snap) => {
-                            if (!snap.exists()) {
-                                activeGroupData = null;
-                                state.joinedGroupIds = state.joinedGroupIds.filter(id => id !== gCode);
-                                state.selectedGroupId = state.joinedGroupIds[0] || '';
-                                saveState();
-                                renderGroupModal();
-                                return;
-                            }
-
-                            activeGroupData = snap.data();
-                            updateGroupModalContent();
-                        });
-                    });
-                }
-            } catch(e) {}
-        }
-
-        async function renderGroupModal() {
-            await initAuth();
-
-            document.getElementById('group-user-nickname').value = state.userNickname || getRandomNickname();
-
-            const select = document.getElementById('group-select-dropdown');
-            select.innerHTML = '<option value="">グループ未選択</option>';
-
-            if (!state.selectedGroupId && state.joinedGroupIds.length > 0) {
-                state.selectedGroupId = state.joinedGroupIds[0];
-            }
-
-            state.joinedGroupIds.forEach(id => {
-                const opt = document.createElement('option');
-                opt.value = id;
-                opt.textContent = `コード: ${id}`;
-                if (id === state.selectedGroupId) opt.selected = true;
-                select.appendChild(opt);
-            });
-
-            if (state.selectedGroupId) {
-                document.getElementById('group-active-view').classList.remove('hidden');
-                subscribeGroup(state.selectedGroupId);
-            } else {
-                document.getElementById('group-active-view').classList.add('hidden');
-            }
-        }
-
-        function updateGroupModalContent() {
-            if (!activeGroupData) return;
-            const uId = currentUser?.uid;
-            const isOwner = (activeGroupData.ownerId === uId);
-
-            document.getElementById('group-display-name').textContent = activeGroupData.name || 'グループ';
-            document.getElementById('group-display-code').textContent = activeGroupData.code || '------';
-            
-            const roleBadge = document.getElementById('group-role-badge');
-            if (isOwner) {
-                roleBadge.textContent = '👑 オーナー';
-                roleBadge.className = 'ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800';
-            } else {
-                roleBadge.textContent = 'メンバー';
-                roleBadge.className = 'ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-700';
-            }
-
-            const ownerSettingsBox = document.getElementById('group-owner-settings-box');
-            if (isOwner) {
-                ownerSettingsBox.classList.remove('hidden');
-                const st = activeGroupData.settings || {};
-                document.getElementById('privacy-ranking').checked = !!st.showRanking;
-                document.getElementById('privacy-total-score').checked = !!st.showTotalScore;
-                document.getElementById('privacy-last-played').checked = !!st.showLastPlayedAt;
-                document.getElementById('privacy-last-score').checked = !!st.showLastScore;
-            } else {
-                ownerSettingsBox.classList.add('hidden');
-            }
-
-            const membersMap = activeGroupData.members || {};
-            let membersList = Object.values(membersMap);
-
-            if (groupSortMode === 'score') {
-                membersList.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
-            } else if (groupSortMode === 'memo') {
-                membersList.sort((a, b) => (a.memo || '').localeCompare(b.memo || '', undefined, { numeric: true }));
-            } else if (groupSortMode === 'custom') {
-                membersList.sort((a, b) => (a.order || 0) - (b.order || 0));
-            }
-
-            const listContainer = document.getElementById('group-member-list-container');
-            listContainer.innerHTML = '';
-
-            const settings = activeGroupData.settings || {};
-
-            membersList.forEach((m, idx) => {
-                const isMe = (m.id === uId);
-                const card = document.createElement('div');
-                card.className = `p-2.5 rounded-xl border shadow-sm flex flex-wrap items-center justify-between text-xs font-bold gap-2 ${
-                    isMe ? 'bg-purple-50 border-purple-200' : 'bg-white border-slate-200'
-                }`;
-
-                const displayRank = (isOwner || settings.showRanking) ? `${idx + 1}位` : '🔒 非公開';
-                const displayTotalScore = (isOwner || settings.showTotalScore) ? `${m.totalScore || 0} pt` : '🔒 非公開';
-                const displayLastPlayed = (isOwner || settings.showLastPlayedAt) ? (m.lastPlayedAt || '-') : '🔒 非公開';
-                const displayLastScore = (isOwner || settings.showLastScore) ? `${m.lastScore || 0} pt` : '🔒 非公開';
-
-                let ownerMemoHtml = '';
-                let manualOrderHtml = '';
-
-                if (isOwner) {
-                    ownerMemoHtml = `<input type="text" data-member-id="${m.id}" value="${m.memo || ''}" class="member-memo-input px-2 py-0.5 border border-slate-300 rounded text-[11px] w-20 font-normal focus:outline-none focus:ring-1 focus:ring-purple-400" placeholder="メモ/番号">`;
-                    manualOrderHtml = `
-                        <div class="flex gap-0.5">
-                            <button data-move="up" data-member-id="${m.id}" class="move-order-btn text-[10px] bg-slate-100 hover:bg-slate-200 px-1.5 py-0.5 rounded">▲</button>
-                            <button data-move="down" data-member-id="${m.id}" class="move-order-btn text-[10px] bg-slate-100 hover:bg-slate-200 px-1.5 py-0.5 rounded">▼</button>
-                        </div>
-                    `;
-                } else if (m.memo) {
-                    ownerMemoHtml = `<span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">メモ: ${m.memo}</span>`;
-                }
-
-                card.innerHTML = `
-                    <div class="flex items-center gap-2 truncate">
-                        <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-800 font-black text-xs flex items-center justify-center shrink-0">${displayRank}</span>
-                        <span class="truncate text-slate-800 font-extrabold max-w-[110px]">${m.nickname || '名無し'} ${m.isOwner ? '👑' : ''} ${isMe ? '(自分)' : ''}</span>
-                        ${ownerMemoHtml}
-                    </div>
-                    <div class="flex items-center gap-2 text-right shrink-0">
-                        <div>
-                            <div class="text-[9px] text-slate-400">累計</div>
-                            <div class="text-amber-600 font-black">${displayTotalScore}</div>
-                        </div>
-                        <div>
-                            <div class="text-[9px] text-slate-400">最終プレイ/結果</div>
-                            <div class="text-slate-600 text-[10px]">${displayLastPlayed} (${displayLastScore})</div>
-                        </div>
-                        ${manualOrderHtml}
-                    </div>
-                `;
-                listContainer.appendChild(card);
-            });
-        }
-
-        async function updateGroupPrivacySettings(key, value) {
-            if (!activeGroupData || activeGroupData.ownerId !== currentUser?.uid) return;
-            try {
-                if (firebaseDb) {
-                    const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-                    const gRef = doc(firebaseDb, 'artifacts', appId, 'public', 'data', 'groups', activeGroupData.code);
-                    await updateDoc(gRef, { [`settings.${key}`]: value });
-                }
-            } catch (e) {}
         }
 
         function renderStatsModal(sortBy = 'score') {
@@ -3047,7 +1907,6 @@
             const allCourses = [];
             COURSE_CATEGORIES.forEach(cat => cat.courses.forEach(c => allCourses.push(c)));
 
-            // Filter UNLOCKED courses ONLY
             const unlockedCoursesList = allCourses.filter(course => state.unlockedCourses && state.unlockedCourses.includes(course.id));
 
             if (unlockedCoursesList.length === 0) {
@@ -3150,6 +2009,7 @@
 
         function setupSettingsModalUI() {
             const soundGroup = document.getElementById('sound-mode-group');
+            const bgmBtn = document.getElementById('modal-bgm-btn');
             const rubyBtn = document.getElementById('modal-ruby-btn');
 
             const updateModalStateUI = () => {
@@ -3161,6 +2021,16 @@
                             btn.className = 'sound-btn px-2 py-1.5 rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 font-bold text-xs';
                         }
                     });
+                }
+
+                if (bgmBtn) {
+                    if (state.bgmOn) {
+                        bgmBtn.textContent = 'ON';
+                        bgmBtn.className = 'px-4 py-1 rounded-lg text-white font-black bg-pink-500 hover:bg-pink-600 transition shadow-sm text-xs';
+                    } else {
+                        bgmBtn.textContent = 'OFF';
+                        bgmBtn.className = 'px-4 py-1 rounded-lg text-slate-600 font-bold bg-slate-200 hover:bg-slate-300 transition text-xs';
+                    }
                 }
 
                 if (state.rubyOn) {
@@ -3207,11 +2077,29 @@
                     btn.onclick = () => {
                         state.soundMode = btn.dataset.sound;
                         sound.soundMode = state.soundMode;
+                        if (state.soundMode === 'OFF') {
+                            sound.stopBgm();
+                        }
                         if (state.soundMode !== 'OFF') sound.playType();
                         saveState();
                         updateModalStateUI();
                     };
                 });
+            }
+
+            if (bgmBtn) {
+                bgmBtn.onclick = () => {
+                    state.bgmOn = !state.bgmOn;
+                    sound.bgmOn = state.bgmOn;
+                    if (!state.bgmOn) {
+                        sound.stopBgm();
+                    } else if (game.active) {
+                        sound.startBgm();
+                    }
+                    sound.playTick();
+                    saveState();
+                    updateModalStateUI();
+                };
             }
 
             rubyBtn.onclick = () => {
@@ -3277,8 +2165,8 @@
 
                     if (game.currWord) {
                         const kanji = game.currWord[0];
-                        const kana = game.currWord[1];
-                        document.getElementById('target-display').innerHTML = state.rubyOn ? `<ruby>${kanji}<rt>${kana}</rt></ruby>` : kanji;
+                        const ruby = game.currWord[1];
+                        document.getElementById('target-display').innerHTML = state.rubyOn ? `<ruby>${kanji}<rt>${ruby}</rt></ruby>` : kanji;
                     }
                 };
             }
@@ -3328,63 +2216,6 @@
                 renderCategories();
             };
 
-            document.getElementById('open-group-btn').onclick = () => {
-                sound.playTick();
-                renderGroupModal();
-                document.getElementById('group-modal').classList.remove('hidden');
-            };
-
-            document.getElementById('close-group-btn').onclick = () => {
-                sound.playTick();
-                document.getElementById('group-modal').classList.add('hidden');
-            };
-
-            document.getElementById('group-change-nickname-btn').onclick = () => {
-                sound.playTick();
-                const newNick = getRandomNickname();
-                document.getElementById('group-user-nickname').value = newNick;
-                state.userNickname = newNick;
-                saveState();
-            };
-
-            document.getElementById('group-user-nickname').onchange = (e) => {
-                state.userNickname = e.target.value.trim() || getRandomNickname();
-                saveState();
-            };
-
-            document.getElementById('group-create-btn').onclick = () => createGroup();
-            document.getElementById('group-join-btn').onclick = () => joinGroup();
-            document.getElementById('group-leave-btn').onclick = () => leaveCurrentGroup();
-
-            document.getElementById('group-copy-code-btn').onclick = () => {
-                if (state.selectedGroupId) {
-                    copyToClipboard(state.selectedGroupId, `グループコードをコピーしました: ${state.selectedGroupId}`);
-                }
-            };
-
-            document.getElementById('group-select-dropdown').onchange = (e) => {
-                state.selectedGroupId = e.target.value;
-                saveState();
-                renderGroupModal();
-            };
-
-            document.getElementById('privacy-ranking').onchange = (e) => updateGroupPrivacySettings('showRanking', e.target.checked);
-            document.getElementById('privacy-total-score').onchange = (e) => updateGroupPrivacySettings('showTotalScore', e.target.checked);
-            document.getElementById('privacy-last-played').onchange = (e) => updateGroupPrivacySettings('showLastPlayedAt', e.target.checked);
-            document.getElementById('privacy-last-score').onchange = (e) => updateGroupPrivacySettings('showLastScore', e.target.checked);
-
-            document.querySelectorAll('#group-sort-buttons .group-sort-btn').forEach(btn => {
-                btn.onclick = () => {
-                    sound.playTick();
-                    document.querySelectorAll('#group-sort-buttons .group-sort-btn').forEach(b => {
-                        b.className = 'group-sort-btn px-2.5 py-1 rounded-lg bg-white text-slate-600 border border-slate-300';
-                    });
-                    btn.className = 'group-sort-btn px-2.5 py-1 rounded-lg bg-purple-600 text-white font-black';
-                    groupSortMode = btn.dataset.sort;
-                    updateGroupModalContent();
-                };
-            });
-
             document.getElementById('open-stats-btn').onclick = () => {
                 sound.playTick();
                 renderStatsModal('score');
@@ -3410,105 +2241,12 @@
             };
             document.getElementById('res-return-btn').onclick = () => exitToTop();
 
-            document.getElementById('open-vs-btn').onclick = () => openVsLobby();
-            document.getElementById('exit-vs-btn').onclick = () => exitToTop();
-            document.getElementById('vs-random-name-btn').onclick = () => {
-                sound.playTick();
-                document.getElementById('vs-nickname-input').value = getRandomNickname();
-            };
-
-            document.getElementById('vs-create-room-btn').onclick = () => createVsRoom();
-            document.getElementById('vs-join-room-btn').onclick = () => joinVsRoom();
-            document.getElementById('vs-leave-room-btn').onclick = () => exitToTop();
-            document.getElementById('vs-start-game-btn').onclick = () => startVsGameHost();
-
-            document.getElementById('vs-random-course-btn').onclick = () => {
-                sound.playDrumroll(1500);
-                const select = document.getElementById('vs-course-select');
-                const availableOptions = [...select.options].filter(opt => !opt.disabled);
-                if (availableOptions.length === 0) return;
-
-                let count = 0;
-                const spin = setInterval(() => {
-                    const randomOpt = availableOptions[Math.floor(Math.random() * availableOptions.length)];
-                    select.value = randomOpt.value;
-                    count += 1;
-                    if (count > 15) {
-                        clearInterval(spin);
-                        sound.playFanfare();
-                    }
-                }, 80);
-            };
-
-            document.getElementById('vs-copy-code-btn').onclick = () => {
-                if (vsRoomId) {
-                    copyToClipboard(vsRoomId, "部屋コードをコピーしました: " + vsRoomId);
-                }
-            };
-
-            document.getElementById('vs-rematch-btn').onclick = async () => {
-                document.getElementById('vs-result-modal').classList.add('hidden');
-                document.getElementById('vs-room-view').classList.remove('hidden');
-                document.getElementById('play-screen').classList.add('hidden');
-
-                if (vsRoomId) {
-                    if (vsRoomData) {
-                        vsRoomData.status = 'waiting';
-                        vsRoomData.firstFinishTime = null;
-                        vsRoomData.firstFinishName = null;
-                        broadcastLocalVsRoom(vsRoomId, vsRoomData);
-                    }
-                    if (window.rtdb && window.rtdb.db) {
-                        try {
-                            const roomRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}`);
-                            await window.rtdb.update(roomRef, {
-                                status: 'waiting',
-                                firstFinishTime: null,
-                                firstFinishName: null
-                            });
-                        } catch(e) {}
-                    }
-                }
-            };
-
-            document.getElementById('vs-return-lobby-btn').onclick = async () => {
-                document.getElementById('vs-result-modal').classList.add('hidden');
-                document.getElementById('vs-room-view').classList.remove('hidden');
-                document.getElementById('play-screen').classList.add('hidden');
-
-                if (vsIsHost && vsRoomId) {
-                    if (vsRoomData) {
-                        vsRoomData.status = 'waiting';
-                        vsRoomData.firstFinishTime = null;
-                        vsRoomData.firstFinishName = null;
-                        broadcastLocalVsRoom(vsRoomId, vsRoomData);
-                    }
-                    if (window.rtdb && window.rtdb.db) {
-                        try {
-                            const roomRef = window.rtdb.ref(window.rtdb.db, `vs_rooms/${vsRoomId}`);
-                            await window.rtdb.update(roomRef, {
-                                status: 'waiting',
-                                firstFinishTime: null,
-                                firstFinishName: null
-                            });
-                        } catch(e) {}
-                    }
-                }
-            };
-
-            window.addEventListener('beforeunload', () => {
-                if (game.isVsMode || vsRoomId) {
-                    leaveVsRoom();
-                }
-            });
-
             window.addEventListener('keydown', (e) => {
                 if (game.active) {
                     handleKeyPress(e);
                 } else if (!document.getElementById('top-screen').classList.contains('hidden') && 
                            document.getElementById('settings-modal').classList.contains('hidden') && 
                            document.getElementById('stats-modal').classList.contains('hidden') && 
-                           document.getElementById('group-modal').classList.contains('hidden') && 
                            document.getElementById('unlock-ceremony-modal').classList.contains('hidden') && 
                            e.key === ' ') {
                     e.preventDefault();
